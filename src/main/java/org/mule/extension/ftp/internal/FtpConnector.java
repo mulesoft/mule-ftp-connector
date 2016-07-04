@@ -4,12 +4,15 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.api;
+package org.mule.extension.ftp.internal;
 
-import org.mule.extension.ftp.internal.FtpFilePredicateBuilder;
+import org.mule.extension.ftp.api.ftp.ClassicFtpFileAttributes;
+import org.mule.extension.ftp.api.FtpFilePredicateBuilder;
 import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpConnectionProvider;
+import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
 import org.mule.extension.ftp.internal.sftp.connection.SftpConnectionProvider;
 import org.mule.runtime.core.api.connector.ConnectionManager;
+import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.Parameter;
@@ -31,6 +34,7 @@ import javax.inject.Inject;
 @Operations({StandardFileSystemOperations.class})
 @SubTypeMapping(baseType = FilePredicateBuilder.class, subTypes = FtpFilePredicateBuilder.class)
 @Providers({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
+@Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class})
 public class FtpConnector extends FileConnectorConfig
 {
 

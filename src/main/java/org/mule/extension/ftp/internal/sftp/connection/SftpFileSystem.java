@@ -4,12 +4,12 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.api.sftp;
+package org.mule.extension.ftp.internal.sftp.connection;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.mule.extension.ftp.api.FtpConnector.FTP_PROTOCOL;
+import static org.mule.extension.ftp.internal.FtpConnector.FTP_PROTOCOL;
 import static org.mule.runtime.core.config.i18n.MessageFactory.createStaticMessage;
-import org.mule.extension.ftp.api.ftp.FtpFileSystem;
+import org.mule.extension.ftp.internal.ftp.connection.FtpFileSystem;
 import org.mule.extension.ftp.internal.sftp.command.SftpCopyCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpCreateDirectoryCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpDeleteCommand;
@@ -18,7 +18,6 @@ import org.mule.extension.ftp.internal.sftp.command.SftpMoveCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpReadCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpRenameCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpWriteCommand;
-import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.runtime.api.connection.ConnectionExceptionCode;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.core.api.MuleContext;

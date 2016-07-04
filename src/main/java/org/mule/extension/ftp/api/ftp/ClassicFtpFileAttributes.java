@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.ftp;
+package org.mule.extension.ftp.api.ftp;
 
 import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.runtime.module.extension.file.api.AbstractFileAttributes;

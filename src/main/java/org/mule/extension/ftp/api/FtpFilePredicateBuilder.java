@@ -4,12 +4,11 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal;
+package org.mule.extension.ftp.api;
 
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.runtime.module.extension.file.api.FilePredicateBuilder;
 
 import java.time.LocalDateTime;
