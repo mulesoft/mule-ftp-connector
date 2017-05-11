@@ -18,7 +18,7 @@ import org.junit.runners.model.Statement;
 /**
  * Base class for {@link FtpTestHarness} implementations
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class AbstractFtpTestHarness extends ExternalResource implements FtpTestHarness {
 

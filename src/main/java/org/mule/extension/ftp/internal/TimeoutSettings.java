@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Groups timeout related parameters
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class TimeoutSettings {
 

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Base class for {@link FileCommand} implementations that target a FTP/SFTP server
  *
  * @param <C> the generic type of the connection object
- * @since 4.0
+ * @since 1.0
  */
 public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C> {
 

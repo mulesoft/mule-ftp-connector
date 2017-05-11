@@ -20,7 +20,7 @@ import java.io.InputStream;
 /**
  * Specialization of the {@link AbstractFileSystem} contract for file systems mounted on FTP/SFTP servers
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class FtpFileSystem extends AbstractFileSystem {
 

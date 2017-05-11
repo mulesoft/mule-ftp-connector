@@ -18,7 +18,7 @@ import java.util.Date;
 /**
  * Implementation of {@link FtpFileAttributes} for files read from a SFTP server.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpFileAttributes extends AbstractFileAttributes implements FtpFileAttributes {
 

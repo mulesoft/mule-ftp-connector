@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 /**
  * A {@link SftpCommand} which implements the {@link ReadCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SftpReadCommand extends SftpCommand implements ReadCommand {
 

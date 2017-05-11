@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 /**
  * A {@link SftpCommand} which implements the {@link CopyCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpCopyCommand extends SftpCommand implements CopyCommand {
 

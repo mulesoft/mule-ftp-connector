@@ -33,7 +33,7 @@ import java.util.Set;
  * An {@link AbstractFtpConnectionProvider} which provides instances of {@link SftpFileSystem} from instances of
  * {@link FtpConnector}
  *
- * @since 4.0
+ * @since 1.0
  */
 @Alias("sftp")
 @DisplayName("SFTP Connection")

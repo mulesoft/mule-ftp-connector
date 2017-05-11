@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A {@link SftpCommand} which implements the {@link MoveCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpMoveCommand extends SftpCommand implements MoveCommand {
 

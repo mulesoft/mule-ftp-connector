@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 /**
  * A {@link SftpCommand} which implements the {@link ListCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SftpListCommand extends SftpCommand implements ListCommand {
 

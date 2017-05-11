@@ -17,7 +17,7 @@ import org.apache.commons.net.ftp.FTPFile;
 /**
  * Implementation of {@link FtpFileAttributes} for files read from a FTP server.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class ClassicFtpFileAttributes extends AbstractFileAttributes implements FtpFileAttributes {
 

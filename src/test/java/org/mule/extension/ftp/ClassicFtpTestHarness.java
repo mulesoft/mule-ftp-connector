@@ -30,7 +30,7 @@ import org.junit.rules.TestRule;
 /**
  * Implementation of {@link FtpTestHarness} for classic FTP connections
  *
- * @since 4.0
+ * @since 1.0
  */
 public class ClassicFtpTestHarness extends AbstractFtpTestHarness {
 

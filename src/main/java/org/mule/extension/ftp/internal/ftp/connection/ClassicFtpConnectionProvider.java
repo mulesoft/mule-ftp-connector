@@ -34,7 +34,7 @@ import java.net.UnknownHostException;
  * An {@link AbstractFtpConnectionProvider} which provides instances of {@link ClassicFtpFileSystem} from instances of
  * {@link FtpConnector}
  *
- * @since 4.0
+ * @since 1.0
  */
 @DisplayName("FTP Connection")
 @Summary("Connection to connect against an FTP server")

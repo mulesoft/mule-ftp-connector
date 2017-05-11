@@ -6,10 +6,9 @@
  */
 package org.mule.extension.ftp;
 
-import static org.mule.extension.FtpTestHarness.HELLO_PATH;
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.apache.commons.io.IOUtils.closeQuietly;
-
+import static org.mule.extension.FtpTestHarness.HELLO_PATH;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
@@ -20,14 +19,14 @@ import org.mule.runtime.core.api.Event;
 import org.mule.runtime.core.util.IOUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.Rule;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import ru.yandex.qatools.allure.annotations.Features;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunnerDelegateTo(Parameterized.class)
 @Features(FTP_EXTENSION)

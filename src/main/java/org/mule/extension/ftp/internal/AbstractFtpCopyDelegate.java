@@ -25,7 +25,7 @@ import java.nio.file.Paths;
  * Abstract implementation of {@link FtpCopyDelegate} for copying operations which require to FTP connections, one for reading the
  * source file and another for writing into the target path
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
 

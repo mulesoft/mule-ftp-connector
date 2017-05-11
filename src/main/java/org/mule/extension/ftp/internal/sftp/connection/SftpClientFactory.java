@@ -11,7 +11,7 @@ import com.jcraft.jsch.JSch;
 /**
  * Creates instances of {@link SftpClient}
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpClientFactory {
 

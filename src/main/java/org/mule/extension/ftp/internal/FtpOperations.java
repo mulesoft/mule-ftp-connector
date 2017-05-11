@@ -42,7 +42,7 @@ import javax.activation.MimetypesFileTypeMap;
 /**
  * Ftp connector operations
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class FtpOperations extends BaseFileSystemOperations {
 

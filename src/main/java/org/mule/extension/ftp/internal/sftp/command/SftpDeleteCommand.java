@@ -20,7 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * A {@link SftpCommand} which implements the {@link DeleteCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SftpDeleteCommand extends SftpCommand implements DeleteCommand {
 

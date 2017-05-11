@@ -9,7 +9,7 @@ package org.mule.extension.ftp.api.sftp;
 /**
  * Supported types of SFTP authentication methods
  *
- * @since 4.0
+ * @since 1.0
  */
 public enum SftpAuthenticationMethod {
   GSSAPI_WITH_MIC("gssapi_with_mic"), PUBLIC_KEY("publickey"), KEYBOARD_INTERACTIVE("keyboard_interactive"), PASSWORD("password");

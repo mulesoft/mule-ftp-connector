@@ -16,7 +16,7 @@ import org.junit.rules.TestRule;
  * A {@link TestRule} which provides tools and environment for reusing the same test regardless of the remote server type (FTP,
  * SFTP, etc) or the authentication method
  *
- * @since 4.0
+ * @since 1.0
  */
 public interface FtpTestHarness extends TestRule {
 

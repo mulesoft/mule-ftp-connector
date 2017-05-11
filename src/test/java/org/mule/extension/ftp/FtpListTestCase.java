@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;

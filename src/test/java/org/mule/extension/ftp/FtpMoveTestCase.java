@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp;
 
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.mule.extension.FtpTestHarness;

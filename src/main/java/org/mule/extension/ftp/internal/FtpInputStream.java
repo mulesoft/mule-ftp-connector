@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * <p>
  * When the stream is closed or fully consumed, the {@link ClassicFtpFileSystem} is released back to the {@link ConnectionManager}
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class FtpInputStream extends AbstractFileInputStream {
 

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 /**
  * Allows manipulating files through the FTP and SFTP
  *
- * @since 4.0
+ * @since 1.0
  */
 @Extension(name = "FTP", description = "Connector to manipulate Files on a FTP/SFTP server")
 @Operations({FtpOperations.class})

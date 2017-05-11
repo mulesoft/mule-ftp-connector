@@ -5,53 +5,66 @@
 
     <parent>
         <groupId>org.mule.extensions</groupId>
-        <artifactId>mule-extensions</artifactId>
+        <artifactId>mule-core-modules-parent</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.mule.modules</groupId>
-    <artifactId>mule-module-ftp</artifactId>
+    <groupId>org.mule.connectors</groupId>
+    <artifactId>mule-ftp-connector</artifactId>
     <packaging>mule-extension</packaging>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Mule FTP connector</name>
     <description>A Mule extension that provides functionality to manage files in an FTP/SFTP server</description>
 
     <properties>
-        <formatterConfigPath>../../formatter.xml</formatterConfigPath>
+        <commonsNetVersion>3.5</commonsNetVersion>
+        <commonsIoVersion>2.4</commonsIoVersion>
+        <commonsLangVersion>2.4</commonsLangVersion>
+        <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
+        <guavaVersion>18.0</guavaVersion>
+        <jschVersion>0.1.53</jschVersion>
+
+        <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${project.version}</version>
+            <version>${mule.version}</version>
             <classifier>mule-plugin</classifier>
         </dependency>
 
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
+            <version>${commonsNetVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>${commonsIoVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+            <version>${commonsLangVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+            <version>${commonsCollectionsVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>${guavaVersion}</version>
         </dependency>
 
         <dependency>
@@ -60,25 +73,10 @@
             <version>${jschVersion}</version>
         </dependency>
 
-        <!--TODO: MULE-10837-->
-        <dependency>
-            <groupId>org.mule.runtime</groupId>
-            <artifactId>mule-module-service</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.services</groupId>
-            <artifactId>mule-service-scheduler</artifactId>
-            <version>${project.version}</version>
-            <classifier>mule-service</classifier>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${project.version}</version>
+            <version>${mule.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -86,7 +84,7 @@
         <dependency>
             <groupId>org.mule.tests</groupId>
             <artifactId>mule-tests-infrastructure</artifactId>
-            <version>${project.version}</version>
+            <version>${mule.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -108,4 +106,38 @@
     </build>
 
 
+    <distributionManagement>
+        <repository>
+            <id>mule-releases</id>
+            <name>Mule Release Repository</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>mule-snapshots</id>
+            <name>Mule Snapshot Repository</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>mule</id>
+            <name>Mule Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+        </repository>
+        <repository>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshot Repository</name>
+            <url>http://repo.spring.io/snapshot/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mule-plugin</id>
+            <name>Mule Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

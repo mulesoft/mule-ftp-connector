@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp;
 
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static com.jcraft.jsch.ChannelSftp.SSH_FX_PERMISSION_DENIED;
 import static java.lang.String.format;

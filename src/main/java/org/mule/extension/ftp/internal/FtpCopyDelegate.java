@@ -14,7 +14,7 @@ import java.nio.file.Path;
 /**
  * A delegate object for copying files
  *
- * @since 4.0
+ * @since 1.0
  */
 @FunctionalInterface
 public interface FtpCopyDelegate {

@@ -9,7 +9,7 @@ package org.mule.extension.ftp;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

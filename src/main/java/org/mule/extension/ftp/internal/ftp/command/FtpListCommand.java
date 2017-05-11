@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 /**
  * A {@link ClassicFtpCommand} which implements the {@link ListCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class FtpListCommand extends ClassicFtpCommand implements ListCommand {
 

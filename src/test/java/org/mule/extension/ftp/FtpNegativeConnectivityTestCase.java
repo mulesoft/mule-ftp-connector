@@ -13,7 +13,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NO
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
-import static org.mule.test.allure.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;

@@ -28,7 +28,7 @@ import org.apache.commons.net.ftp.FTPFile;
 /**
  * Base class for implementations of {@link FileCommand} which operate on a FTP server
  *
- * @since 4.0
+ * @since 1.0
  */
 abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
 

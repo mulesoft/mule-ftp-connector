@@ -45,7 +45,7 @@ import org.apache.commons.net.ftp.FTPClient;
 /**
  * Implementation of {@link FtpFileSystem} for files residing on a SFTP server
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpFileSystem extends FtpFileSystem {
 

@@ -13,7 +13,7 @@ import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
 /**
  * A {@link SftpCommand} which implements the {@link RenameCommand} contract
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SftpRenameCommand extends SftpCommand implements RenameCommand {
 

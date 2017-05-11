@@ -39,7 +39,7 @@ import org.junit.rules.TestRule;
 /**
  * Implementation of {@link FtpTestHarness} for classic SFTP connections
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpTestHarness extends AbstractFtpTestHarness {
 

@@ -14,7 +14,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 /**
  * {@link ConnectionException} implementation to declare connectivity errors in the {@link FtpConnector}
  *
- * @since 4.0
+ * @since 1.0
  */
 public class FTPConnectionException extends ConnectionException {
 

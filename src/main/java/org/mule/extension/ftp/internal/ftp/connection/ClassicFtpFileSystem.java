@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Implementation of {@link FtpFileSystem} for files residing on a FTP server
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class ClassicFtpFileSystem extends FtpFileSystem {
 

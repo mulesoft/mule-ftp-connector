@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * Specialization of {@link FileAttributes} which adds FTP specific information
  *
- * @since 4.0
+ * @since 1.0
  */
 public interface FtpFileAttributes extends FileAttributes {
 

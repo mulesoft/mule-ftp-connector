@@ -15,7 +15,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 /**
  * Groups FTP connection parameters
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class FtpConnectionSettings extends BaseFtpConnectionSettings {
 

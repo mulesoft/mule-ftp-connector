@@ -20,7 +20,7 @@ import java.util.Stack;
 /**
  * Base class for {@link FtpCommand} implementations that target a SFTP server
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
 

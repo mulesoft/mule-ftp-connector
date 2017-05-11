@@ -15,7 +15,7 @@ import org.apache.commons.net.ftp.FTPClient;
 /**
  * A {@link ClassicFtpCommand} which implements the {@link CreateDirectoryCommand}
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class FtpCreateDirectoryCommand extends ClassicFtpCommand implements CreateDirectoryCommand {
 

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * Implementation of {@link FtpInputStream} for SFTP connections
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SftpInputStream extends FtpInputStream {
 

@@ -28,7 +28,7 @@ import javax.inject.Inject;
  * {@link FtpFileSystem}
  *
  * @param <C> the generic type of the connection object
- * @since 4.0
+ * @since 1.0
  */
 public abstract class AbstractFtpConnectionProvider<C extends FtpFileSystem>
     extends FileSystemProvider<C> implements PoolingConnectionProvider<C> {
