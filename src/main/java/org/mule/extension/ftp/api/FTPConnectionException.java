@@ -23,14 +23,14 @@ public class FTPConnectionException extends ConnectionException {
   }
 
   public FTPConnectionException(String message, FileError errors) {
-    super(message, new ModuleException(null, errors));
+    super(message, new ModuleException(message, errors));
   }
 
   public FTPConnectionException(Throwable throwable, FileError fileError) {
-    super(new ModuleException(throwable, fileError));
+    super(new ModuleException(fileError, throwable));
   }
 
   public FTPConnectionException(String message, Throwable throwable, FileError fileError) {
-    super(message, new ModuleException(throwable, fileError));
+    super(message, new ModuleException(fileError, throwable));
   }
 }
