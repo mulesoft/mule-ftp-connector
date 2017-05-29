@@ -73,7 +73,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    */
   @Override
   protected boolean exists(Path path) {
-    return getFile(path.toString()) != null;
+    return getBasePath(fileSystem).equals(path) || getFile(path.toString()) != null;
   }
 
   /**
