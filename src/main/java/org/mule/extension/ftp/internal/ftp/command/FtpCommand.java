@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C> {
 
+  private static final String ROOT = "/";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
 
   /**
@@ -73,7 +75,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    */
   @Override
   protected boolean exists(Path path) {
-    return getFile(path.toString()) != null;
+    return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(path.toString()) != null;
   }
 
   /**
