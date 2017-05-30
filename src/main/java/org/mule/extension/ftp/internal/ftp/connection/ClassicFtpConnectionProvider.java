@@ -6,14 +6,13 @@
  */
 package org.mule.extension.ftp.internal.ftp.connection;
 
+import static java.lang.String.format;
 import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
 import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
@@ -30,6 +29,10 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
+import org.apache.log4j.Logger;
+
 /**
  * An {@link AbstractFtpConnectionProvider} which provides instances of {@link ClassicFtpFileSystem} from instances of
  * {@link FtpConnector}
@@ -40,7 +43,9 @@ import java.net.UnknownHostException;
 @Summary("Connection to connect against an FTP server")
 public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<ClassicFtpFileSystem> {
 
-  private static final String COULD_NOT_ESTABLISH_FTP_CONNECTION = "Could not establish FTP connection";
+  private static final Logger LOGGER = Logger.getLogger(ClassicFtpConnectionProvider.class);
+  private static final String COULD_NOT_ESTABLISH_FTP_CONNECTION =
+      "Could not establish FTP connection with host: '%s' at port: '%d' - ";
 
   @ParameterGroup(name = CONNECTION)
   private FtpConnectionSettings connectionSettings;
@@ -81,24 +86,34 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
 
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
+    }
+
+    final String errorMessage =
+        format(COULD_NOT_ESTABLISH_FTP_CONNECTION, connectionSettings.getHost(), connectionSettings.getPort());
     try {
       client.connect(connectionSettings.getHost(), connectionSettings.getPort());
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-        throw handleClientReplyCode("FTP Connect failed", client.getReplyCode());
+        throw handleClientReplyCode(format("FTP (host: %s and port: %d) connect failed", connectionSettings.getHost(),
+                                           connectionSettings.getPort()),
+                                    client.getReplyCode());
       }
       if (!client.login(connectionSettings.getUsername(), connectionSettings.getPassword())) {
-        throw handleClientReplyCode("FTP login failed", client.getReplyCode());
+        throw handleClientReplyCode(format("FTP (host: %s and port: %d) login failed", connectionSettings.getHost(),
+                                           connectionSettings.getPort()),
+                                    client.getReplyCode());
       }
     } catch (SocketTimeoutException e) {
-      throw new FTPConnectionException(COULD_NOT_ESTABLISH_FTP_CONNECTION, e, CONNECTION_TIMEOUT);
+      throw new FTPConnectionException(errorMessage + e.getMessage(), e, CONNECTION_TIMEOUT);
     } catch (ConnectException e) {
-      throw new FTPConnectionException(COULD_NOT_ESTABLISH_FTP_CONNECTION, e, CANNOT_REACH);
+      throw new FTPConnectionException(errorMessage + e.getMessage(), e, CANNOT_REACH);
     } catch (UnknownHostException e) {
-      throw new FTPConnectionException(COULD_NOT_ESTABLISH_FTP_CONNECTION, e, UNKNOWN_HOST);
+      throw new FTPConnectionException(errorMessage + e.getMessage(), e, UNKNOWN_HOST);
     } catch (Exception e) {
       throw client.getReplyCode() != 0
-          ? handleClientReplyCode(COULD_NOT_ESTABLISH_FTP_CONNECTION, client.getReplyCode())
-          : new ConnectionException(COULD_NOT_ESTABLISH_FTP_CONNECTION, e);
+          ? handleClientReplyCode(errorMessage, client.getReplyCode())
+          : new ConnectionException(errorMessage + e.getMessage(), e);
     }
 
     return client;
@@ -129,7 +144,7 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
       case 530:
         return new FTPConnectionException(errorMessage + " : " + replyCode + "- User cannot log in", INVALID_CREDENTIALS);
       case 421:
-        return new FTPConnectionException(errorMessage, SERVICE_NOT_AVAILABLE);
+        return new FTPConnectionException(errorMessage + " : " + replyCode + "- Service is unavailable", SERVICE_NOT_AVAILABLE);
     }
     return new FTPConnectionException(errorMessage + " : " + replyCode);
   }
