@@ -76,7 +76,7 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
-    if (preferredAuthenticationMethods!= null && !preferredAuthenticationMethods.isEmpty()) {
+    if (preferredAuthenticationMethods != null && !preferredAuthenticationMethods.isEmpty()) {
       client.setPreferredAuthenticationMethods(Joiner.on(",").join(preferredAuthenticationMethods));
     }
     client.setKnownHostsFile(knownHostsFile);

@@ -71,7 +71,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     assertThat(payload.isLocked(), is(false));
 
     byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
-    IOUtils.read(payload, readContent);
+    org.apache.commons.io.IOUtils.read(payload, readContent);
     assertThat(new String(readContent), is(HELLO_WORLD));
   }
 
