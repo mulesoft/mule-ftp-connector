@@ -6,11 +6,10 @@
  */
 package org.mule.extension.ftp.internal.ftp.command;
 
+import static org.apache.commons.io.FileUtils.getTempDirectory;
 import static org.hamcrest.core.Is.isA;
-
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.core.util.FileUtils;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
@@ -24,7 +23,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import ru.yandex.qatools.allure.annotations.Description;
 import ru.yandex.qatools.allure.annotations.Features;
 
@@ -75,7 +73,7 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
 
     @Override
     protected Path getBasePath(FileSystem fileSystem) {
-      return FileUtils.getTempDirectory().toPath();
+      return getTempDirectory().toPath();
     }
   }
 }
