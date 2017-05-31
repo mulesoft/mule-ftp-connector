@@ -44,8 +44,9 @@ import org.apache.log4j.Logger;
 public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<ClassicFtpFileSystem> {
 
   private static final Logger LOGGER = Logger.getLogger(ClassicFtpConnectionProvider.class);
-  private static final String COULD_NOT_ESTABLISH_FTP_CONNECTION =
-      "Could not establish FTP connection with host: '%s' at port: '%d' - ";
+  private static final String FTP_ERROR_MESSAGE_MASK =
+      "Could not establish FTP connection with host: '%s' at port: '%d' - %s";
+  public static final String ERROR_CODE_MASK = "Error code: %d - %s";
 
   @ParameterGroup(name = CONNECTION)
   private FtpConnectionSettings connectionSettings;
@@ -90,30 +91,24 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
 
-    final String errorMessage =
-        format(COULD_NOT_ESTABLISH_FTP_CONNECTION, connectionSettings.getHost(), connectionSettings.getPort());
     try {
       client.connect(connectionSettings.getHost(), connectionSettings.getPort());
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-        throw handleClientReplyCode(format("FTP (host: %s and port: %d) connect failed", connectionSettings.getHost(),
-                                           connectionSettings.getPort()),
-                                    client.getReplyCode());
+        throw handleClientReplyCode(client.getReplyCode());
       }
       if (!client.login(connectionSettings.getUsername(), connectionSettings.getPassword())) {
-        throw handleClientReplyCode(format("FTP (host: %s and port: %d) login failed", connectionSettings.getHost(),
-                                           connectionSettings.getPort()),
-                                    client.getReplyCode());
+        throw handleClientReplyCode(client.getReplyCode());
       }
     } catch (SocketTimeoutException e) {
-      throw new FTPConnectionException(errorMessage + e.getMessage(), e, CONNECTION_TIMEOUT);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CONNECTION_TIMEOUT);
     } catch (ConnectException e) {
-      throw new FTPConnectionException(errorMessage + e.getMessage(), e, CANNOT_REACH);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CANNOT_REACH);
     } catch (UnknownHostException e) {
-      throw new FTPConnectionException(errorMessage + e.getMessage(), e, UNKNOWN_HOST);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
     } catch (Exception e) {
       throw client.getReplyCode() != 0
-          ? handleClientReplyCode(errorMessage, client.getReplyCode())
-          : new ConnectionException(errorMessage + e.getMessage(), e);
+          ? handleClientReplyCode(client.getReplyCode())
+          : new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
     return client;
@@ -134,18 +129,28 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
    * Handles a {@link FTPClient} reply code and returns a {@link FTPConnectionException} specifying the correspondent
    * {@link FileError} indicating the cause of the failure.
    *
-   * @param errorMessage Message to throw
    * @param replyCode FTP Client reply code
    * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
    */
-  private ConnectionException handleClientReplyCode(String errorMessage, int replyCode) {
+  private ConnectionException handleClientReplyCode(int replyCode) {
     switch (replyCode) {
       case 501:
       case 530:
-        return new FTPConnectionException(errorMessage + " : " + replyCode + "- User cannot log in", INVALID_CREDENTIALS);
+        return new FTPConnectionException(getErrorMessage(connectionSettings, replyCode, "User cannot log in"),
+                                          INVALID_CREDENTIALS);
       case 421:
-        return new FTPConnectionException(errorMessage + " : " + replyCode + "- Service is unavailable", SERVICE_NOT_AVAILABLE);
+        return new FTPConnectionException(getErrorMessage(connectionSettings, replyCode, "Service is unavailable"),
+                                          SERVICE_NOT_AVAILABLE);
     }
-    return new FTPConnectionException(errorMessage + " : " + replyCode);
+    return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
+  }
+
+  private String getErrorMessage(FtpConnectionSettings connectionSettings, String message) {
+    return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
+  }
+
+  private String getErrorMessage(FtpConnectionSettings connectionSettings, int replyCode, String message) {
+    return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(),
+                  format(ERROR_CODE_MASK, replyCode, message));
   }
 }
