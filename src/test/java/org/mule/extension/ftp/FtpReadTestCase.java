@@ -23,7 +23,6 @@ import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.Event;
-import org.mule.runtime.core.util.IOUtils;
 
 import java.io.InputStream;
 
