@@ -10,13 +10,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.core.api.Event;
 import org.mule.runtime.core.message.OutputHandler;
-import org.mule.runtime.core.util.IOUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
 import java.io.ByteArrayInputStream;
@@ -87,15 +85,8 @@ public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
 
     @Override
     public void write(Event event, OutputStream out) throws IOException {
-      IOUtils.write(HELLO_WORLD, out);
+      org.apache.commons.io.IOUtils.write(HELLO_WORLD, out);
     }
   }
 
-  private static class HelloWorld {
-
-    @Override
-    public String toString() {
-      return HELLO_WORLD;
-    }
-  }
 }

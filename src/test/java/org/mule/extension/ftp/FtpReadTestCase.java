@@ -23,7 +23,6 @@ import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.Event;
-import org.mule.runtime.core.util.IOUtils;
 
 import java.io.InputStream;
 
@@ -71,7 +70,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     assertThat(payload.isLocked(), is(false));
 
     byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
-    IOUtils.read(payload, readContent);
+    org.apache.commons.io.IOUtils.read(payload, readContent);
     assertThat(new String(readContent), is(HELLO_WORLD));
   }
 

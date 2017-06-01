@@ -14,7 +14,6 @@ import org.mule.extension.file.common.api.command.ListCommand;
 import org.mule.extension.ftp.api.ftp.ClassicFtpFileAttributes;
 import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.util.ArrayUtils;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.IOException;
@@ -98,7 +97,7 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
     FTPListParseEngine engine = client.initiateListParsing();
     while (engine.hasNext()) {
       FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
-      if (ArrayUtils.isEmpty(files)) {
+      if (files == null || files.length == 0) {
         return;
       }
 

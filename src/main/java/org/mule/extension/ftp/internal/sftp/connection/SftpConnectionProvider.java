@@ -8,14 +8,12 @@ package org.mule.extension.ftp.internal.sftp.connection;
 
 import static java.lang.String.format;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
-
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.sftp.SftpAuthenticationMethod;
 import org.mule.extension.ftp.internal.AbstractFtpConnectionProvider;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.core.util.CollectionUtils;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -78,7 +76,7 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
-    if (!CollectionUtils.isEmpty(preferredAuthenticationMethods)) {
+    if (preferredAuthenticationMethods != null && !preferredAuthenticationMethods.isEmpty()) {
       client.setPreferredAuthenticationMethods(Joiner.on(",").join(preferredAuthenticationMethods));
     }
     client.setKnownHostsFile(knownHostsFile);

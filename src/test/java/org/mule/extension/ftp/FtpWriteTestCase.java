@@ -12,7 +12,7 @@ import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
-import static org.mule.runtime.core.util.IOUtils.toByteArray;
+import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static java.nio.charset.Charset.availableCharsets;
 import static org.hamcrest.CoreMatchers.equalTo;

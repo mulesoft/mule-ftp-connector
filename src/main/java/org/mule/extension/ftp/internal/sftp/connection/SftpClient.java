@@ -10,14 +10,13 @@ import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-
+import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.core.util.StringUtils;
 import org.mule.runtime.core.util.collection.ImmutableListCollector;
 
 import com.google.common.base.Supplier;
@@ -137,11 +136,11 @@ public class SftpClient {
    */
   public void login(String user) throws IOException, JSchException {
     configureSession(user);
-    if (!StringUtils.isEmpty(password)) {
+    if (!isEmpty(password)) {
       session.setPassword(password);
     }
 
-    if (!StringUtils.isEmpty(identityFile)) {
+    if (!isEmpty(identityFile)) {
       setupIdentity();
     }
 
@@ -173,7 +172,7 @@ public class SftpClient {
   private void configureSession(String user) throws JSchException {
     Properties hash = new Properties();
     configureHostChecking(hash);
-    if (!StringUtils.isEmpty(preferredAuthenticationMethods)) {
+    if (!isEmpty(preferredAuthenticationMethods)) {
       hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods);
     }
 
@@ -393,7 +392,7 @@ public class SftpClient {
   }
 
   public void setKnownHostsFile(String knownHostsFile) {
-    this.knownHostsFile = !StringUtils.isEmpty(knownHostsFile) ? new File(knownHostsFile).getAbsolutePath() : knownHostsFile;
+    this.knownHostsFile = !isEmpty(knownHostsFile) ? new File(knownHostsFile).getAbsolutePath() : knownHostsFile;
   }
 
   public void setPassword(String password) {
@@ -401,7 +400,7 @@ public class SftpClient {
   }
 
   public void setIdentity(String identityFilePath, String passphrase) {
-    if (!StringUtils.isEmpty(identityFilePath)) {
+    if (!isEmpty(identityFilePath)) {
       this.identityFile = new File(identityFilePath).getAbsolutePath();
       checkExists(identityFilePath);
     }
