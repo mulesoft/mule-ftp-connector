@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.sftp.connection;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.exceptions.FileError.*;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -27,6 +28,8 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 /**
  * An {@link AbstractFtpConnectionProvider} which provides instances of {@link SftpFileSystem} from instances of
  * {@link FtpConnector}
@@ -37,6 +40,9 @@ import java.util.Set;
 @DisplayName("SFTP Connection")
 public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFileSystem> {
 
+  private static final Logger LOGGER = Logger.getLogger(SftpConnectionProvider.class);
+  private static final String SFTP_ERROR_MESSAGE_MASK =
+      "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
   private static final String AUTH_FAIL_MESSAGE = "Auth fail";
   private static final String SSH_DISCONNECTION_MESSAGE = "SSH_MSG_DISCONNECT";
   private static final String TIMEOUT = "timeout";
@@ -72,6 +78,9 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
 
   @Override
   public SftpFileSystem connect() throws ConnectionException {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
+    }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
@@ -86,7 +95,7 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
     } catch (JSchException e) {
       handleJSchException(e);
     } catch (Exception e) {
-      throw new ConnectionException(e);
+      throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
     return new SftpFileSystem(client, getWorkingDir(), muleContext);
@@ -141,23 +150,28 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
   private void handleJSchException(JSchException e) throws ConnectionException {
     String message = e.getMessage();
     if (message.equals(AUTH_FAIL_MESSAGE)) {
-      throw new FTPConnectionException(format("Error during login to %s@%s", connectionSettings.getUsername(),
-                                              connectionSettings.getHost()),
-                                       e, FileError.INVALID_CREDENTIALS);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings,
+                                                       format("Error during login to %s@%s", connectionSettings.getUsername(),
+                                                              connectionSettings.getHost())),
+                                       e, INVALID_CREDENTIALS);
     }
     if (e.getMessage().startsWith(TIMEOUT)) {
-      throw new FTPConnectionException(e, FileError.CONNECTION_TIMEOUT);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CONNECTION_TIMEOUT);
     }
     if (e.getMessage().startsWith(SSH_DISCONNECTION_MESSAGE)) {
-      throw new FTPConnectionException("An error occurred connecting to the SFTP server: " + e.getMessage(), e,
-                                       FileError.DISCONNECTED);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, DISCONNECTED);
     }
     if (e.getCause() instanceof ConnectException) {
-      throw new FTPConnectionException(e, FileError.CANNOT_REACH);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CANNOT_REACH);
     }
     if (e.getCause() instanceof UnknownHostException) {
-      throw new FTPConnectionException(e, FileError.UNKNOWN_HOST);
+      throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
     }
-    throw new ConnectionException(e);
+    throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
   }
+
+  private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
+    return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
+  }
+
 }
