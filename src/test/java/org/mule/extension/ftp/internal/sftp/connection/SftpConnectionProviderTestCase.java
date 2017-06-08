@@ -16,8 +16,9 @@ import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.api.sftp.SftpAuthenticationMethod.GSSAPI_WITH_MIC;
 import static org.mule.extension.ftp.internal.sftp.connection.SftpClient.PREFERRED_AUTHENTICATION_METHODS;
 import static org.mule.extension.ftp.internal.sftp.connection.SftpClient.STRICT_HOST_KEY_CHECKING;
-import static org.mule.functional.util.sftp.SftpServer.PASSWORD;
-import static org.mule.functional.util.sftp.SftpServer.USERNAME;
+import static org.mule.extension.sftp.SftpServer.PASSWORD;
+import static org.mule.extension.sftp.SftpServer.USERNAME;
+
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
