@@ -8,6 +8,8 @@ package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
 
+import org.mule.runtime.api.exception.MuleRuntimeException;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.Security;
@@ -62,7 +64,7 @@ public class SftpServer {
     try {
       sshdServer.start();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new MuleRuntimeException(e);
     }
   }
 
@@ -70,7 +72,7 @@ public class SftpServer {
     try {
       sshdServer.stop(false);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new MuleRuntimeException(e);
     }
     sshdServer = null;
   }
