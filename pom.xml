@@ -15,7 +15,7 @@
     <packaging>mule-extension</packaging>
     <version>0.8.0-SNAPSHOT</version>
 
-    <name>Mule FTP connector</name>
+    <name>FTP/SFTP Connector</name>
     <description>A Mule extension that provides functionality to manage files in an FTP/SFTP server</description>
 
     <properties>
