@@ -21,7 +21,7 @@
     <properties>
         <commonsNetVersion>3.5</commonsNetVersion>
         <commonsIoVersion>2.4</commonsIoVersion>
-        <commonsLangVersion>2.4</commonsLangVersion>
+        <commonsLangVersion>3.6</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
         <jschVersion>0.1.53</jschVersion>
@@ -51,8 +51,8 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <version>${commonsLangVersion}</version>
         </dependency>
 
