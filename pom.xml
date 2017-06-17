@@ -25,7 +25,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
         <jschVersion>0.1.53</jschVersion>
-        <fileCommonsVersion>1.0.0-SNAPSHOT</fileCommonsVersion>
+        <muleFileCommonsVersion>1.0.0-SNAPSHOT</muleFileCommonsVersion>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${fileCommonsVersion}</version>
+            <version>${muleFileCommonsVersion}</version>
             <classifier>mule-plugin</classifier>
         </dependency>
 
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${fileCommonsVersion}</version>
+            <version>${muleFileCommonsVersion}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
