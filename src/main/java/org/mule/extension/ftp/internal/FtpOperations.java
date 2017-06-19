@@ -61,7 +61,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param matcher     a matcher used to filter the output list
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exists or is not a directory
-   * @oaram mediaType the {@link MediaType} of the message which entered the operation
+   * @param mediaType the {@link MediaType} of the message which entered the operation
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
@@ -95,7 +95,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param lock       whether or not to lock the file. Defaults to false.
    * @return the file's content and metadata on a {@link FileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exists
-   * @oaram mediaType the {@link MediaType} of the message which entered the operation
+   * @param mediaType the {@link MediaType} of the message which entered the operation
    */
   @DataTypeParameters
   @Summary("Obtains the content and metadata of a file at a given path")
