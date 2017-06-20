@@ -7,18 +7,22 @@
 package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
+import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import org.mule.extension.file.common.api.FileSystem;
+import org.mule.extension.file.common.api.command.FileCommand;
 import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.ClassicFtpFileAttributes;
 import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.command.FileCommand;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Optional;
 import java.util.Stack;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -51,15 +55,15 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
   @Override
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
     Path path = resolvePath(filePath);
-    FTPFile ftpFile;
+    Optional<FTPFile> ftpFile;
     try {
-      ftpFile = client.mlistFile(filePath);
+      ftpFile = getFileFromPath(path);
     } catch (Exception e) {
       throw exception("Found exception trying to obtain path " + path, e);
     }
 
-    if (ftpFile != null) {
-      return new ClassicFtpFileAttributes(path, ftpFile);
+    if (ftpFile.isPresent()) {
+      return new ClassicFtpFileAttributes(path, ftpFile.get());
     } else {
       if (requireExistence) {
         throw pathNotFoundException(path);
@@ -79,7 +83,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
     String cwd = getCurrentWorkingDirectory();
     Stack<Path> fragments = new Stack<>();
     try {
-      for (int i = directoryPath.getNameCount(); i >= 0; i--) {
+      for (int i = directoryPath.getNameCount(); i > 0; i--) {
         Path subPath = Paths.get("/").resolve(directoryPath.subpath(0, i));
         if (tryChangeWorkingDirectory(subPath.toString())) {
           break;
@@ -175,5 +179,44 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
 
   private String enrichExceptionMessage(String message) {
     return format("%s. Ftp reply code: %d", message, client.getReplyCode());
+  }
+
+  private Optional<FTPFile> getFileFromPath(Path path) throws IOException {
+    String filePath = path.toAbsolutePath().toString();
+    // Check if MLST command is supported
+    FTPFile file = client.mlistFile(filePath);
+    if (file == null) {
+      FTPFile[] files = client.listFiles(filePath);
+      if (files.length >= 1) {
+        if (filePath.endsWith(files[0].getName())) {
+          // List command result is the file from the path parameter
+          file = files[0];
+        } else {
+          // List command result is a directory
+          if (path.getParent() != null) {
+            files = client.listDirectories(path.getParent().toAbsolutePath().toString());
+            return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
+          } else {
+            // root directory
+            file = createRootFile();
+          }
+        }
+      } else if (files.length == 0) {
+        file = null;
+      }
+    }
+
+    return Optional.ofNullable(file);
+  }
+
+  /**
+   * @return an {@link FTPFile} that represents the root directory of the ftp server
+   */
+  private FTPFile createRootFile() {
+    FTPFile file = new FTPFile();
+    file.setName(ROOT);
+    file.setType(DIRECTORY_TYPE);
+    file.setTimestamp(Calendar.getInstance());
+    return file;
   }
 }
