@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C> {
 
-  private static final String ROOT = "/";
+  protected static final String ROOT = "/";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
 
