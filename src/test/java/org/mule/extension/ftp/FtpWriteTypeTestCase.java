@@ -14,7 +14,7 @@ import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.core.api.Event;
-import org.mule.runtime.core.message.OutputHandler;
+import org.mule.runtime.core.api.message.OutputHandler;
 import org.mule.test.runner.RunnerDelegateTo;
 
 import java.io.ByteArrayInputStream;
