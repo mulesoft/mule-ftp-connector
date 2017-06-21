@@ -57,6 +57,11 @@ public interface FtpTestHarness extends TestRule {
   String getWorkingDirectory() throws Exception;
 
   /**
+   * @return the server root directory
+   */
+  String getRootDirectory() throws Exception;
+
+  /**
    * Writes the {@code content} into the given path
    *
    * @param folder the path to the target folder

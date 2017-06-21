@@ -123,6 +123,14 @@ public class ClassicFtpTestHarness extends AbstractFtpTestHarness {
    * {@inheritDoc}
    */
   @Override
+  public String getRootDirectory() throws Exception {
+    return "/";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void write(String path, String content) throws Exception {
     ftpClient.putFile(path, content);
   }
