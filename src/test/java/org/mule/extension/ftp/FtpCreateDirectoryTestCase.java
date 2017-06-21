@@ -23,6 +23,7 @@ import ru.yandex.qatools.allure.annotations.Features;
 public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   private static final String DIRECTORY = "validDirectory";
+  private static final String ROOT_CHILD_DIRECTORY = "rootChildDirectory";
 
   public FtpCreateDirectoryTestCase(String name, FtpTestHarness testHarness) {
     super(name, testHarness);
@@ -54,6 +55,14 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
     doCreateDirectory(Paths.get(base).resolve(DIRECTORY).toAbsolutePath().toString());
 
     assertThat(testHarness.dirExists(DIRECTORY), is(true));
+  }
+
+  @Test
+  public void createDirectoryFromRoot() throws Exception {
+    String rootChildDirectoryPath =
+        Paths.get(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString();
+    doCreateDirectory(rootChildDirectoryPath);
+    assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
   }
 
   private void doCreateDirectory(String directory) throws Exception {
