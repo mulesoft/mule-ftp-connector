@@ -146,6 +146,14 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
    * {@inheritDoc}
    */
   @Override
+  public String getRootDirectory() throws Exception {
+    return temporaryFolder.getRoot().getAbsolutePath();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void write(String path, String content) throws Exception {
     sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), APPEND);
   }

@@ -7,11 +7,10 @@
 package org.mule.extension.ftp.internal.sftp.command;
 
 import org.mule.extension.ftp.api.FtpFileAttributes;
-import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
-import org.mule.extension.ftp.internal.ftp.command.FtpCommand;
 import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
+import org.mule.extension.ftp.internal.ftp.command.FtpCommand;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
-import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +68,7 @@ public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
   @Override
   protected void doMkDirs(Path directoryPath) {
     Stack<Path> fragments = new Stack<>();
-    for (int i = directoryPath.getNameCount(); i >= 0; i--) {
+    for (int i = directoryPath.getNameCount(); i > 0; i--) {
       Path subPath = Paths.get("/").resolve(directoryPath.subpath(0, i));
       if (exists(subPath)) {
         break;
