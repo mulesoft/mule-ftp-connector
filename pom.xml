@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.0.0-BETA-SNAPSHOT</version>
+        <version>4.0.0-BETA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,7 +25,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
         <jschVersion>0.1.53</jschVersion>
-        <muleFileCommonsVersion>0.8.0-SNAPSHOT</muleFileCommonsVersion>
+        <muleFileCommonsVersion>1.0.0-BETA</muleFileCommonsVersion>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
