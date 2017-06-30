@@ -6,7 +6,10 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.file.common.api.BaseFileSystemOperations;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -30,14 +33,13 @@ import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-
+import javax.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
 import java.util.List;
-
-import javax.activation.MimetypesFileTypeMap;
 
 /**
  * Ftp connector operations
@@ -67,7 +69,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Throws(FileListErrorTypeProvider.class)
   public List<Result<InputStream, FtpFileAttributes>> list(@Config FileConnectorConfig config,
                                                            @Connection FtpFileSystem fileSystem,
-                                                           String directoryPath,
+                                                           @Path(type = DIRECTORY) String directoryPath,
                                                            @Optional(defaultValue = "false") boolean recursive,
                                                            MediaType mediaType,
                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher) {
@@ -102,10 +104,10 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Throws(FileReadErrorTypeProvider.class)
   public Result<InputStream, FtpFileAttributes> read(@Config FileConnectorConfig config,
                                                      @Connection FtpFileSystem fileSystem,
-                                                     @DisplayName("File Path") String path,
+                                                     @DisplayName("File Path") @Path(type = FILE) String path,
                                                      MediaType mediaType,
                                                      @Optional(defaultValue = "false") @Placement(
-                                                         tab = ADVANCED_TAB) boolean lock) {
+                                                       tab = ADVANCED_TAB) boolean lock) {
     Result result = doRead(config, fileSystem, path, mediaType, lock);
     return (Result<InputStream, FtpFileAttributes>) result;
   }
@@ -167,8 +169,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Copies a file")
   @Throws(FileCopyErrorTypeProvider.class)
-  public void copy(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional String sourcePath,
-                   String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
+  public void copy(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional @Path String sourcePath,
+                   @Path(type = DIRECTORY) String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
     super.doCopy(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
@@ -197,8 +199,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Moves a file")
   @Throws(FileCopyErrorTypeProvider.class)
-  public void move(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional String sourcePath,
-                   String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
+  public void move(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional @Path String sourcePath,
+                   @Path(type = DIRECTORY) String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
     super.doMove(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
@@ -213,7 +215,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Deletes a file")
   @Throws(FileDeleteErrorTypeProvider.class)
-  public void delete(@Connection FileSystem fileSystem, @Optional String path) {
+  public void delete(@Connection FileSystem fileSystem, @Optional @Path String path) {
     super.doDelete(fileSystem, path);
   }
 
@@ -230,7 +232,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Renames a file")
   @Throws(FileRenameErrorTypeProvider.class)
-  public void rename(@Connection FileSystem fileSystem, @Optional String path,
+  public void rename(@Connection FileSystem fileSystem, @Optional @Path String path,
                      @DisplayName("New Name") String to, @Optional(defaultValue = "false") boolean overwrite) {
     super.doRename(fileSystem, path, to, overwrite);
   }
