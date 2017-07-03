@@ -12,7 +12,6 @@ import org.mule.extension.ftp.internal.ftp.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
-import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
@@ -20,8 +19,6 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
 
 /**
  * Base class for {@link ConnectionProvider} implementations which take a {@link FtpConnector} as a config and provides a
@@ -34,9 +31,6 @@ public abstract class AbstractFtpConnectionProvider<C extends FtpFileSystem>
     extends FileSystemProvider<C> implements PoolingConnectionProvider<C> {
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
-
-  @Inject
-  protected MuleContext muleContext;
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default

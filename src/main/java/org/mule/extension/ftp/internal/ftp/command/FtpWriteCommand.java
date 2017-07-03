@@ -12,7 +12,6 @@ import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
-import org.mule.runtime.core.api.MuleContext;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,14 +31,11 @@ public final class FtpWriteCommand extends ClassicFtpCommand implements WriteCom
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpWriteCommand.class);
 
-  private final MuleContext muleContext;
-
   /**
    * {@inheritDoc}
    */
-  public FtpWriteCommand(ClassicFtpFileSystem fileSystem, FTPClient client, MuleContext muleContext) {
+  public FtpWriteCommand(ClassicFtpFileSystem fileSystem, FTPClient client) {
     super(fileSystem, client);
-    this.muleContext = muleContext;
   }
 
   /**

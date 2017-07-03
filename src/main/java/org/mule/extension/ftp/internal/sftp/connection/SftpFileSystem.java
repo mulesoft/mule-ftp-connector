@@ -32,15 +32,15 @@ import org.mule.extension.ftp.internal.sftp.command.SftpMoveCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpReadCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpRenameCommand;
 import org.mule.extension.ftp.internal.sftp.command.SftpWriteCommand;
-import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.lock.LockFactory;
+
+import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-
-import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * Implementation of {@link FtpFileSystem} for files residing on a SFTP server
@@ -49,7 +49,6 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class SftpFileSystem extends FtpFileSystem {
 
-  private final MuleContext muleContext;
   protected final SftpClient client;
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
@@ -59,6 +58,7 @@ public class SftpFileSystem extends FtpFileSystem {
   protected final ReadCommand readCommand;
   protected final RenameCommand renameCommand;
   protected final WriteCommand writeCommand;
+  private final LockFactory lockFactory;
 
 
   private static String resolveBasePath(String basePath, SftpClient client) {
@@ -78,10 +78,10 @@ public class SftpFileSystem extends FtpFileSystem {
    *
    * @param client a ready to use {@link FTPClient}
    */
-  public SftpFileSystem(SftpClient client, String basePath, MuleContext muleContext) {
+  public SftpFileSystem(SftpClient client, String basePath, LockFactory lockFactory) {
     super(resolveBasePath(basePath, client));
     this.client = client;
-    this.muleContext = muleContext;
+    this.lockFactory = lockFactory;
 
     copyCommand = new SftpCopyCommand(this, client);
     createDirectoryCommand = new SftpCreateDirectoryCommand(this, client);
@@ -90,7 +90,7 @@ public class SftpFileSystem extends FtpFileSystem {
     moveCommand = new SftpMoveCommand(this, client);
     readCommand = new SftpReadCommand(this, client);
     renameCommand = new SftpRenameCommand(this, client);
-    writeCommand = new SftpWriteCommand(this, client, muleContext);
+    writeCommand = new SftpWriteCommand(this, client);
   }
 
   /**
@@ -134,7 +134,7 @@ public class SftpFileSystem extends FtpFileSystem {
    */
   @Override
   protected PathLock createLock(Path path, Object... params) {
-    return new URLPathLock(toURL(path), muleContext.getLockFactory());
+    return new URLPathLock(toURL(path), lockFactory);
   }
 
   private URL toURL(Path path) {

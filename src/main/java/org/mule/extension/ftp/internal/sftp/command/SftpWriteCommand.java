@@ -14,14 +14,13 @@ import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
-import org.mule.runtime.core.api.MuleContext;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
 
 /**
  * A {@link SftpCommand} which implements the {@link WriteCommand} contract
@@ -32,14 +31,11 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
 
   private static final Logger LOGGER = getLogger(SftpWriteCommand.class);
 
-  private final MuleContext muleContext;
-
   /**
    * {@inheritDoc}
    */
-  public SftpWriteCommand(SftpFileSystem fileSystem, SftpClient client, MuleContext muleContext) {
+  public SftpWriteCommand(SftpFileSystem fileSystem, SftpClient client) {
     super(fileSystem, client);
-    this.muleContext = muleContext;
   }
 
   /**
