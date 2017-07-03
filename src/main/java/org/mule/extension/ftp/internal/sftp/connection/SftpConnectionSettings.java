@@ -6,10 +6,13 @@
  */
 package org.mule.extension.ftp.internal.sftp.connection;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+
 import org.mule.extension.ftp.internal.BaseFtpConnectionSettings;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
@@ -62,6 +65,7 @@ public final class SftpConnectionSettings extends BaseFtpConnectionSettings {
   @Parameter
   @Optional
   @Placement(order = 5)
+  @Path(type = FILE)
   private String identityFile;
 
   public int getPort() {
