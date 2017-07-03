@@ -107,7 +107,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                      @DisplayName("File Path") @Path(type = FILE) String path,
                                                      MediaType mediaType,
                                                      @Optional(defaultValue = "false") @Placement(
-                                                       tab = ADVANCED_TAB) boolean lock) {
+                                                         tab = ADVANCED_TAB) boolean lock) {
     Result result = doRead(config, fileSystem, path, mediaType, lock);
     return (Result<InputStream, FtpFileAttributes>) result;
   }
