@@ -19,6 +19,7 @@ import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.internal.AbstractFtpConnectionProvider;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
@@ -28,6 +29,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+
+import javax.inject.Inject;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -47,6 +50,9 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
   private static final String FTP_ERROR_MESSAGE_MASK =
       "Could not establish FTP connection with host: '%s' at port: '%d' - %s";
   public static final String ERROR_CODE_MASK = "Error code: %d - %s";
+
+  @Inject
+  private LockFactory lockFactory;
 
   @ParameterGroup(name = CONNECTION)
   private FtpConnectionSettings connectionSettings;
@@ -78,7 +84,7 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
    */
   @Override
   public ClassicFtpFileSystem connect() throws ConnectionException {
-    return new ClassicFtpFileSystem(setupClient(), getWorkingDir(), muleContext);
+    return new ClassicFtpFileSystem(setupClient(), getWorkingDir(), lockFactory);
   }
 
   private FTPClient setupClient() throws ConnectionException {

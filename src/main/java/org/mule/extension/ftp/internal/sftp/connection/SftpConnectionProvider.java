@@ -14,25 +14,30 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
-
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.sftp.SftpAuthenticationMethod;
 import org.mule.extension.ftp.internal.AbstractFtpConnectionProvider;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
+
 import com.google.common.base.Joiner;
 import com.jcraft.jsch.JSchException;
-import org.apache.log4j.Logger;
+
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.log4j.Logger;
 
 /**
  * An {@link AbstractFtpConnectionProvider} which provides instances of {@link SftpFileSystem} from instances of
@@ -50,6 +55,9 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
   private static final String AUTH_FAIL_MESSAGE = "Auth fail";
   private static final String SSH_DISCONNECTION_MESSAGE = "SSH_MSG_DISCONNECT";
   private static final String TIMEOUT = "timeout";
+
+  @Inject
+  private LockFactory lockFactory;
 
   @ParameterGroup(name = CONNECTION)
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
@@ -103,7 +111,7 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
-    return new SftpFileSystem(client, getWorkingDir(), muleContext);
+    return new SftpFileSystem(client, getWorkingDir(), lockFactory);
   }
 
   void setPort(int port) {
@@ -147,8 +155,9 @@ public class SftpConnectionProvider extends AbstractFtpConnectionProvider<SftpFi
   }
 
   /**
-   * Handles a {@link JSchException}, introspects their cause or message to return a {@link ConnectionException}
-   * indicating with a {@link FileError} the kind of failure.
+   * Handles a {@link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with a
+   * {@link FileError} the kind of failure.
+   * 
    * @param e The exception to handle
    * @throws ConnectionException Indicating the kind of failure
    */

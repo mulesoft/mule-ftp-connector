@@ -34,11 +34,7 @@ import org.mule.extension.ftp.internal.ftp.command.FtpReadCommand;
 import org.mule.extension.ftp.internal.ftp.command.FtpRenameCommand;
 import org.mule.extension.ftp.internal.ftp.command.FtpWriteCommand;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.core.api.MuleContext;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPConnectionClosedException;
-import org.slf4j.Logger;
+import org.mule.runtime.api.lock.LockFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -49,6 +45,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
+import org.slf4j.Logger;
+
 /**
  * Implementation of {@link FtpFileSystem} for files residing on a FTP server
  *
@@ -58,7 +58,6 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
 
   private static final Logger LOGGER = getLogger(ClassicFtpFileSystem.class);
 
-  private final MuleContext muleContext;
   private final FTPClient client;
   private final CopyCommand copyCommand;
   private final CreateDirectoryCommand createDirectoryCommand;
@@ -68,6 +67,7 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
   private final ReadCommand readCommand;
   private final RenameCommand renameCommand;
   private final WriteCommand writeCommand;
+  private final LockFactory lockFactory;
 
   private static String resolveBasePath(String basePath, FTPClient client) {
     if (isBlank(basePath)) {
@@ -86,10 +86,10 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
    *
    * @param client a ready to use {@link FTPClient}
    */
-  ClassicFtpFileSystem(FTPClient client, String basePath, MuleContext muleContext) {
+  ClassicFtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory) {
     super(resolveBasePath(basePath, client));
     this.client = client;
-    this.muleContext = muleContext;
+    this.lockFactory = lockFactory;
 
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
@@ -98,7 +98,7 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
     moveCommand = new FtpMoveCommand(this, client);
     readCommand = new FtpReadCommand(this, client);
     renameCommand = new FtpRenameCommand(this, client);
-    writeCommand = new FtpWriteCommand(this, client, muleContext);
+    writeCommand = new FtpWriteCommand(this, client);
   }
 
   /**
@@ -218,7 +218,7 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
    */
   @Override
   protected PathLock createLock(Path path, Object... params) {
-    return new URLPathLock(toURL(path), muleContext.getLockFactory());
+    return new URLPathLock(toURL(path), lockFactory);
   }
 
   private URL toURL(Path path) {
