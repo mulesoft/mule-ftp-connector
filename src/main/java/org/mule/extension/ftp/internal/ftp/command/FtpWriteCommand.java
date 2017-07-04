@@ -7,6 +7,9 @@
 package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+
+import org.apache.commons.io.FilenameUtils;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
@@ -64,11 +67,12 @@ public final class FtpWriteCommand extends ClassicFtpCommand implements WriteCom
       }
     }
 
-    try (OutputStream outputStream = getOutputStream(path.toString(), mode)) {
+    String normalizedPath = normalizePath(path);
+    try (OutputStream outputStream = getOutputStream(normalizedPath, mode)) {
       IOUtils.copy(content, outputStream);
-      LOGGER.debug("Successfully wrote to path {}", path.toString());
+      LOGGER.debug("Successfully wrote to path {}", normalizedPath);
     } catch (Exception e) {
-      throw exception(format("Exception was found writing to file '%s'", path), e);
+      throw exception(format("Exception was found writing to file '%s'", normalizedPath), e);
     } finally {
       fileSystem.awaitCommandCompletion();
     }

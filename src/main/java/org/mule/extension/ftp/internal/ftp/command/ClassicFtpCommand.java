@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.command.FileCommand;
@@ -113,7 +114,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
   @Override
   protected boolean tryChangeWorkingDirectory(String path) {
     try {
-      return client.changeWorkingDirectory(path);
+      return client.changeWorkingDirectory(normalizePath(path));
     } catch (IOException e) {
       throw exception("Exception was found while trying to change working directory to " + path, e);
     }
@@ -126,7 +127,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
    */
   protected void makeDirectory(String directoryName) {
     try {
-      if (!client.makeDirectory(directoryName)) {
+      if (!client.makeDirectory(normalizePath(directoryName))) {
         throw exception("Failed to create directory " + directoryName);
       }
     } catch (Exception e) {
@@ -151,7 +152,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
    */
   @Override
   protected void doRename(String filePath, String newName) throws Exception {
-    boolean result = client.rename(filePath, newName);
+    boolean result = client.rename(normalizePath(filePath), normalizePath(newName));
     if (!result) {
       throw new MuleRuntimeException(createStaticMessage(format("Could not rename path '%s' to '%s'", filePath, newName)));
     }
@@ -182,7 +183,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
   }
 
   private Optional<FTPFile> getFileFromPath(Path path) throws IOException {
-    String filePath = path.toAbsolutePath().toString();
+    String filePath = normalizePath(path);
     // Check if MLST command is supported
     FTPFile file = client.mlistFile(filePath);
     if (file == null) {
@@ -194,7 +195,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
         } else {
           // List command result is a directory
           if (path.getParent() != null) {
-            files = client.listDirectories(path.getParent().toAbsolutePath().toString());
+            files = client.listDirectories(normalizePath(path.getParent().toString()));
             return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
           } else {
             // root directory
