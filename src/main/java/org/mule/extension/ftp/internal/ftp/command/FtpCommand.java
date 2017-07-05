@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
@@ -75,7 +76,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    */
   @Override
   protected boolean exists(Path path) {
-    return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(path.toString()) != null;
+    return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(normalizePath(path)) != null;
   }
 
   /**
@@ -93,7 +94,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    * @throws IllegalArgumentException if the CWD could not be changed
    */
   protected void changeWorkingDirectory(Path path) {
-    changeWorkingDirectory(path.toString());
+    changeWorkingDirectory(normalizePath(path.toString()));
   }
 
   /**
@@ -108,6 +109,22 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
                                                 path.toString()));
     }
     LOGGER.debug("working directory changed to {}", path);
+  }
+
+  /**
+   * Returns a {@link Path} relative to the {@code basePath} and the given {@code filePath}
+   *
+   * @param filePath the path to a file or directory
+   * @return a relative {@link Path}
+   */
+  @Override
+  protected Path resolvePath(String filePath) {
+    Path path = getBasePath(fileSystem);
+    if (filePath != null) {
+      path = path.resolve(filePath);
+    }
+
+    return path;
   }
 
   /**
@@ -190,7 +207,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
     FileAttributes sourceFile = getExistingFile(source);
     Path targetPath = resolvePath(target);
     FileAttributes targetFile = getFile(targetPath.toString());
-    String targetFileName = isBlank(renameTo) ? sourceFile.getName() : renameTo;
+    String targetFileName = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
 
     if (targetFile != null) {
       if (targetFile.isDirectory()) {

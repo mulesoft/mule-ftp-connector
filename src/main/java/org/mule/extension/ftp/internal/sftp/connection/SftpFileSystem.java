@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.sftp.connection;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.mule.extension.ftp.internal.FtpConnector.FTP_PROTOCOL;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
@@ -109,6 +110,14 @@ public class SftpFileSystem extends FtpFileSystem {
     if (getBasePath() != null) {
       client.changeWorkingDirectory(getBasePath());
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getBasePath() {
+    return normalizePath(super.getBasePath());
   }
 
   /**

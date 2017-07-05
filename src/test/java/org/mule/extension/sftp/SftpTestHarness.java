@@ -14,6 +14,7 @@ import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.functional.util.sftp.SftpServer.PASSWORD;
 import static org.mule.functional.util.sftp.SftpServer.USERNAME;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 
 import org.mule.extension.AbstractFtpTestHarness;
 import org.mule.extension.FtpTestHarness;
@@ -91,7 +92,7 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
     SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber());
     sftpClient.setPassword(PASSWORD);
     sftpClient.login(USERNAME);
-    sftpClient.changeWorkingDirectory(temporaryFolder.getRoot().getAbsolutePath());
+    sftpClient.changeWorkingDirectory(temporaryFolder.getRoot().getPath());
     return sftpClient;
   }
 
@@ -139,7 +140,7 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
    */
   @Override
   public String getWorkingDirectory() throws Exception {
-    return sftpClient.getWorkingDirectory();
+    return normalizePath(sftpClient.getWorkingDirectory());
   }
 
   /**

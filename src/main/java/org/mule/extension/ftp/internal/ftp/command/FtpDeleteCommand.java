@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.DeleteCommand;
@@ -52,7 +53,7 @@ public final class FtpDeleteCommand extends ClassicFtpCommand implements DeleteC
   private void deleteFile(Path path) {
     fileSystem.verifyNotLocked(path);
     try {
-      if (!client.deleteFile(path.toString())) {
+      if (!client.deleteFile(normalizePath(path))) {
         throw exception("Could not delete file " + path);
       }
     } catch (Exception e) {

@@ -51,7 +51,7 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
       public void describeTo(org.hamcrest.Description description) {}
     });
 
-    command.getFile(null);
+    command.getFile("");
   }
 
   private class FtpDummyCommand extends ClassicFtpCommand {

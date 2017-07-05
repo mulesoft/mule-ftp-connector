@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.mule.extension.ftp.internal.FtpConnector.FTP_PROTOCOL;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -182,7 +183,7 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
   @Override
   public InputStream retrieveFileContent(FileAttributes filePayload) {
     try {
-      InputStream inputStream = client.retrieveFileStream(filePayload.getPath());
+      InputStream inputStream = client.retrieveFileStream(normalizePath(filePayload.getPath()));
       if (inputStream == null) {
         throw new FileNotFoundException(String.format("Could not retrieve content of file '%s' because it doesn't exists",
                                                       filePayload.getPath()));
