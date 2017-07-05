@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.sftp.connection;
 import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import static org.mule.runtime.core.api.util.collection.Collectors.toImmutableList;
@@ -105,7 +106,7 @@ public class SftpClient {
     LOGGER.debug("Attempting to cwd to: {}", path);
 
     try {
-      sftp.cd(path);
+      sftp.cd(normalizePath(path));
     } catch (SftpException e) {
       throw exception("Exception occurred while trying to change working directory to " + path, e);
     }
@@ -119,7 +120,7 @@ public class SftpClient {
    */
   public SftpFileAttributes getAttributes(Path path) {
     try {
-      return new SftpFileAttributes(path, sftp.stat(path.toString()));
+      return new SftpFileAttributes(path, sftp.stat(normalizePath(path.toString())));
     } catch (SftpException e) {
       if (e.id == SSH_FX_NO_SUCH_FILE) {
         return null;
@@ -156,7 +157,7 @@ public class SftpClient {
   }
 
   private void checkExists(String path) {
-    if (!new File(path).exists()) {
+    if (!new File(normalizePath(path)).exists()) {
       throw new IllegalArgumentException(format("File '%s' not found", path));
     }
   }
@@ -239,7 +240,7 @@ public class SftpClient {
    */
   public void rename(String sourcePath, String target) throws IOException {
     try {
-      sftp.rename(sourcePath, target);
+      sftp.rename(normalizePath(sourcePath), normalizePath(target));
     } catch (SftpException e) {
       throw exception(format("Could not rename path '%s' to '%s'", sourcePath, target), e);
     }
@@ -253,7 +254,7 @@ public class SftpClient {
   public void deleteFile(String path) {
 
     try {
-      sftp.rm(path);
+      sftp.rm(normalizePath(path));
     } catch (SftpException e) {
       throw exception("Could not delete file " + path, e);
     }
@@ -289,7 +290,7 @@ public class SftpClient {
   public List<SftpFileAttributes> list(String path) {
     List<ChannelSftp.LsEntry> entries;
     try {
-      entries = sftp.ls(path);
+      entries = sftp.ls(normalizePath(path));
     } catch (SftpException e) {
       throw exception("Found exception trying to list path " + path, e);
     }
@@ -310,7 +311,7 @@ public class SftpClient {
    */
   public InputStream getFileContent(String path) {
     try {
-      return sftp.get(path);
+      return sftp.get(normalizePath(path));
     } catch (SftpException e) {
       throw exception("Exception was found trying to retrieve the contents of file " + path, e);
     }
@@ -336,7 +337,7 @@ public class SftpClient {
    * @return an {@link OutputStream}
    */
   public OutputStream getOutputStream(String path, FileWriteMode mode) throws Exception {
-    return sftp.put(path, toInt(mode));
+    return sftp.put(normalizePath(path), toInt(mode));
   }
 
   private int toInt(FileWriteMode mode) {

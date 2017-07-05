@@ -24,6 +24,7 @@ public class FtpUtils {
    * @return a {@link String} representing the path in the following format (using the unix path separator): "directory/subdirectory"
    */
   public static String normalizePath(String path) {
+    path = path.length() > 2  && (path.charAt(1) == ':' || path.charAt(2) == ':') ? path.substring(path.indexOf(':') + 1) : path;
     return FilenameUtils.normalize(path, true);
   }
 
