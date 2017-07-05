@@ -13,6 +13,7 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
@@ -44,7 +45,7 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
   }
 
   private String getPath(String... path) throws Exception {
-    return Paths.get(testHarness.getWorkingDirectory(), path).toString();
+    return normalizePath(Paths.get(testHarness.getWorkingDirectory(), path).toString());
   }
 
   @Override
@@ -260,7 +261,7 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
   }
 
   protected void assertCopy(String target) throws Exception {
-    assertThat(readPathAsString(target), equalTo(HELLO_WORLD));
+    assertThat(readPathAsString(normalizePath(target)), equalTo(HELLO_WORLD));
   }
 
   protected String getFlowName() {

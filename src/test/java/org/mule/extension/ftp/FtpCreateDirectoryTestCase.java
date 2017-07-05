@@ -10,6 +10,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREA
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
@@ -60,7 +61,7 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void createDirectoryFromRoot() throws Exception {
     String rootChildDirectoryPath =
-        Paths.get(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString();
+        normalizePath(Paths.get(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString());
     doCreateDirectory(rootChildDirectoryPath);
     assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
   }

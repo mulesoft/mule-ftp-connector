@@ -55,7 +55,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
    */
   @Override
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
-    Path path = resolvePath(filePath);
+    Path path = resolvePath(normalizePath(filePath));
     Optional<FTPFile> ftpFile;
     try {
       ftpFile = getFileFromPath(path);

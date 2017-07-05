@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 
 import org.apache.commons.net.ftp.FTPFile;
 
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+
 /**
  * Implementation of {@link FtpFileAttributes} for files read from a FTP server.
  *
@@ -90,5 +92,13 @@ public class ClassicFtpFileAttributes extends AbstractFileAttributes implements 
   @Override
   public boolean isSymbolicLink() {
     return symbolicLink;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getPath() {
+    return normalizePath(super.getPath());
   }
 }

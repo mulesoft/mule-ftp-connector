@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.ftp.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -113,7 +114,7 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
           accumulator.add(Result.<InputStream, FileAttributes>builder().output(null).attributes(attributes).build());
 
           if (recursive) {
-            Path recursionPath = path.resolve(attributes.getName());
+            Path recursionPath = path.resolve(normalizePath(attributes.getName()));
             if (!client.changeWorkingDirectory(attributes.getName())) {
               throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                      recursionPath));
@@ -125,7 +126,7 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
             }
           }
         } else {
-          accumulator.add(fileSystem.read(config, filePath.toString(), mediaType, false));
+          accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), mediaType, false));
         }
       }
     }

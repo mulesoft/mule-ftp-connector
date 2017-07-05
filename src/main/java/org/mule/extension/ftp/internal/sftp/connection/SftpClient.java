@@ -355,7 +355,7 @@ public class SftpClient {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Trying to create directory " + directoryName);
       }
-      sftp.mkdir(directoryName);
+      sftp.mkdir(normalizePath(directoryName));
     } catch (SftpException e) {
       throw exception("Could not create the directory " + directoryName, e);
     }

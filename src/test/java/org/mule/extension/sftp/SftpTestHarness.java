@@ -139,7 +139,7 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
    */
   @Override
   public String getWorkingDirectory() throws Exception {
-    return sftpClient.getWorkingDirectory();
+    return normalizePath(sftpClient.getWorkingDirectory());
   }
 
   /**
