@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+
 /**
  * Implementation of {@link FtpFileAttributes} for files read from a SFTP server.
  *
@@ -83,5 +85,13 @@ public class SftpFileAttributes extends AbstractFileAttributes implements FtpFil
   @Override
   public boolean isSymbolicLink() {
     return symbolicLink;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getPath() {
+    return normalizePath(super.getPath());
   }
 }

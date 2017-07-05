@@ -9,6 +9,8 @@ package org.mule.extension.ftp;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+
 import org.mule.extension.AbstractFtpTestHarness;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FtpFileAttributes;
@@ -116,7 +118,7 @@ public class ClassicFtpTestHarness extends AbstractFtpTestHarness {
    */
   @Override
   public String getWorkingDirectory() throws Exception {
-    return ftpClient.getWorkingDirectory();
+    return normalizePath(ftpClient.getWorkingDirectory());
   }
 
   /**

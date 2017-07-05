@@ -6,12 +6,13 @@
  */
 package org.mule.extension.ftp;
 
+import org.mule.extension.ftp.internal.ftp.FtpUtils;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClientFactory;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
-@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {SftpClientFactory.class, SftpClient.class})
+@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {SftpClientFactory.class, SftpClient.class, FtpUtils.class})
 public abstract class AbstractFtpConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
 }

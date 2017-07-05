@@ -6,16 +6,16 @@
  */
 package org.mule.extension.ftp.internal.sftp.command;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.DeleteCommand;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
-import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * A {@link SftpCommand} which implements the {@link DeleteCommand} contract
@@ -75,7 +75,7 @@ public final class SftpDeleteCommand extends SftpCommand implements DeleteComman
     Path directoryPath = Paths.get(path);
     Path directoryFragment = directoryPath.getName(directoryPath.getNameCount() - 1);
     if (isVirtualDirectory(directoryFragment.getFileName().toString())) {
-      path = Paths.get("/").resolve(directoryPath.subpath(0, directoryPath.getNameCount() - 1)).toAbsolutePath().toString();
+      path = Paths.get("/").resolve(directoryPath.subpath(0, directoryPath.getNameCount() - 1)).toString();
     }
     client.deleteDirectory(path);
 

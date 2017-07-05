@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Stack;
 
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+
 /**
  * Base class for {@link FtpCommand} implementations that target a SFTP server
  *
@@ -41,7 +43,7 @@ public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
    */
   @Override
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
-    Path path = resolvePath(filePath);
+    Path path = resolvePath(normalizePath(filePath));
     SftpFileAttributes attributes;
     try {
       attributes = client.getAttributes(path);
@@ -88,7 +90,7 @@ public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
   @Override
   protected boolean tryChangeWorkingDirectory(String path) {
     try {
-      client.changeWorkingDirectory(path);
+      client.changeWorkingDirectory(normalizePath(path));
       return true;
     } catch (Exception e) {
       return false;
@@ -100,7 +102,7 @@ public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
    */
   @Override
   protected void doRename(String filePath, String newName) throws Exception {
-    client.rename(filePath, newName);
+    client.rename(normalizePath(filePath), newName);
   }
 
   /**
@@ -109,7 +111,7 @@ public abstract class SftpCommand extends FtpCommand<SftpFileSystem> {
   @Override
   protected String getCurrentWorkingDirectory() {
     try {
-      return client.getWorkingDirectory();
+      return normalizePath(client.getWorkingDirectory());
     } catch (Exception e) {
       throw exception("Failed to determine current working directory");
     }
