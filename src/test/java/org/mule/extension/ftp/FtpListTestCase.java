@@ -8,7 +8,11 @@ package org.mule.extension.ftp;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
