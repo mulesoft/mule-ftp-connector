@@ -29,8 +29,8 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 
   private static final String RENAME_TO = "renamed";
 
-  public FtpRenameTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpRenameTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

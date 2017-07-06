@@ -43,8 +43,8 @@ public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase 
   @Rule
   public SystemProperty rule = TestConnectivityUtils.disableAutomaticTestConnectivity();
 
-  public FtpNegativeConnectivityTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpNegativeConnectivityTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
     this.name = name;
   }
 

@@ -26,8 +26,8 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
   private static final String DIRECTORY = "validDirectory";
   private static final String ROOT_CHILD_DIRECTORY = "rootChildDirectory";
 
-  public FtpCreateDirectoryTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpCreateDirectoryTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

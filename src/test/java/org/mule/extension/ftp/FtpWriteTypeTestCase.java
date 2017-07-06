@@ -33,26 +33,29 @@ public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {{"Ftp - String", new ClassicFtpTestHarness(), HELLO_WORLD, HELLO_WORLD},
-        {"Ftp - native byte", new ClassicFtpTestHarness(), "A".getBytes()[0], "A"},
-        {"Ftp - Object byte", new ClassicFtpTestHarness(), new Byte("A".getBytes()[0]), "A"},
-        {"Ftp - OutputHandler", new ClassicFtpTestHarness(), new TestOutputHandler(), HELLO_WORLD},
-        {"Ftp - InputStream", new ClassicFtpTestHarness(), new ByteArrayInputStream(HELLO_WORLD.getBytes()), HELLO_WORLD},
+    return Arrays.asList(new Object[][] {
+        {"Ftp - String", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, HELLO_WORLD, HELLO_WORLD},
+        {"Ftp - native byte", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, "A".getBytes()[0], "A"},
+        {"Ftp - Object byte", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, new Byte("A".getBytes()[0]), "A"},
+        {"Ftp - OutputHandler", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, new TestOutputHandler(), HELLO_WORLD},
+        {"Ftp - InputStream", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML,
+            new ByteArrayInputStream(HELLO_WORLD.getBytes()), HELLO_WORLD},
 
-        {"Sftp - String", new SftpTestHarness(), HELLO_WORLD, HELLO_WORLD},
-        {"Sftp - native byte", new SftpTestHarness(), "A".getBytes()[0], "A"},
-        {"Sftp - Object byte", new SftpTestHarness(), new Byte("A".getBytes()[0]), "A"},
-        {"Sftp - byte[]", new SftpTestHarness(), HELLO_WORLD.getBytes(), HELLO_WORLD},
-        {"Sftp - OutputHandler", new SftpTestHarness(), new TestOutputHandler(), HELLO_WORLD},
-        {"Sftp - InputStream", new SftpTestHarness(), new ByteArrayInputStream(HELLO_WORLD.getBytes()), HELLO_WORLD},});
+        {"Sftp - String", new SftpTestHarness(), SFTP_CONNECTION_XML, HELLO_WORLD, HELLO_WORLD},
+        {"Sftp - native byte", new SftpTestHarness(), SFTP_CONNECTION_XML, "A".getBytes()[0], "A"},
+        {"Sftp - Object byte", new SftpTestHarness(), SFTP_CONNECTION_XML, new Byte("A".getBytes()[0]), "A"},
+        {"Sftp - byte[]", new SftpTestHarness(), SFTP_CONNECTION_XML, HELLO_WORLD.getBytes(), HELLO_WORLD},
+        {"Sftp - OutputHandler", new SftpTestHarness(), SFTP_CONNECTION_XML, new TestOutputHandler(), HELLO_WORLD},
+        {"Sftp - InputStream", new SftpTestHarness(), SFTP_CONNECTION_XML, new ByteArrayInputStream(HELLO_WORLD.getBytes()),
+            HELLO_WORLD},});
   }
 
   private final Object content;
   private final String expected;
   private String path;
 
-  public FtpWriteTypeTestCase(String name, FtpTestHarness testHarness, Object content, String expected) {
-    super(name, testHarness);
+  public FtpWriteTypeTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile, Object content, String expected) {
+    super(name, testHarness, ftpConfigFile);
     this.content = content;
     this.expected = expected;
   }

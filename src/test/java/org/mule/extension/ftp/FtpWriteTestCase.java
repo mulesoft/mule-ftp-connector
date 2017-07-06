@@ -38,8 +38,8 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEMP_DIRECTORY = "files";
 
-  public FtpWriteTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpWriteTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

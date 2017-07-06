@@ -34,8 +34,8 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
   private static final String SUB_DIRECTORY_NAME = "subDirectory";
   private static final String CONTENT = "foo";
 
-  public FtpListTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpListTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override
