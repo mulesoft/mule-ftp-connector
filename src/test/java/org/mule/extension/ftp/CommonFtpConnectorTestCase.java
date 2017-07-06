@@ -17,6 +17,7 @@ import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.Event;
 import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.test.runner.RunnerDelegateTo;
 
 import java.io.InputStream;
@@ -32,20 +33,28 @@ import ru.yandex.qatools.allure.annotations.Features;
 @Features(FTP_EXTENSION)
 public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTestCase {
 
+  public static final String FTP_CONNECTION_CONFIG_XML = "ftp-connection-config.xml";
+  public static final String SFTP_CONNECTION_XML = "sftp-connection.xml";
+
   protected static final String NAMESPACE = "FTP";
   private final String name;
 
   @Rule
   public final FtpTestHarness testHarness;
 
+  @Rule
+  public SystemProperty ftpConfigFile;
+
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {{"ftp", new ClassicFtpTestHarness()}, {"sftp", new SftpTestHarness()}});
+    return Arrays.asList(new Object[][] {{"ftp", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML},
+        {"sftp", new SftpTestHarness(), SFTP_CONNECTION_XML}});
   }
 
-  public CommonFtpConnectorTestCase(String name, FtpTestHarness testHarness) {
+  public CommonFtpConnectorTestCase(String name, FtpTestHarness testHarness, String configName) {
     this.name = name;
     this.testHarness = testHarness;
+    this.ftpConfigFile = new SystemProperty("ftp.connection.config", configName);
   }
 
   protected Event readHelloWorld() throws Exception {

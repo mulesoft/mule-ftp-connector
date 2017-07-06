@@ -24,8 +24,8 @@ public class FtpDeleteTestCase extends CommonFtpConnectorTestCase {
   private static final String SUB_FOLDER_FILE = "grandChild";
   private static final String SUB_FOLDER_FILE_PATH = String.format("%s/%s", SUB_FOLDER, SUB_FOLDER_FILE);
 
-  public FtpDeleteTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpDeleteTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

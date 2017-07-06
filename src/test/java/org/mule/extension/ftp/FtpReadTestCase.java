@@ -32,8 +32,8 @@ import ru.yandex.qatools.allure.annotations.Features;
 @Features(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
-  public FtpReadTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpReadTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

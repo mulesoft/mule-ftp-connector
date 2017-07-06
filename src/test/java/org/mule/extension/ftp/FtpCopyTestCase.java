@@ -35,8 +35,8 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
 
   protected String sourcePath;
 
-  public FtpCopyTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpCopyTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

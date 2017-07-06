@@ -16,8 +16,8 @@ import ru.yandex.qatools.allure.annotations.Features;
 @Features(FTP_EXTENSION)
 public class FtpMoveTestCase extends FtpCopyTestCase {
 
-  public FtpMoveTestCase(String name, FtpTestHarness testHarness) {
-    super(name, testHarness);
+  public FtpMoveTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
+    super(name, testHarness, ftpConfigFile);
   }
 
   @Override

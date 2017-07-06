@@ -57,11 +57,12 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * If {@code recursive} is set to {@code true} but a found directory is rejected by the {@code matcher}, then there won't be any
    * recursion into such directory.
    *
-   * @param config        the config that is parameterizing this operation
+   * @param config the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
-   * @param recursive     whether to include the contents of sub-directories. Defaults to false.
-   * @param matcher     a matcher used to filter the output list
-   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the attributes
+   * @param recursive whether to include the contents of sub-directories. Defaults to false.
+   * @param matcher a matcher used to filter the output list
+   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
+   *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exists or is not a directory
    * @param mediaType the {@link MediaType} of the message which entered the operation
    */
@@ -79,8 +80,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
 
   /**
    * Obtains the content and metadata of a file at a given path. The operation itself returns a {@link Message} which payload is a
-   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FtpFileAttributes} object that's placed
-   * as the message {@link Message#getAttributes() attributes}.
+   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FtpFileAttributes} object that's
+   * placed as the message {@link Message#getAttributes() attributes}.
    * <p>
    * If the {@code lock} parameter is set to {@code true}, then a file system level lock will be placed on the file until the
    * input stream this operation returns is closed or fully consumed. Because the lock is actually provided by the host file
@@ -91,10 +92,10 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * be used to make an educated guess on the file's mime type. The user also has the chance to force the output encoding and
    * mimeType through the {@code outputEncoding} and {@code outputMimeType} optional parameters.
    *
-   * @param config     the config that is parameterizing this operation
+   * @param config the config that is parameterizing this operation
    * @param fileSystem a reference to the host {@link FileSystem}
-   * @param path       the path to the file to be read
-   * @param lock       whether or not to lock the file. Defaults to false.
+   * @param path the path to the file to be read
+   * @param lock whether or not to lock the file. Defaults to false.
    * @return the file's content and metadata on a {@link FileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exists
    * @param mediaType the {@link MediaType} of the message which entered the operation
@@ -123,15 +124,15 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * This operation also supports locking support depending on the value of the {@code lock} argument, but following the same
    * rules and considerations as described in the read operation.
    *
-   * @param config                  the {@link FileConnectorConfig} on which the operation is being executed
-   * @param fileSystem              a reference to the host {@link FileSystem}
-   * @param path                    the path of the file to be written
-   * @param content                 the content to be written into the file. Defaults to the current {@link Message} payload
-   * @param encoding                when {@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *                                not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
+   * @param config the {@link FileConnectorConfig} on which the operation is being executed
+   * @param fileSystem a reference to the host {@link FileSystem}
+   * @param path the path of the file to be written
+   * @param content the content to be written into the file. Defaults to the current {@link Message} payload
+   * @param encoding when {@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
+   *        not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param lock                    whether or not to lock the file. Defaults to false
-   * @param mode                    a {@link FileWriteMode}. Defaults to {@code OVERWRITE}
+   * @param lock whether or not to lock the file. Defaults to false
+   * @param mode a {@link FileWriteMode}. Defaults to {@code OVERWRITE}
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Summary("Writes the given \"Content\" in the file pointed by \"Path\"")
@@ -158,13 +159,13 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be copied
    * recursively.
    *
-   * @param config                  the config that is parameterizing this operation
-   * @param fileSystem              a reference to the host {@link FileSystem}
-   * @param sourcePath              the path to the file to be copied
-   * @param targetPath              the target directory where the file is going to be copied
+   * @param config the config that is parameterizing this operation
+   * @param fileSystem a reference to the host {@link FileSystem}
+   * @param sourcePath the path to the file to be copied
+   * @param targetPath the target directory where the file is going to be copied
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param overwrite               whether or not overwrite the file if the target destination already exists.
-   * @param renameTo                copied file's new name. If not provided, original file name will be kept.
+   * @param overwrite whether or not overwrite the file if the target destination already exists.
+   * @param renameTo copied file's new name. If not provided, original file name will be kept.
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Summary("Copies a file")
@@ -188,13 +189,13 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be moved
    * recursively.
    *
-   * @param config                  the config that is parameterizing this operation
-   * @param fileSystem              a reference to the host {@link FileSystem}
-   * @param sourcePath              the path to the file to be copied
-   * @param targetPath              the target directory
+   * @param config the config that is parameterizing this operation
+   * @param fileSystem a reference to the host {@link FileSystem}
+   * @param sourcePath the path to the file to be copied
+   * @param targetPath the target directory
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param overwrite               whether or not overwrite the file if the target destination already exists.
-   * @param renameTo                moved file's new name. If not provided, original file name will be kept.
+   * @param overwrite whether or not overwrite the file if the target destination already exists.
+   * @param renameTo moved file's new name. If not provided, original file name will be kept.
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Summary("Moves a file")
@@ -210,7 +211,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * Deletes the file pointed by {@code path}, provided that it's not locked
    *
    * @param fileSystem a reference to the host {@link FileSystem}
-   * @param path       the path to the file to be deleted
+   * @param path the path to the file to be deleted
    * @throws IllegalArgumentException if {@code filePath} doesn't exists or is locked
    */
   @Summary("Deletes a file")
@@ -226,9 +227,9 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * precondition is not honored.
    *
    * @param fileSystem a reference to the host {@link FileSystem}
-   * @param path       the path to the file to be renamed
-   * @param to         the file's new name
-   * @param overwrite  whether or not overwrite the file if the target destination already exists.
+   * @param path the path to the file to be renamed
+   * @param to the file's new name
+   * @param overwrite whether or not overwrite the file if the target destination already exists.
    */
   @Summary("Renames a file")
   @Throws(FileRenameErrorTypeProvider.class)
@@ -240,7 +241,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   /**
    * Creates a new directory on {@code directoryPath}
    *
-   * @param fileSystem    a reference to the host {@link FileSystem}
+   * @param fileSystem a reference to the host {@link FileSystem}
    * @param directoryPath the new directory's name
    */
   @Summary("Creates a new directory")
