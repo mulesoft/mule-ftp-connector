@@ -7,23 +7,21 @@
 package org.mule.extension.ftp.internal.sftp.command;
 
 import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ListCommand;
 import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.extension.ftp.internal.sftp.connection.SftpFileSystem;
-import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-
+import org.slf4j.Logger;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
-
-import org.slf4j.Logger;
 
 /**
  * A {@link SftpCommand} which implements the {@link ListCommand} contract
@@ -48,7 +46,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
   public List<Result<InputStream, FileAttributes>> list(FileConnectorConfig config,
                                                         String directoryPath,
                                                         boolean recursive,
-                                                        MediaType mediaType,
                                                         Predicate<FileAttributes> matcher) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
@@ -59,7 +56,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
     }
 
     List<Result<InputStream, FileAttributes>> accumulator = new LinkedList<>();
-    doList(config, directoryAttributes.getPath(), accumulator, recursive, mediaType, matcher);
+    doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
 
     return accumulator;
   }
@@ -68,7 +65,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
                       String path,
                       List<Result<InputStream, FileAttributes>> accumulator,
                       boolean recursive,
-                      MediaType mediaType,
                       Predicate<FileAttributes> matcher) {
 
     LOGGER.debug("Listing directory {}", path);
@@ -81,10 +77,10 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
         accumulator.add(Result.<InputStream, FileAttributes>builder().output(null).attributes(file).build());
 
         if (recursive) {
-          doList(config, file.getPath(), accumulator, recursive, mediaType, matcher);
+          doList(config, file.getPath(), accumulator, recursive, matcher);
         }
       } else {
-        accumulator.add(fileSystem.read(config, file.getPath(), mediaType, false));
+        accumulator.add(fileSystem.read(config, file.getPath(), false));
       }
     }
   }

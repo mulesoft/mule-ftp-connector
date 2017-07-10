@@ -42,8 +42,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand {
    * {@inheritDoc}
    */
   @Override
-  public Result<InputStream, FileAttributes> read(FileConnectorConfig config, String filePath, MediaType mediaType,
-                                                  boolean lock) {
+  public Result<InputStream, FileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
     FtpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -61,7 +60,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand {
 
     try {
       InputStream payload = SftpInputStream.newInstance((FtpConnector) config, attributes, pathLock);
-      MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(mediaType, attributes);
+      MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
       return Result.<InputStream, FileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
     } catch (ConnectionException e) {

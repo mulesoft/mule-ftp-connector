@@ -25,7 +25,6 @@ import org.mule.extension.ftp.api.FtpFileAttributes;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.internal.ftp.connection.FtpFileSystem;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.annotation.DataTypeParameters;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -64,7 +63,6 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exists or is not a directory
-   * @param mediaType the {@link MediaType} of the message which entered the operation
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
@@ -72,9 +70,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                            @Connection FtpFileSystem fileSystem,
                                                            @Path(type = DIRECTORY) String directoryPath,
                                                            @Optional(defaultValue = "false") boolean recursive,
-                                                           MediaType mediaType,
                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher) {
-    List result = doList(config, fileSystem, directoryPath, recursive, mediaType, matcher);
+    List result = doList(config, fileSystem, directoryPath, recursive, matcher);
     return (List<Result<InputStream, FtpFileAttributes>>) result;
   }
 
@@ -98,7 +95,6 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param lock whether or not to lock the file. Defaults to false.
    * @return the file's content and metadata on a {@link FileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exists
-   * @param mediaType the {@link MediaType} of the message which entered the operation
    */
   @DataTypeParameters
   @Summary("Obtains the content and metadata of a file at a given path")
@@ -106,10 +102,9 @@ public final class FtpOperations extends BaseFileSystemOperations {
   public Result<InputStream, FtpFileAttributes> read(@Config FileConnectorConfig config,
                                                      @Connection FtpFileSystem fileSystem,
                                                      @DisplayName("File Path") @Path(type = FILE) String path,
-                                                     MediaType mediaType,
                                                      @Optional(defaultValue = "false") @Placement(
                                                          tab = ADVANCED_TAB) boolean lock) {
-    Result result = doRead(config, fileSystem, path, mediaType, lock);
+    Result result = doRead(config, fileSystem, path, lock);
     return (Result<InputStream, FtpFileAttributes>) result;
   }
 
