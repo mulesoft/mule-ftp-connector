@@ -17,6 +17,7 @@ import org.mule.runtime.core.api.connector.ConnectionManager;
 import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
+import org.mule.runtime.extension.api.annotation.PrivilegedExport;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
@@ -32,6 +33,8 @@ import javax.inject.Inject;
 @Operations({FtpOperations.class})
 @ConnectionProviders({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
 @Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class, FtpFileAttributes.class})
+@PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.ftp.connection",
+    "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.mule.runtime.modules:mule-module-ftps"})
 @ErrorTypes(FileError.class)
 @Xml(prefix = "ftp")
 public class FtpConnector extends FileConnectorConfig {
