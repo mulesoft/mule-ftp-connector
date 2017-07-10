@@ -17,14 +17,11 @@ import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.extension.ftp.internal.ftp.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-
+import org.apache.commons.net.ftp.FTPClient;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * A {@link ClassicFtpCommand} which implements the {@link FtpReadCommand}
@@ -44,10 +41,7 @@ public final class FtpReadCommand extends ClassicFtpCommand implements ReadComma
    * {@inheritDoc}
    */
   @Override
-  public Result<InputStream, FileAttributes> read(FileConnectorConfig config,
-                                                  String filePath,
-                                                  MediaType mediaType,
-                                                  boolean lock) {
+  public Result<InputStream, FileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
     FtpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -71,9 +65,9 @@ public final class FtpReadCommand extends ClassicFtpCommand implements ReadComma
 
     try {
       InputStream payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, pathLock);
-      MediaType resolvedMediaTYpe = fileSystem.getFileMessageMediaType(mediaType, attributes);
-      return Result.<InputStream, FileAttributes>builder().output(payload).mediaType(resolvedMediaTYpe).attributes(attributes)
-          .build();
+      return Result.<InputStream, FileAttributes>builder().output(payload)
+          .mediaType(fileSystem.getFileMessageMediaType(attributes))
+          .attributes(attributes).build();
     } catch (ConnectionException e) {
       throw exception("Could not obtain connection to fetch file " + path, e);
     }

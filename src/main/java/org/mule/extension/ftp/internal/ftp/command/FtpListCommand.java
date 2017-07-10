@@ -55,7 +55,6 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
   public List<Result<InputStream, FileAttributes>> list(FileConnectorConfig config,
                                                         String directoryPath,
                                                         boolean recursive,
-                                                        MediaType mediaType,
                                                         Predicate<FileAttributes> matcher) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
@@ -72,7 +71,7 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
     List<Result<InputStream, FileAttributes>> accumulator = new LinkedList<>();
 
     try {
-      doList(config, path, accumulator, recursive, mediaType, matcher);
+      doList(config, path, accumulator, recursive, matcher);
 
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
         throw exception(format("Failed to list files on directory '%s'", path));
@@ -90,7 +89,6 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
                       Path path,
                       List<Result<InputStream, FileAttributes>> accumulator,
                       boolean recursive,
-                      MediaType mediaType,
                       Predicate<FileAttributes> matcher)
       throws IOException {
     LOGGER.debug("Listing directory {}", path);
@@ -119,14 +117,14 @@ public final class FtpListCommand extends ClassicFtpCommand implements ListComma
               throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                      recursionPath));
             }
-            doList(config, recursionPath, accumulator, recursive, mediaType, matcher);
+            doList(config, recursionPath, accumulator, recursive, matcher);
             if (!client.changeToParentDirectory()) {
               throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
                                      recursionPath.getParent()));
             }
           }
         } else {
-          accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), mediaType, false));
+          accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false));
         }
       }
     }
