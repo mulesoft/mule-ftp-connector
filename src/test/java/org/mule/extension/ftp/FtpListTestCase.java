@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -128,12 +129,12 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
   }
 
   private List<Message> doList(String flowName, String path, boolean recursive) throws Exception {
-    List<Message> messages =
-        (List<Message>) flowRunner(flowName).withVariable("path", path).withVariable("recursive", recursive).run()
+    Message messages =
+        (Message) flowRunner(flowName).withVariable("path", path).withVariable("recursive", recursive).run()
             .getMessage().getPayload().getValue();
-
-    assertThat(messages, is(notNullValue()));
-    return messages;
+    assertThat(messages.getPayload(), is(notNullValue()));
+    assertThat(messages.getPayload().getValue(), instanceOf(List.class));
+    return (List<Message>) messages.getPayload().getValue();
   }
 
   private void createTestFiles() throws Exception {
