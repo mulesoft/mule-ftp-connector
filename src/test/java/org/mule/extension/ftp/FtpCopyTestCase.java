@@ -22,9 +22,9 @@ import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import java.nio.file.Paths;
 
 import org.junit.Test;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
 
   private static final String SOURCE_FILE_NAME = "test.txt";

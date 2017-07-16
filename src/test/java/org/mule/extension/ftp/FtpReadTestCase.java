@@ -27,9 +27,9 @@ import org.mule.runtime.core.api.Event;
 import java.io.InputStream;
 
 import org.junit.Test;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   public FtpReadTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
