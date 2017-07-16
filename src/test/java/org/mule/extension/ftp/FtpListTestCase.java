@@ -25,9 +25,9 @@ import org.mule.runtime.api.message.Message;
 import java.util.List;
 
 import org.junit.Test;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEST_FILE_PATTERN = "test-file-%d.html";

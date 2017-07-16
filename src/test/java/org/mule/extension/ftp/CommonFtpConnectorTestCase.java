@@ -27,10 +27,10 @@ import java.util.Collection;
 import org.junit.Rule;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
 @RunnerDelegateTo(Parameterized.class)
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTestCase {
 
   public static final String FTP_CONNECTION_CONFIG_XML = "ftp-connection-config.xml";

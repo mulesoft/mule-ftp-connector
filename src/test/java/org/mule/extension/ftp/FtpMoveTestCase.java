@@ -11,9 +11,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.mule.extension.FtpTestHarness;
 
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpMoveTestCase extends FtpCopyTestCase {
 
   public FtpMoveTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {

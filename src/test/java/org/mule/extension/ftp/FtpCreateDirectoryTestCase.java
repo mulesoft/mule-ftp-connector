@@ -18,9 +18,9 @@ import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import java.nio.file.Paths;
 
 import org.junit.Test;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   private static final String DIRECTORY = "validDirectory";

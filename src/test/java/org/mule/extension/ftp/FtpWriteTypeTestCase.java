@@ -25,10 +25,10 @@ import java.util.Collection;
 
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Feature;
 
 @RunnerDelegateTo(Parameterized.class)
-@Features(FTP_EXTENSION)
+@Feature(FTP_EXTENSION)
 public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
 
   @Parameterized.Parameters(name = "{0}")

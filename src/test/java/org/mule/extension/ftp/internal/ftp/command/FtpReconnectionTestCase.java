@@ -23,11 +23,11 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import ru.yandex.qatools.allure.annotations.Description;
-import ru.yandex.qatools.allure.annotations.Features;
+import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
 
 @SmallTest
-@Features("Reconnection from FTP exception")
+@Feature("Reconnection from FTP exception")
 public class FtpReconnectionTestCase extends AbstractMuleTestCase {
 
   private FtpDummyCommand command = new FtpDummyCommand();
