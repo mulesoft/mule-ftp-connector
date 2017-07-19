@@ -25,6 +25,7 @@
         <ftp:read config-ref="config" path="files/hello.json" lock="true">
             <non-repeatable-stream />
         </ftp:read>
+        <custom-processor class="org.mule.extension.ftp.FtpReadTestCase$StreamCloserTestMessageProcessor"/>
     </flow>
 
     <flow name="readWithForcedMimeType">
