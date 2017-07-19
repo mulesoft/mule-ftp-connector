@@ -20,10 +20,14 @@ import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.ftp.api.FtpFileAttributes;
+import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.Event;
+import org.mule.runtime.core.api.processor.Processor;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
@@ -105,10 +109,9 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void readLockReleasedOnEarlyClose() throws Exception {
     Message message = readWithLock();
-    ((InputStream) message.getPayload().getValue()).close();
-
     assertThat(isLocked(message), is(false));
   }
+
 
   @Test
   public void getProperties() throws Exception {
@@ -116,10 +119,22 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     testHarness.assertAttributes(HELLO_PATH, fileAttributes);
   }
 
+  public static class StreamCloserTestMessageProcessor implements Processor {
+
+    @Override
+    public Event process(Event event) throws MuleException {
+      try {
+        assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
+        ((InputStream) event.getMessage().getPayload().getValue()).close();
+      } catch (IOException e) {
+        throw new MuleRuntimeException(e);
+      }
+      return event;
+    }
+  }
+
   private Message readWithLock() throws Exception {
     Message message = flowRunner("readWithLock").run().getMessage();
-
-    assertThat(isLocked(message), is(true));
     return message;
   }
 }
