@@ -119,17 +119,14 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     testHarness.assertAttributes(HELLO_PATH, fileAttributes);
   }
 
-  public static class StreamCloserTestMessageProcessor implements Processor
-  {
+  public static class StreamCloserTestMessageProcessor implements Processor {
 
     @Override
-    public Event process(Event event) throws MuleException
-    {
-      try
-      {
-        assertThat(((AbstractFileInputStream)event.getMessage().getPayload().getValue()).isLocked(), is(true));
+    public Event process(Event event) throws MuleException {
+      try {
+        assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
         ((InputStream) event.getMessage().getPayload().getValue()).close();
-      }catch (IOException e){
+      } catch (IOException e) {
         throw new MuleRuntimeException(e);
       }
       return event;
