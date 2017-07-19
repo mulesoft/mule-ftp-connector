@@ -21,7 +21,7 @@
         </choice>
     </flow>
 
-    <flow name="readWithLock"><!--processingStrategy="synchronous"-->
+    <flow name="readWithLock">
         <ftp:read config-ref="config" path="files/hello.json" lock="true">
             <non-repeatable-stream />
         </ftp:read>
