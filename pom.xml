@@ -24,7 +24,7 @@
         <commonsLangVersion>3.6</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
-        <jschVersion>0.1.53</jschVersion>
+        <jschVersion>0.1.54</jschVersion>
         <muleFileCommonsVersion>1.0.0-SNAPSHOT</muleFileCommonsVersion>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
