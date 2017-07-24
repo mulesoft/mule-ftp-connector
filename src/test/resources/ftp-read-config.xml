@@ -9,12 +9,12 @@
 
     <flow name="read">
         <choice>
-            <when expression="#[streaming]">
-                <ftp:read config-ref="config" path="#[path]"/>
+            <when expression="#[vars.streaming]">
+                <ftp:read config-ref="config" path="#[vars.path]"/>
                 <object-to-string-transformer />
             </when>
             <otherwise>
-                <ftp:read config-ref="config" path="#[path]">
+                <ftp:read config-ref="config" path="#[vars.path]">
                     <non-repeatable-stream />
                 </ftp:read>
             </otherwise>
@@ -29,7 +29,7 @@
     </flow>
 
     <flow name="readWithForcedMimeType">
-        <ftp:read config-ref="config" path="#[path]" outputMimeType="test/test"/>
+        <ftp:read config-ref="config" path="#[vars.path]" outputMimeType="test/test"/>
         <object-to-string-transformer />
     </flow>
 

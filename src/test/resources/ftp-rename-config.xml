@@ -8,12 +8,12 @@
     <import file="ftp-read-config.xml"/>
 
     <flow name="rename">
-        <ftp:rename config-ref="config" path="#[path]" to="#[to]" overwrite="#[overwrite]"/>
+        <ftp:rename config-ref="config" path="#[vars.path]" to="#[vars.to]" overwrite="#[vars.overwrite]"/>
     </flow>
 
     <flow name="readAndRename">
-        <ftp:read config-ref="config" path="#[path]" />
-        <ftp:rename config-ref="config" path="#[path]" to="#[to]"/>
+        <ftp:read config-ref="config" path="#[vars.path]" />
+        <ftp:rename config-ref="config" path="#[vars.path]" to="#[vars.to]"/>
     </flow>
 
 </mule>

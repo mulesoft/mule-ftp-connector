@@ -8,13 +8,13 @@
     <import file="ftp-read-config.xml"/>
 
     <flow name="copy">
-        <ftp:copy config-ref="config" sourcePath="#[source]" targetPath="#[target]" overwrite="#[overwrite]"
-                  createParentDirectories="#[createParent]" renameTo="#[renameTo]"/>
+        <ftp:copy config-ref="config" sourcePath="#[vars.source]" targetPath="#[vars.target]" overwrite="#[vars.overwrite]"
+                  createParentDirectories="#[vars.createParent]" renameTo="#[vars.renameTo]"/>
     </flow>
 
     <flow name="readAndDo">
-        <ftp:read config-ref="config" path="#[source]" />
-        <ftp:copy config-ref="config" sourcePath="#[source]" targetPath="#[target]" overwrite="#[overwrite]" createParentDirectories="#[createParent]" renameTo="#[renameTo]"/>
+        <ftp:read config-ref="config" path="#[vars.source]" />
+        <ftp:copy config-ref="config" sourcePath="#[vars.source]" targetPath="#[vars.target]" overwrite="#[vars.overwrite]" createParentDirectories="#[vars.createParent]" renameTo="#[vars.renameTo]"/>
     </flow>
 
 </mule>
