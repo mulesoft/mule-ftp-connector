@@ -8,11 +8,11 @@
     <import file="ftp-connection.xml"/>
 
     <flow name="read">
-        <ftp:read config-ref="config" path="#[path]"/>
+        <ftp:read config-ref="config" path="#[vars.path]"/>
     </flow>
 
     <flow name="list">
-        <ftp:list config-ref="config" directoryPath="#[path]" recursive="#[recursive]" />
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" />
     </flow>
 
 </mule>

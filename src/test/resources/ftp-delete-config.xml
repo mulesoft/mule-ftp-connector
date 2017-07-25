@@ -8,11 +8,11 @@
     <import file="ftp-connection.xml"/>
 
     <flow name="delete">
-        <ftp:delete config-ref="config" path="#[delete]" />
+        <ftp:delete config-ref="config" path="#[vars.delete]" />
     </flow>
 
     <flow name="readAndDelete">
-        <ftp:read config-ref="config" path="#[delete]" />
-        <ftp:delete config-ref="config" path="#[delete]" />
+        <ftp:read config-ref="config" path="#[vars.delete]" />
+        <ftp:delete config-ref="config" path="#[vars.delete]" />
     </flow>
 </mule>
