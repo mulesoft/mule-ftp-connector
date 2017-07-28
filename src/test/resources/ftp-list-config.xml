@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
 
     <import file="ftp-connection.xml"/>
@@ -21,5 +23,13 @@
 
     <flow name="listWithGlobalMatcher">
         <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" matcher="globalMatcher"/>
+    </flow>
+
+    <flow name="listCursors">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" >
+            <ftp:matcher filenamePattern="*2.html" />
+        </ftp:list>
+        <test:processor class="org.mule.extension.ftp.FtpListTestCase$TestProcessor"/>
+        <test:processor class="org.mule.extension.ftp.FtpListTestCase$TestProcessor"/>
     </flow>
 </mule>

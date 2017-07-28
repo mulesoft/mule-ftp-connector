@@ -16,16 +16,22 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-
+import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
+import org.mule.runtime.core.api.Event;
+import org.mule.runtime.core.api.processor.Processor;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpListTestCase extends CommonFtpConnectorTestCase {
@@ -46,7 +52,14 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
   @Override
   protected void doSetUp() throws Exception {
     super.doSetUp();
+    TestProcessor.clear();
     createTestFiles();
+  }
+
+  @Override
+  protected void doTearDown() throws Exception {
+    super.doTearDown();
+    TestProcessor.clear();
   }
 
   @Test
@@ -104,6 +117,18 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     assertThat(file.getName(), equalTo(SUB_DIRECTORY_NAME));
   }
 
+  @Test
+  public void listTwoOpenCursors() throws Exception {
+    List<Message> messages = doList("listCursors", ".", false);
+
+    assertThat(messages, hasSize(1));
+
+    ArrayList<String> contents = TestProcessor.getFileContents();
+    assertThat(contents, hasSize(2));
+    assertThat(contents.get(0), is(CONTENT));
+    assertThat(contents.get(1), is(CONTENT));
+  }
+
   private boolean assertListedFiles(List<Message> messages) throws Exception {
     boolean directoryWasFound = false;
 
@@ -151,5 +176,30 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
       String name = String.format(TEST_FILE_PATTERN, i);
       testHarness.write(parentFolder, name, CONTENT);
     }
+  }
+
+  public static class TestProcessor implements Processor {
+
+    private static ArrayList<String> fileContents = new ArrayList<>();
+
+    static ArrayList<String> getFileContents() {
+      return fileContents;
+    }
+
+    static void clear() {
+      fileContents.clear();
+    }
+
+    @Override
+    public Event process(Event event) throws MuleException {
+      Collection<Message> messageList = (Collection<Message>) event.getMessage().getPayload().getValue();
+
+      for (Message message : messageList) {
+        fileContents.add(new String(toByteArray(((CursorStreamProvider) message.getPayload().getValue()).openCursor())));
+      }
+
+      return event;
+    }
+
   }
 }
