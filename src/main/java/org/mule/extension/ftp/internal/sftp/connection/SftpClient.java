@@ -115,7 +115,7 @@ public class SftpClient {
    * Gets the attributes for the file in the given {code path}
    *
    * @param path the file's path
-   * @return a {@link SftpFileAttributes} or {@code null} if the file doesn't exists.
+   * @return a {@link SftpFileAttributes} or {@code null} if the file doesn't exist.
    */
   public SftpFileAttributes getAttributes(Path path) {
     try {

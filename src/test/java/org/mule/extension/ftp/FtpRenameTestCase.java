@@ -66,7 +66,7 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void renameUnexisting() throws Exception {
-    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exists");
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exist");
     doRename("not-there.txt");
   }
 

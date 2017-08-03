@@ -185,7 +185,7 @@ public final class ClassicFtpFileSystem extends FtpFileSystem {
     try {
       InputStream inputStream = client.retrieveFileStream(normalizePath(filePayload.getPath()));
       if (inputStream == null) {
-        throw new FileNotFoundException(String.format("Could not retrieve content of file '%s' because it doesn't exists",
+        throw new FileNotFoundException(String.format("Could not retrieve content of file '%s' because it doesn't exist",
                                                       filePayload.getPath()));
       }
 

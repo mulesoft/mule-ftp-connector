@@ -106,7 +106,7 @@ abstract class ClassicFtpCommand extends FtpCommand<ClassicFtpFileSystem> {
 
   /**
    * Attempts to change the current working directory of the FTP {@link #client}. If it was not possible (for example, because it
-   * doesn't exists), it returns {@code false}
+   * doesn't exist), it returns {@code false}
    *
    * @param path the path to which you wish to move
    * @return {@code true} if the CWD was changed. {@code false} otherwise
