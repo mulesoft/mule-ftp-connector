@@ -7,8 +7,8 @@
 package org.mule.extension.ftp.api;
 
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.dsl.xml.TypeXmlHints;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.dsl.xml.XmlHints;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.extension.file.common.api.matcher.FileMatcher;
 
@@ -24,7 +24,7 @@ import java.util.function.Predicate;
  * @since 1.0
  */
 @Alias("matcher")
-@XmlHints(allowTopLevelDefinition = true)
+@TypeXmlHints(allowTopLevelDefinition = true)
 public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttributes> {
 
   /**
