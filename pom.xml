@@ -26,6 +26,7 @@
         <guavaVersion>18.0</guavaVersion>
         <jschVersion>0.1.54</jschVersion>
         <muleFileCommonsVersion>0.9.0-rc.cyborg-SNAPSHOT</muleFileCommonsVersion>
+        <muleTestsComponentPlugin>4.0.0-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
@@ -92,7 +93,7 @@
         <dependency>
             <groupId>org.mule.tests.plugin</groupId>
             <artifactId>mule-tests-component-plugin</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${muleTestsComponentPlugin}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
