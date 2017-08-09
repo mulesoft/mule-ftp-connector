@@ -26,7 +26,7 @@
         <guavaVersion>18.0</guavaVersion>
         <jschVersion>0.1.54</jschVersion>
         <muleFileCommonsVersion>0.9.0-rc.cyborg-SNAPSHOT</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.0.0-SNAPSHOT</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>4.0.0-rc.cyborg-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
