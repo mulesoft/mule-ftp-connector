@@ -24,7 +24,7 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.api.Event;
+import org.mule.runtime.core.api.InternalEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void readWithForcedMimeType() throws Exception {
-    Event event = flowRunner("readWithForcedMimeType").withVariable("path", HELLO_PATH).run();
+    InternalEvent event = flowRunner("readWithForcedMimeType").withVariable("path", HELLO_PATH).run();
     assertThat(event.getMessage().getPayload().getDataType().getMediaType().getPrimaryType(), equalTo("test"));
     assertThat(event.getMessage().getPayload().getDataType().getMediaType().getSubType(), equalTo("test"));
   }
@@ -122,7 +122,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
   public static class StreamCloserTestMessageProcessor implements Processor {
 
     @Override
-    public Event process(Event event) throws MuleException {
+    public InternalEvent process(InternalEvent event) throws MuleException {
       try {
         assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
         ((InputStream) event.getMessage().getPayload().getValue()).close();
