@@ -27,11 +27,14 @@ updateParentVersion() {
   perl -0777 -i -pe "s/(<parent>.*<version)(.*)(\/version>.*<\/parent>)/\${1}>$VERSION_TO<\${3}/s" "$POM_PROPERTY_PATH"
 }
 
-VERSION_TO_CONNECTORS=$1
-VERSION_TO_DEPS=$2
+VERSION_TO_DEPS=$1
+VERSION_TO_CONNECTORS=$2
+MULE_VERSION=$3
 
 propertiesDeps=("muleFileCommonsVersion")
 updatePropertiesVersion "$VERSION_TO_CONNECTORS" pom.xml propertiesDeps[@]
 
+propertiesDeps=("muleTestsComponentPlugin")
+updatePropertiesVersion "$MULE_VERSION" pom.xml propertiesDeps[@]
 
 updateParentVersion "$VERSION_TO_DEPS" pom.xml
