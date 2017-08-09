@@ -24,7 +24,7 @@ import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.runtime.core.api.Event;
+import org.mule.runtime.core.api.InternalEvent;
 
 import java.io.InputStream;
 import java.nio.file.Paths;
@@ -123,7 +123,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
     testHarness.write(filePath, "overwrite me!");
 
-    Event event = flowRunner("readAndWrite").withVariable("path", filePath).run();
+    InternalEvent event = flowRunner("readAndWrite").withVariable("path", filePath).run();
 
     assertThat(event.getMessageAsString(muleContext), equalTo(HELLO_WORLD));
   }
