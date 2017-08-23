@@ -29,7 +29,7 @@ import javax.inject.Inject;
  *
  * @since 1.0
  */
-@Extension(name = "FTP", description = "Connector to manipulate Files on a FTP/SFTP server")
+@Extension(name = "FTP")
 @Operations({FtpOperations.class})
 @ConnectionProviders({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
 @Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class, FtpFileAttributes.class})
