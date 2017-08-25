@@ -75,13 +75,6 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
   }
 
   @Test
-  public void nullTarget() throws Exception {
-    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
-                                            "target path cannot be null nor blank");
-    doExecute(null, false, false);
-  }
-
-  @Test
   public void copyToItselfWithoutOverwrite() throws Exception {
     testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
                                             "already exists");
