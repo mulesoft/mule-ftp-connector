@@ -10,6 +10,7 @@ import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.resolvePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import static org.mule.runtime.core.api.util.collection.Collectors.toImmutableList;
@@ -19,7 +20,6 @@ import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.jcraft.jsch.Channel;
@@ -32,6 +32,8 @@ import com.jcraft.jsch.ProxySOCKS4;
 import com.jcraft.jsch.ProxySOCKS5;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +43,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper around jsch sftp library which provides access to basic sftp commands.
@@ -393,7 +392,7 @@ public class SftpClient {
   }
 
   public void setKnownHostsFile(String knownHostsFile) {
-    this.knownHostsFile = !isEmpty(knownHostsFile) ? new File(knownHostsFile).getAbsolutePath() : knownHostsFile;
+    this.knownHostsFile = !isEmpty(knownHostsFile) ? new File(resolvePath(knownHostsFile)).getAbsolutePath() : knownHostsFile;
   }
 
   public void setPassword(String password) {
@@ -402,8 +401,9 @@ public class SftpClient {
 
   public void setIdentity(String identityFilePath, String passphrase) {
     if (!isEmpty(identityFilePath)) {
-      this.identityFile = new File(identityFilePath).getAbsolutePath();
-      checkExists(identityFilePath);
+      String resolvedPath = resolvePath(identityFilePath);
+      this.identityFile = new File(resolvedPath).getAbsolutePath();
+      checkExists(resolvedPath);
     }
     this.passphrase = passphrase;
   }

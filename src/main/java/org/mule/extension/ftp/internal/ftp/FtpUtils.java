@@ -6,9 +6,11 @@
  */
 package org.mule.extension.ftp.internal.ftp;
 
-import java.nio.file.Path;
-
+import static java.lang.Thread.currentThread;
 import org.apache.commons.io.FilenameUtils;
+
+import java.net.URL;
+import java.nio.file.Path;
 
 /**
  * Utility class for normalizing FTP paths
@@ -30,5 +32,10 @@ public class FtpUtils {
 
   public static String normalizePath(Path path) {
     return normalizePath(path.toString());
+  }
+
+  public static String resolvePath(String pathOrResourceName) {
+    URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
+    return resource != null ? resource.getPath() : pathOrResourceName;
   }
 }
