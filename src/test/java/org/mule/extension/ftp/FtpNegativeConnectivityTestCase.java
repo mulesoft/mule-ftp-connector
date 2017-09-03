@@ -6,30 +6,33 @@
  */
 package org.mule.extension.ftp;
 
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
 import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
-import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FTPConnectionException;
+import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
-
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @Feature(FTP_EXTENSION)
 @Story("Negative Connectivity Testing")
@@ -46,6 +49,13 @@ public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase 
   public FtpNegativeConnectivityTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
     super(name, testHarness, ftpConfigFile);
     this.name = name;
+  }
+
+  @Parameterized.Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        {"ftp", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML},
+        {"sftp", new SftpTestHarness(), SFTP_CONNECTION_XML}});
   }
 
   @Override

@@ -13,9 +13,9 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
+import static org.mule.extension.ftp.internal.ftp.FtpUtils.resolvePath;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
-
 import org.mule.extension.AbstractFtpTestHarness;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -24,17 +24,17 @@ import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClient;
 import org.mule.extension.ftp.internal.sftp.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
-
 import com.jcraft.jsch.JSchException;
+import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
 
 /**
  * Implementation of {@link FtpTestHarness} for classic SFTP connections
@@ -49,12 +49,28 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
   private DynamicPort sftpPort = new DynamicPort(SFTP_PORT);
   private SftpServer sftpServer;
   private SftpClient sftpClient;
+  private AuthConfigurator<SftpClient> clientAuthConfigurator;
+  private AuthConfigurator<SftpServer> serverAuthConfigurator;
 
   /**
    * Creates a new instance which activates the {@code sftp} spring profile
    */
   public SftpTestHarness() {
+    this(AuthType.USER_PASSWORD);
+  }
+
+  public SftpTestHarness(AuthType authType) {
     super("sftp");
+    switch (authType) {
+      case USER_PASSWORD:
+        clientAuthConfigurator = (sftpClient -> sftpClient.setPassword(PASSWORD));
+        serverAuthConfigurator = (SftpServer::setPasswordAuthenticator);
+        break;
+      case PUBLIC_KEY:
+        clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePath("sftp-test-key"), null));
+        serverAuthConfigurator = (sftpServer -> sftpServer
+            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePath("sftp-test-key.pub")))));
+    }
   }
 
   /**
@@ -89,7 +105,7 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
 
   private SftpClient createDefaultSftpClient() throws IOException, JSchException {
     SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber());
-    sftpClient.setPassword(PASSWORD);
+    clientAuthConfigurator.configure(sftpClient);
     sftpClient.login(USERNAME);
     sftpClient.changeWorkingDirectory(temporaryFolder.getRoot().getPath());
     return sftpClient;
@@ -97,6 +113,7 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
 
   private void setUpServer() {
     sftpServer = new SftpServer(sftpPort.getNumber());
+    serverAuthConfigurator.configure(sftpServer);
     sftpServer.start();
   }
 
@@ -244,5 +261,15 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
   @Override
   public Class getAttributesType() {
     return SftpFileAttributes.class;
+  }
+
+  public enum AuthType {
+    USER_PASSWORD, PUBLIC_KEY
+  }
+
+  @FunctionalInterface
+  private interface AuthConfigurator<T> {
+
+    void configure(T sftpClient);
   }
 }

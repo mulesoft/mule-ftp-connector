@@ -7,19 +7,18 @@
 package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
-
 import org.mule.runtime.api.exception.MuleRuntimeException;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.Security;
-
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.scp.ScpCommandFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.Security;
 
 public class SftpServer {
 
@@ -33,19 +32,26 @@ public class SftpServer {
     configureSecurityProvider();
     SftpSubsystemFactory factory = createFtpSubsystemFactory();
     sshdServer = SshServer.setUpDefaultServer();
-    configureSshdServer(factory, passwordAuthenticator());
+    configureSshdServer(factory);
   }
 
   public void setPasswordAuthenticator(PasswordAuthenticator passwordAuthenticator) {
     sshdServer.setPasswordAuthenticator(passwordAuthenticator);
   }
 
-  private void configureSshdServer(SftpSubsystemFactory factory, PasswordAuthenticator passwordAuthenticator) {
+  public void setPasswordAuthenticator() {
+    sshdServer.setPasswordAuthenticator(passwordAuthenticator());
+  }
+
+  public void setPublicKeyAuthenticator(PublickeyAuthenticator publicKeyAuthenticator) {
+    sshdServer.setPublickeyAuthenticator(publicKeyAuthenticator);
+  }
+
+  private void configureSshdServer(SftpSubsystemFactory factory) {
     sshdServer.setPort(port);
     sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("hostkey.ser")));
     sshdServer.setSubsystemFactories(asList(factory));
     sshdServer.setCommandFactory(new ScpCommandFactory());
-    sshdServer.setPasswordAuthenticator(passwordAuthenticator);
   }
 
   private SftpSubsystemFactory createFtpSubsystemFactory() {
