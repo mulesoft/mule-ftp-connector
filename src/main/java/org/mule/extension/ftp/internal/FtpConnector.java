@@ -34,7 +34,7 @@ import javax.inject.Inject;
 @ConnectionProviders({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
 @Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class, FtpFileAttributes.class})
 @PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.ftp.connection",
-    "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.mule.runtime.modules:mule-module-ftps"})
+    "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
 @ErrorTypes(FileError.class)
 @Xml(prefix = "ftp")
 public class FtpConnector extends FileConnectorConfig {
