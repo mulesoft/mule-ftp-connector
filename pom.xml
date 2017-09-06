@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.0.0-rc-SNASPHOT</version>
+        <version>1.0.0-rc-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <jschVersion>0.1.54</jschVersion>
 
         <muleFileCommonsVersion>0.9.0-SNAPSHOT</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.0.0-rc-SNASPHOT</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>4.0.0-rc-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
