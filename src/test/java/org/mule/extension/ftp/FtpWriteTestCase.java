@@ -6,31 +6,32 @@
  */
 package org.mule.extension.ftp;
 
+import static java.nio.charset.Charset.availableCharsets;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
-import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static java.nio.charset.Charset.availableCharsets;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.runtime.core.api.InternalEvent;
+import org.mule.runtime.core.api.event.BaseEvent;
+
+import org.junit.Test;
 
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
@@ -123,9 +124,9 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
     testHarness.write(filePath, "overwrite me!");
 
-    InternalEvent event = flowRunner("readAndWrite").withVariable("path", filePath).run();
+    BaseEvent event = flowRunner("readAndWrite").withVariable("path", filePath).run();
 
-    assertThat(event.getMessageAsString(muleContext), equalTo(HELLO_WORLD));
+    assertThat(event.getMessage().getPayload().getValue(), equalTo(HELLO_WORLD));
   }
 
   @Test

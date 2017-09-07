@@ -13,7 +13,7 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.sftp.SftpTestHarness;
-import org.mule.runtime.core.api.InternalEvent;
+import org.mule.runtime.core.api.event.BaseEvent;
 import org.mule.runtime.core.api.message.OutputHandler;
 import org.mule.test.runner.RunnerDelegateTo;
 
@@ -87,7 +87,7 @@ public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
   private static class TestOutputHandler implements OutputHandler {
 
     @Override
-    public void write(InternalEvent event, OutputStream out) throws IOException {
+    public void write(BaseEvent event, OutputStream out) throws IOException {
       org.apache.commons.io.IOUtils.write(HELLO_WORLD, out);
     }
   }

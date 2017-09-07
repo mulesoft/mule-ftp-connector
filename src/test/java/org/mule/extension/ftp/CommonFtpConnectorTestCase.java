@@ -17,7 +17,7 @@ import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
-import org.mule.runtime.core.api.InternalEvent;
+import org.mule.runtime.core.api.event.BaseEvent;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.test.runner.RunnerDelegateTo;
@@ -61,7 +61,7 @@ public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTes
     this.ftpConfigFile = new SystemProperty("ftp.connection.config", configName);
   }
 
-  protected InternalEvent readHelloWorld() throws Exception {
+  protected BaseEvent readHelloWorld() throws Exception {
     return getPath(HELLO_PATH);
   }
 
@@ -87,11 +87,11 @@ public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTes
         .withVariable("encoding", encoding).withPayload(content).run();
   }
 
-  private InternalEvent getPath(String path) throws Exception {
+  private BaseEvent getPath(String path) throws Exception {
     return getPath(path, true);
   }
 
-  private InternalEvent getPath(String path, boolean streaming) throws Exception {
+  private BaseEvent getPath(String path, boolean streaming) throws Exception {
     return flowRunner("read")
         .withVariable("path", path)
         .withVariable("streaming", streaming)
