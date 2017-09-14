@@ -87,7 +87,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void readUnexisting() throws Exception {
-    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exists");
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exist");
     readPath("files/not-there.txt");
   }
 

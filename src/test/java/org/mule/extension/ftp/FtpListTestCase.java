@@ -94,7 +94,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void notExistingPath() throws Exception {
-    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exists");
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exist");
     doList("list", "whatever", false);
   }
 

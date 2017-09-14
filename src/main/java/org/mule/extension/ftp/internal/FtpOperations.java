@@ -61,7 +61,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param matcher a matcher used to filter the output list
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
    *         attributes
-   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exists or is not a directory
+   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
@@ -93,7 +93,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param path the path to the file to be read
    * @param lock whether or not to lock the file. Defaults to false.
    * @return the file's content and metadata on a {@link FileAttributes} instance
-   * @throws IllegalArgumentException if the file at the given path doesn't exists
+   * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Summary("Obtains the content and metadata of a file at a given path")
   @Throws(FileReadErrorTypeProvider.class)
@@ -142,7 +142,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   /**
    * Copies the file at the {@code sourcePath} into the {@code targetPath}.
    * <p>
-   * If {@code targetPath} doesn't exists, and neither does its parent, then an attempt will be made to create depending on the
+   * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
    * value of the {@code createParentFolder} argument. If such argument is {@false}, then an {@link IllegalArgumentException} will
    * be thrown.
    * <p>
@@ -172,7 +172,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   /**
    * Moves the file at the {@code sourcePath} into the {@code targetPath}.
    * <p>
-   * If {@code targetPath} doesn't exists, and neither does its parent, then an attempt will be made to create depending on the
+   * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
    * value of the {@code createParentFolder} argument. If such argument is {@code false}, then an {@link IllegalArgumentException}
    * will be thrown.
    * <p>
@@ -205,7 +205,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    *
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path to the file to be deleted
-   * @throws IllegalArgumentException if {@code filePath} doesn't exists or is locked
+   * @throws IllegalArgumentException if {@code filePath} doesn't exist or is locked
    */
   @Summary("Deletes a file")
   @Throws(FileDeleteErrorTypeProvider.class)

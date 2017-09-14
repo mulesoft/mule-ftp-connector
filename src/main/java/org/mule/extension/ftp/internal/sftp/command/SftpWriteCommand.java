@@ -53,7 +53,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       if (mode == FileWriteMode.CREATE_NEW) {
         throw new FileAlreadyExistsException(format(
                                                     "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
-                                                        + "Use a different write mode or point to a path which doesn't exists",
+                                                        + "Use a different write mode or point to a path which doesn't exist",
                                                     path, mode));
       }
     }

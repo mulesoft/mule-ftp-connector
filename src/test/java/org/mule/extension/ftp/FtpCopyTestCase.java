@@ -102,7 +102,7 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void toNonExistingFolderWithoutCreateParent() throws Exception {
     testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
-                                            "doesn't exists");
+                                            "doesn't exist");
     testHarness.makeDir(TARGET_DIRECTORY);
     String target = format("%s/%s", TARGET_DIRECTORY, "a/b/c");
     doExecute(target, false, false);

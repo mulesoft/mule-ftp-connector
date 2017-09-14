@@ -48,11 +48,11 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
 
   /**
    * Similar to {@link #getFile(String)} but throwing an {@link IllegalArgumentException} if the
-   * {@code filePath} doesn't exists
+   * {@code filePath} doesn't exist
    *
    * @param filePath the path to the file you want
    * @return a {@link FtpFileAttributes}
-   * @throws IllegalArgumentException if the {@code filePath} doesn't exists
+   * @throws IllegalArgumentException if the {@code filePath} doesn't exist
    */
   protected FtpFileAttributes getExistingFile(String filePath) {
     return getFile(filePath, true);
@@ -63,7 +63,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    * command
    *
    * @param filePath the path to the file you want
-   * @return a {@link FtpFileAttributes} or {@code null} if it doesn't exists
+   * @return a {@link FtpFileAttributes} or {@code null} if it doesn't exist
    */
   public FtpFileAttributes getFile(String filePath) {
     return getFile(filePath, false);
@@ -105,7 +105,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    */
   protected void changeWorkingDirectory(String path) {
     if (!tryChangeWorkingDirectory(path)) {
-      throw new IllegalArgumentException(format("Could not change working directory to '%s'. Path doesn't exists or is not a directory",
+      throw new IllegalArgumentException(format("Could not change working directory to '%s'. Path doesn't exist or is not a directory",
                                                 path.toString()));
     }
     LOGGER.debug("working directory changed to {}", path);
@@ -128,7 +128,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
   }
 
   /**
-   * Attempts to change the current working directory. If it was not possible (for example, because it doesn't exists), it returns
+   * Attempts to change the current working directory. If it was not possible (for example, because it doesn't exist), it returns
    * {@code false}
    *
    * @param path the path to which you wish to move
@@ -200,7 +200,7 @@ public abstract class FtpCommand<C extends FtpFileSystem> extends FileCommand<C>
    * @param source the path to be copied
    * @param target the path to the target destination
    * @param overwrite whether to overwrite existing target paths
-   * @param createParentDirectory whether to create the target's parent directory if it doesn't exists
+   * @param createParentDirectory whether to create the target's parent directory if it doesn't exist
    */
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, FtpCopyDelegate delegate) {
