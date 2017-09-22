@@ -11,7 +11,6 @@ import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
 import org.mule.extension.ftp.internal.ftp.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0
  */
 public abstract class AbstractFtpConnectionProvider<C extends FtpFileSystem>
-    extends FileSystemProvider<C> implements PoolingConnectionProvider<C> {
+    extends FileSystemProvider<C> implements ConnectionProvider<C> {
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
 
