@@ -13,6 +13,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
@@ -26,11 +27,11 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import javax.inject.Inject;
+
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-
-import javax.inject.Inject;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -124,7 +125,7 @@ public class ClassicFtpConnectionProvider extends AbstractFtpConnectionProvider<
     return new FTPClient();
   }
 
-  @Override
+  //  @Override
   public void onBorrow(ClassicFtpFileSystem connection) {
     connection.setTransferMode(transferMode);
     connection.setResponseTimeout(getResponseTimeout(), getResponseTimeoutUnit());
