@@ -17,14 +17,14 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
+
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
+
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +33,9 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 @Feature(FTP_EXTENSION)
 @Story("Negative Connectivity Testing")
@@ -65,7 +68,7 @@ public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase 
 
   @Before
   public void setUp() {
-    utils = new TestConnectivityUtils(muleContext);
+    utils = new TestConnectivityUtils(registry);
   }
 
   @Test
