@@ -185,7 +185,8 @@ public class ClassicFtpTestHarness extends AbstractFtpTestHarness {
     FTPFile file = ftpClient.get(path);
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
-    assertThat(fileAttributes.getPath(), equalTo(Paths.get("/", WORKING_DIR, HELLO_PATH).toString()));
+    assertThat(Paths.get(fileAttributes.getPath()).toString(),
+               equalTo(Paths.get(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).toString()));
     assertThat(fileAttributes.getSize(), is(file.getSize()));
     assertTime(fileAttributes.getTimestamp(), file.getTimestamp());
     assertThat(fileAttributes.isDirectory(), is(false));

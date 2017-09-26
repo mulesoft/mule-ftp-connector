@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
@@ -230,8 +231,8 @@ public class SftpTestHarness extends AbstractFtpTestHarness {
     SftpFileAttributes file = sftpClient.getAttributes(Paths.get(path));
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
-
-    assertThat(fileAttributes.getPath(), equalTo(Paths.get(temporaryFolder.getRoot().getPath(), HELLO_PATH).toString()));
+    assertTrue(Paths.get(temporaryFolder.getRoot().getPath(), HELLO_PATH).toString()
+        .contains(Paths.get(fileAttributes.getPath()).toString()));
     assertThat(fileAttributes.getSize(), is(file.getSize()));
     assertThat(fileAttributes.getTimestamp(), equalTo(file.getTimestamp()));
     assertThat(fileAttributes.isDirectory(), is(false));

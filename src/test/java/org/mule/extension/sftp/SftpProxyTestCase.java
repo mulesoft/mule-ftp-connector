@@ -18,6 +18,8 @@ import org.mule.tck.junit4.rule.DynamicPort;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.nio.file.Paths;
+
 public class SftpProxyTestCase extends AbstractFtpConnectorTestCase {
 
   @Rule
@@ -52,7 +54,8 @@ public class SftpProxyTestCase extends AbstractFtpConnectorTestCase {
   @Test
   public void connectsThroughProxy() throws Exception {
     testHarness.createHelloWorldFile();
-    Message message = flowRunner("sftpRead").run().getMessage();
+    Message message =
+        flowRunner("sftpRead").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
     assertThat(getPayloadAsString(message), is(HELLO_WORLD));
   }
 }
