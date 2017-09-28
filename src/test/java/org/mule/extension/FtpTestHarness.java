@@ -12,6 +12,8 @@ import org.mule.functional.junit4.rules.ExpectedError;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 
+import java.nio.file.Paths;
+
 /**
  * A {@link TestRule} which provides tools and environment for reusing the same test regardless of the remote server type (FTP,
  * SFTP, etc) or the authentication method
@@ -23,9 +25,9 @@ public interface FtpTestHarness extends TestRule {
   String HELLO_WORLD = "Hello World!";
   String HELLO_FILE_NAME = "hello.json";
   String BINARY_FILE_NAME = "binary.bin";
-  String HELLO_PATH = "files/" + HELLO_FILE_NAME;
+  String HELLO_PATH = Paths.get("files/" + HELLO_FILE_NAME).toString();
   String DEFAULT_FTP_HOST = "localhost";
-  String FTP_SERVER_BASE_DIR = "target/ftpserver";
+  String FTP_SERVER_BASE_DIR = Paths.get("target/ftpserver").toString();
   String WORKING_DIR_SYSTEM_PROPERTY = "workingDir";
   String WORKING_DIR = "base";
 
