@@ -21,6 +21,7 @@ import org.mule.runtime.extension.api.annotation.PrivilegedExport;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.runtime.extension.api.annotation.license.RequiresEnterpriseLicense;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,7 @@ import javax.inject.Inject;
  * @since 1.0
  */
 @Extension(name = "FTP")
+@RequiresEnterpriseLicense(allowEvaluationLicense = true)
 @Operations({FtpOperations.class})
 @ConnectionProviders({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
 @Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class, FtpFileAttributes.class})
