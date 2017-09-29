@@ -6,20 +6,18 @@
  */
 package org.mule.extension.ftp;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mule.extension.FtpTestHarness.BINARY_FILE_NAME;
 import static org.mule.extension.FtpTestHarness.HELLO_PATH;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
-import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.mule.extension.FtpTestHarness;
+import static org.mule.runtime.api.metadata.MediaType.JSON;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
-import org.mule.extension.ftp.api.FtpFileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.message.Message;
@@ -31,15 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
-
-  public FtpReadTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

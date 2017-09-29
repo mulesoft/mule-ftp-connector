@@ -14,24 +14,18 @@ import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-
-import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 
 import java.nio.file.Paths;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 
   private static final String RENAME_TO = "renamed";
-
-  public FtpRenameTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

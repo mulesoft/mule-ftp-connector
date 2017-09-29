@@ -6,29 +6,23 @@
  */
 package org.mule.extension.ftp;
 
-import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
-
-import org.mule.extension.FtpTestHarness;
+import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 
 import java.nio.file.Paths;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   private static final String DIRECTORY = "validDirectory";
   private static final String ROOT_CHILD_DIRECTORY = "rootChildDirectory";
-
-  public FtpCreateDirectoryTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {
@@ -61,7 +55,7 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void createDirectoryFromRoot() throws Exception {
     String rootChildDirectoryPath =
-        normalizePath(Paths.get(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString());
+        normalizePath(Paths.get(testHarness.getWorkingDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString());
     doCreateDirectory(rootChildDirectoryPath);
     assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
   }

@@ -6,6 +6,7 @@
  */
 package org.mule.extension.ftp.api;
 
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -16,10 +17,7 @@ import java.time.LocalDateTime;
 import java.util.function.Predicate;
 
 /**
- * A specialization of {@link FileMatcher} used to do assertions on files stored on an FTP server. The file's properties
- * are to be represented on an instance of {@link FtpFileAttributes}
- * <p>
- * It adds capabilities to consider the file's unique timestamp.
+ * A set of criterias used to filter files stored in a FTP server. The file's properties
  *
  * @since 1.0
  */

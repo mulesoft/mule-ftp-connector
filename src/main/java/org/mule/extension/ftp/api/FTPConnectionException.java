@@ -26,10 +26,6 @@ public class FTPConnectionException extends ConnectionException {
     super(message, new ModuleException(message, errors));
   }
 
-  public FTPConnectionException(Throwable throwable, FileError fileError) {
-    super(new ModuleException(fileError, throwable));
-  }
-
   public FTPConnectionException(String message, Throwable throwable, FileError fileError) {
     super(message, new ModuleException(fileError, throwable));
   }

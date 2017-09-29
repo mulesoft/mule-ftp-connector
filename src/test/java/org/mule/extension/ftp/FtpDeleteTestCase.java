@@ -12,10 +12,8 @@ import static org.mule.extension.FtpTestHarness.HELLO_PATH;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
-import org.mule.extension.FtpTestHarness;
-
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpDeleteTestCase extends CommonFtpConnectorTestCase {
@@ -23,10 +21,6 @@ public class FtpDeleteTestCase extends CommonFtpConnectorTestCase {
   private static final String SUB_FOLDER = "files/subfolder";
   private static final String SUB_FOLDER_FILE = "grandChild";
   private static final String SUB_FOLDER_FILE_PATH = String.format("%s/%s", SUB_FOLDER, SUB_FOLDER_FILE);
-
-  public FtpDeleteTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

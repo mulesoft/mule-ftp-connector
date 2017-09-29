@@ -17,25 +17,17 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
-
-import org.mule.extension.FtpTestHarness;
 import org.mule.extension.ftp.api.FTPConnectionException;
-import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.Parameterized;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
 
 @Feature(FTP_EXTENSION)
 @Story("Negative Connectivity Testing")
@@ -43,27 +35,15 @@ public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase 
 
   private static final Matcher<Exception> ANYTHING =
       is(allOf(instanceOf(ConnectionException.class), hasCause(instanceOf(FTPConnectionException.class))));
-  private final String name;
+
   private TestConnectivityUtils utils;
 
   @Rule
   public SystemProperty rule = TestConnectivityUtils.disableAutomaticTestConnectivity();
 
-  public FtpNegativeConnectivityTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-    this.name = name;
-  }
-
-  @Parameterized.Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        {"ftp", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML},
-        {"sftp", new SftpTestHarness(), SFTP_CONNECTION_XML}});
-  }
-
   @Override
   protected String getConfigFile() {
-    return name + "-negative-connectivity-test.xml";
+    return "ftp-negative-connectivity-test.xml";
   }
 
   @Before
@@ -73,36 +53,32 @@ public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase 
 
   @Test
   public void configInvalidCredentials() {
-    utils.assertFailedConnection(name + "ConfigInvalidCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
+    utils.assertFailedConnection("ftpConfigInvalidCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
   @Test
   public void configConnectionTimeout() {
-    utils.assertFailedConnection(name + "ConfigConnectionTimeout", ANYTHING, is(errorType(CONNECTION_TIMEOUT)));
+    utils.assertFailedConnection("ftpConfigConnectionTimeout", ANYTHING, is(errorType(CONNECTION_TIMEOUT)));
   }
 
   @Test
   public void connectionRefused() {
-    utils.assertFailedConnection(name + "ConfigConnectionRefused", ANYTHING, is(errorType(CANNOT_REACH)));
+    utils.assertFailedConnection("ftpConfigConnectionRefused", ANYTHING, is(errorType(CANNOT_REACH)));
   }
 
   @Test
   public void configMissingCredentials() {
-    utils.assertFailedConnection(name + "ConfigMissingCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
+    utils.assertFailedConnection("ftpConfigMissingCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
   @Test
   public void configUnknownHost() {
-    utils.assertFailedConnection(name + "ConfigUnknownHost", ANYTHING, is(errorType(UNKNOWN_HOST)));
+    utils.assertFailedConnection("ftpConfigUnknownHost", ANYTHING, is(errorType(UNKNOWN_HOST)));
   }
 
   @Test
   public void ftpConfigServiceUnavailable() {
-    // For some strange reason the usage of "assumeThat()" doesn't make the test being ignored and breaks it.
-    // assumeThat(name, is("ftp"));
-    if (name.equals("ftp")) {
-      utils.assertSuccessConnection("ftpConfigFirstConnection");
-      utils.assertFailedConnection("ftpConfigServiceUnavailable", ANYTHING, is(errorType(SERVICE_NOT_AVAILABLE)));
-    }
+    utils.assertSuccessConnection("ftpConfigFirstConnection");
+    utils.assertFailedConnection("ftpConfigServiceUnavailable", ANYTHING, is(errorType(SERVICE_NOT_AVAILABLE)));
   }
 }
