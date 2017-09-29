@@ -7,16 +7,15 @@
 package org.mule.extension.ftp.internal;
 
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import org.mule.extension.ftp.api.FtpFileAttributes;
-import org.mule.extension.ftp.internal.ftp.connection.FtpFileSystem;
-import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpFileSystem;
+import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
+import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.mule.extension.file.common.api.lock.PathLock;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
-import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,7 @@ import java.util.function.Supplier;
  * An {@link AbstractFileInputStream} implementation which obtains a {@link FtpFileSystem} through a {@link ConnectionManager} and
  * uses it to obtain the contents of a file on a FTP server.
  * <p>
- * When the stream is closed or fully consumed, the {@link ClassicFtpFileSystem} is released back to the {@link ConnectionManager}
+ * When the stream is closed or fully consumed, the {@link FtpFileSystem} is released back to the {@link ConnectionManager}
  *
  * @since 1.0
  */

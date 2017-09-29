@@ -17,7 +17,6 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
-import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.api.exception.MuleException;
@@ -39,10 +38,6 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
   private static final String TEST_FILE_PATTERN = "test-file-%d.html";
   private static final String SUB_DIRECTORY_NAME = "subDirectory";
   private static final String CONTENT = "foo";
-
-  public FtpListTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

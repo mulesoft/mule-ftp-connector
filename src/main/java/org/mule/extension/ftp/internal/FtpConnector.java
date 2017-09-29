@@ -8,13 +8,8 @@ package org.mule.extension.ftp.internal;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
-import org.mule.extension.ftp.api.FtpFileAttributes;
-import org.mule.extension.ftp.api.ftp.ClassicFtpFileAttributes;
-import org.mule.extension.ftp.api.sftp.SftpFileAttributes;
-import org.mule.extension.ftp.internal.ftp.connection.ClassicFtpConnectionProvider;
-import org.mule.extension.ftp.internal.sftp.connection.SftpConnectionProvider;
+import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.PrivilegedExport;
@@ -25,21 +20,18 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 import javax.inject.Inject;
 
 /**
- * Allows manipulating files through the FTP and SFTP
+ * Connects to an FTP server
  *
  * @since 1.0
  */
 @Extension(name = "FTP")
 @Operations({FtpOperations.class})
-@ConnectionProviders({ClassicFtpConnectionProvider.class, SftpConnectionProvider.class})
-@Export(classes = {SftpFileAttributes.class, ClassicFtpFileAttributes.class, FtpFileAttributes.class})
-@PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.ftp.connection",
+@ConnectionProviders(FtpConnectionProvider.class)
+@PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.connection",
     "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
 @ErrorTypes(FileError.class)
 @Xml(prefix = "ftp")
 public class FtpConnector extends FileConnectorConfig {
-
-  public static final String FTP_PROTOCOL = "ftp";
 
   @Inject
   private ConnectionManager connectionManager;

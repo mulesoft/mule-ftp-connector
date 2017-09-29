@@ -8,58 +8,31 @@ package org.mule.extension.ftp;
 
 import static org.mule.extension.FtpTestHarness.HELLO_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static org.mule.extension.sftp.SftpTestHarness.AuthType.PUBLIC_KEY;
-import static org.mule.extension.sftp.SftpTestHarness.AuthType.USER_PASSWORD;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
-import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.tck.junit4.rule.SystemProperty;
-import org.mule.test.runner.RunnerDelegateTo;
-import io.qameta.allure.Feature;
-import org.junit.Rule;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 
-@RunnerDelegateTo(Parameterized.class)
+import io.qameta.allure.Feature;
+import org.junit.Rule;
+
 @Feature(FTP_EXTENSION)
 public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTestCase {
 
-  public static final String FTP_CONNECTION_CONFIG_XML = "ftp-connection-config.xml";
-  public static final String SFTP_CONNECTION_XML = "sftp-connection.xml";
-  public static final String SFTP_CONNECTION_XML_WITH_IDENTITY_FILE = "sftp-connection-with-identity-file.xml";
-
   protected static final String NAMESPACE = "FTP";
-  private final String name;
 
   @Rule
-  public final FtpTestHarness testHarness;
+  public final FtpTestHarness testHarness = new DefaultFtpTestHarness();
 
   @Rule
-  public SystemProperty ftpConfigFile;
-
-  @Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        {"ftp", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML},
-        {"sftp-user-password", new SftpTestHarness(USER_PASSWORD), SFTP_CONNECTION_XML},
-        {"sftp-public-key", new SftpTestHarness(PUBLIC_KEY), SFTP_CONNECTION_XML_WITH_IDENTITY_FILE}});
-  }
-
-  public CommonFtpConnectorTestCase(String name, FtpTestHarness testHarness, String configName) {
-    this.name = name;
-    this.testHarness = testHarness;
-    this.ftpConfigFile = new SystemProperty("ftp.connection.config", configName);
-  }
+  public SystemProperty ftpConfigFile = new SystemProperty("ftp.connection.config", "ftp-connection.xml");
 
   protected CoreEvent readHelloWorld() throws Exception {
     return getPath(HELLO_PATH);

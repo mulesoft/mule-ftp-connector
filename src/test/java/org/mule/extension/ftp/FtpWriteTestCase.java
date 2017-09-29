@@ -19,29 +19,22 @@ import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREA
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
-
-import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.core.api.event.CoreEvent;
-
-import org.junit.Test;
 
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEMP_DIRECTORY = "files";
-
-  public FtpWriteTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

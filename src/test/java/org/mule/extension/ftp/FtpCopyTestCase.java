@@ -6,23 +6,21 @@
  */
 package org.mule.extension.ftp;
 
+import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.mule.extension.ftp.internal.ftp.FtpUtils.normalizePath;
-
-import org.mule.extension.FtpTestHarness;
+import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 
 import java.nio.file.Paths;
 
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
 public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
@@ -34,10 +32,6 @@ public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
   private static final String RENAMED = "renamed.txt";
 
   protected String sourcePath;
-
-  public FtpCopyTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile) {
-    super(name, testHarness, ftpConfigFile);
-  }
 
   @Override
   protected String getConfigFile() {

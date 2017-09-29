@@ -10,9 +10,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import org.mule.extension.FtpTestHarness;
 import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.sftp.SftpTestHarness;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.message.OutputHandler;
 import org.mule.test.runner.RunnerDelegateTo;
@@ -23,9 +21,9 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
+import io.qameta.allure.Feature;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import io.qameta.allure.Feature;
 
 @RunnerDelegateTo(Parameterized.class)
 @Feature(FTP_EXTENSION)
@@ -34,28 +32,20 @@ public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
   @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        {"Ftp - String", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, HELLO_WORLD, HELLO_WORLD},
-        {"Ftp - native byte", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, "A".getBytes()[0], "A"},
-        {"Ftp - Object byte", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, new Byte("A".getBytes()[0]), "A"},
-        {"Ftp - OutputHandler", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML, new TestOutputHandler(), HELLO_WORLD},
-        {"Ftp - InputStream", new ClassicFtpTestHarness(), FTP_CONNECTION_CONFIG_XML,
-            new ByteArrayInputStream(HELLO_WORLD.getBytes()), HELLO_WORLD},
-
-        {"Sftp - String", new SftpTestHarness(), SFTP_CONNECTION_XML, HELLO_WORLD, HELLO_WORLD},
-        {"Sftp - native byte", new SftpTestHarness(), SFTP_CONNECTION_XML, "A".getBytes()[0], "A"},
-        {"Sftp - Object byte", new SftpTestHarness(), SFTP_CONNECTION_XML, new Byte("A".getBytes()[0]), "A"},
-        {"Sftp - byte[]", new SftpTestHarness(), SFTP_CONNECTION_XML, HELLO_WORLD.getBytes(), HELLO_WORLD},
-        {"Sftp - OutputHandler", new SftpTestHarness(), SFTP_CONNECTION_XML, new TestOutputHandler(), HELLO_WORLD},
-        {"Sftp - InputStream", new SftpTestHarness(), SFTP_CONNECTION_XML, new ByteArrayInputStream(HELLO_WORLD.getBytes()),
-            HELLO_WORLD},});
+        {"Ftp - String", HELLO_WORLD, HELLO_WORLD},
+        {"Ftp - native byte", "A".getBytes()[0], "A"},
+        {"Ftp - Object byte", new Byte("A".getBytes()[0]), "A"},
+        {"Ftp - OutputHandler", new TestOutputHandler(), HELLO_WORLD},
+        {"Ftp - InputStream", new ByteArrayInputStream(HELLO_WORLD.getBytes()), HELLO_WORLD}});
   }
 
+  private final String name;
   private final Object content;
   private final String expected;
   private String path;
 
-  public FtpWriteTypeTestCase(String name, FtpTestHarness testHarness, String ftpConfigFile, Object content, String expected) {
-    super(name, testHarness, ftpConfigFile);
+  public FtpWriteTypeTestCase(String name, Object content, String expected) {
+    this.name = name;
     this.content = content;
     this.expected = expected;
   }
@@ -64,7 +54,6 @@ public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
   protected String getConfigFile() {
     return "ftp-write-config.xml";
   }
-
 
   @Override
   protected void doSetUp() throws Exception {
