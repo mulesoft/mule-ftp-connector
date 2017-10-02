@@ -7,7 +7,7 @@
 package org.mule.extension;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
-import org.mule.functional.junit4.rules.ExpectedError;
+import org.mule.functional.api.exception.ExpectedError;
 
 import java.nio.file.Paths;
 
