@@ -10,6 +10,7 @@ import static org.mule.functional.api.exception.ExpectedError.none;
 
 import org.mule.functional.api.exception.ExpectedError;
 import org.mule.tck.junit4.rule.SystemProperty;
+import org.mule.test.extension.file.common.api.FileTestHarness;
 
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
@@ -17,11 +18,11 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Base class for {@link FtpTestHarness} implementations
+ * Base class for {@link FileTestHarness} implementations
  *
  * @since 1.0
  */
-public abstract class AbstractFtpTestHarness extends ExternalResource implements FtpTestHarness {
+public abstract class AbstractFtpTestHarness extends ExternalResource implements FileTestHarness {
 
   private SystemProperty profileSystemProperty;
   private ExpectedError expectedError = none();

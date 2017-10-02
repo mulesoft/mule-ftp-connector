@@ -8,7 +8,7 @@ package org.mule.extension.ftp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.FtpTestHarness.HELLO_WORLD;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.runtime.core.api.event.CoreEvent;

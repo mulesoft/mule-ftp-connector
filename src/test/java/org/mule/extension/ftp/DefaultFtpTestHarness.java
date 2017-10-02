@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.AbstractFtpTestHarness;
-import org.mule.extension.FtpTestHarness;
+import org.mule.test.extension.file.common.api.FileTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.test.infrastructure.client.ftp.FTPTestClient;
@@ -28,7 +28,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.junit.rules.TestRule;
 
 /**
- * Implementation of {@link FtpTestHarness} for classic FTP connections
+ * Implementation of {@link FileTestHarness} for classic FTP connections
  *
  * @since 1.0
  */
@@ -123,14 +123,6 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
    * {@inheritDoc}
    */
   @Override
-  public String getRootDirectory() throws Exception {
-    return "/";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void write(String path, String content) throws Exception {
     ftpClient.putFile(path, content);
   }
@@ -179,7 +171,8 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
    * {@inheritDoc}
    */
   @Override
-  public void assertAttributes(String path, FtpFileAttributes fileAttributes) throws Exception {
+  public void assertAttributes(String path, Object attributes) throws Exception {
+    FtpFileAttributes fileAttributes = (FtpFileAttributes) attributes;
     FTPFile file = ftpClient.get(path);
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
@@ -202,13 +195,5 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
   @Override
   public void assertDeleted(String path) throws Exception {
     assertThat(fileExists(path), is(false));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Class getAttributesType() {
-    return FtpFileAttributes.class;
   }
 }
