@@ -6,8 +6,9 @@
  */
 package org.mule.extension;
 
-import static org.mule.functional.junit4.rules.ExpectedError.none;
-import org.mule.functional.junit4.rules.ExpectedError;
+import static org.mule.functional.api.exception.ExpectedError.none;
+
+import org.mule.functional.api.exception.ExpectedError;
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.rules.ExternalResource;
