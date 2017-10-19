@@ -13,6 +13,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -28,16 +29,17 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
-import org.apache.log4j.Logger;
 
 /**
  * Connects to an FTP server
@@ -49,7 +51,7 @@ import org.apache.log4j.Logger;
 public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> implements
     PoolingConnectionProvider<FtpFileSystem> {
 
-  private static final Logger LOGGER = Logger.getLogger(FtpConnectionProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpConnectionProvider.class);
   private static final String FTP_ERROR_MESSAGE_MASK =
       "Could not establish FTP connection with host: '%s' at port: '%d' - %s";
   public static final String ERROR_CODE_MASK = "Error code: %d - %s";
@@ -96,6 +98,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getWorkingDir() {
     return workingDir;
   }
