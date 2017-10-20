@@ -28,7 +28,6 @@ import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
-import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.internal.command.FtpCopyCommand;
 import org.mule.extension.ftp.internal.command.FtpCreateDirectoryCommand;
@@ -237,13 +236,8 @@ public final class FtpFileSystem extends AbstractFileSystem {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @return a {@link URLPathLock} based on the {@link #client}'s connection information
-   */
   @Override
-  protected PathLock createLock(Path path, Object... params) {
+  protected PathLock createLock(Path path) {
     return new URLPathLock(toURL(path), lockFactory);
   }
 
@@ -335,13 +329,5 @@ public final class FtpFileSystem extends AbstractFileSystem {
   @Override
   protected CreateDirectoryCommand getCreateDirectoryCommand() {
     return createDirectoryCommand;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Class<? extends FileAttributes> getAttributesType() {
-    return FtpFileAttributes.class;
   }
 }
