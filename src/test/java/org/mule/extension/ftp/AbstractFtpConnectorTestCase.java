@@ -10,7 +10,7 @@ import org.mule.extension.ftp.internal.FtpUtils;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
-@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {FtpUtils.class}, sharedRuntimeLibs = {"org.mule.tests:mule-tests-unit"})
+@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {FtpUtils.class})
 public abstract class AbstractFtpConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
 }
