@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,8 +25,8 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
 
-        <muleFileCommonsVersion>1.0.0-SNAPSHOT</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.0.0-SNAPSHOT</muleTestsComponentPlugin>
+        <muleFileCommonsVersion>1.1.0-SNAPSHOT</muleFileCommonsVersion>
+        <muleTestsComponentPlugin>4.1.0-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
