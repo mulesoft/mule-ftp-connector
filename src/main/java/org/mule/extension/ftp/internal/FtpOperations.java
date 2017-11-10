@@ -6,6 +6,7 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
@@ -40,8 +41,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.activation.MimetypesFileTypeMap;
-
 /**
  * Ftp connector operations
  *
@@ -70,7 +69,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Throws(FileListErrorTypeProvider.class)
   public List<Result<InputStream, FtpFileAttributes>> list(@Config FileConnectorConfig config,
                                                            @Connection FtpFileSystem fileSystem,
-                                                           @Path(type = DIRECTORY) String directoryPath,
+                                                           @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath,
                                                            @Optional(defaultValue = "false") boolean recursive,
                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher) {
     List result = doList(config, fileSystem, directoryPath, recursive, matcher);
@@ -87,7 +86,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * system, its behavior might change depending on the mounted drive and the operation system on which mule is running. Take that
    * into consideration before blindly relying on this lock.
    * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. A {@link MimetypesFileTypeMap} will
+   * This method also makes a best effort to determine the mime type of the file being read. The file's extension will
    * be used to make an educated guess on the file's mime type. The user also has the chance to force the output encoding and
    * mimeType through the {@code outputEncoding} and {@code outputMimeType} optional parameters.
    *
@@ -103,7 +102,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @MediaType(value = ANY, strict = false)
   public Result<InputStream, FtpFileAttributes> read(@Config FileConnectorConfig config,
                                                      @Connection FtpFileSystem fileSystem,
-                                                     @DisplayName("File Path") @Path(type = FILE) String path,
+                                                     @DisplayName("File Path") @Path(type = FILE,
+                                                         location = EXTERNAL) String path,
                                                      @Optional(defaultValue = "false") @Placement(
                                                          tab = ADVANCED_TAB) boolean lock) {
     Result result = doRead(config, fileSystem, path, lock);
@@ -114,7 +114,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * Writes the {@code content} into the file pointed by {@code path}.
    * <p>
    * If the directory on which the file is attempting to be written doesn't exist, then the operation will either throw
-   * {@link IllegalArgumentException} or create such folder depending on the value of the {@code createParentDirectory}.
+   * {@code FTP:ILLEGAL_PATH} error or create such folder depending on the value of the {@code createParentDirectory}.
    * <p>
    * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
    * <p>
@@ -134,7 +134,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Writes the given \"Content\" in the file pointed by \"Path\"")
   @Throws(FileWriteErrorTypeProvider.class)
-  public void write(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, String path,
+  public void write(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
+                    @Path(type = FILE, location = EXTERNAL) String path,
                     @Content @Summary("Content to be written into the file") InputStream content,
                     @Optional @Summary("Encoding when trying to write a String file. If not set, defaults to the configuration one or the Mule default") String encoding,
                     @Optional(defaultValue = "true") boolean createParentDirectories,
@@ -147,11 +148,11 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * Copies the file at the {@code sourcePath} into the {@code targetPath}.
    * <p>
    * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
-   * value of the {@code createParentFolder} argument. If such argument is {@false}, then an {@link IllegalArgumentException} will
+   * value of the {@code createParentFolder} argument. If such argument is {@false}, then a {@code FTP:ILLEGAL_PATH} will
    * be thrown.
    * <p>
    * If the target file already exists, then it will be overwritten if the {@code overwrite} argument is {@code true}. Otherwise,
-   * {@link IllegalArgumentException} will be thrown.
+   * {@code FTP:FILE_ALREADY_EXISTS} error will be thrown.
    * <p>
    * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be copied
    * recursively.
@@ -167,8 +168,10 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Copies a file")
   @Throws(FileCopyErrorTypeProvider.class)
-  public void copy(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional @Path String sourcePath,
-                   @Path(type = DIRECTORY) String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
+  public void copy(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
+                   @Path(location = EXTERNAL) String sourcePath,
+                   @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,
+                   @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
     super.doCopy(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
@@ -176,12 +179,12 @@ public final class FtpOperations extends BaseFileSystemOperations {
   /**
    * Moves the file at the {@code sourcePath} into the {@code targetPath}.
    * <p>
-   * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
-   * value of the {@code createParentFolder} argument. If such argument is {@code false}, then an {@link IllegalArgumentException}
-   * will be thrown.
+   * t, and neither does its parent, then an attempt will be made to create depending on the
+   * value of the {@code createParentFolder} argument. If such argument is {@false}, then a {@code FTP:ILLEGAL_PATH} will
+   * be thrown.
    * <p>
    * If the target file already exists, then it will be overwritten if the {@code overwrite} argument is {@code true}. Otherwise,
-   * {@link IllegalArgumentException} will be thrown.
+   * {@code FTP:FILE_ALREADY_EXISTS} error will be thrown.
    * <p>
    * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be moved
    * recursively.
@@ -197,8 +200,10 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Moves a file")
   @Throws(FileCopyErrorTypeProvider.class)
-  public void move(@Config FileConnectorConfig config, @Connection FileSystem fileSystem, @Optional @Path String sourcePath,
-                   @Path(type = DIRECTORY) String targetPath, @Optional(defaultValue = "true") boolean createParentDirectories,
+  public void move(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
+                   @Path(location = EXTERNAL) String sourcePath,
+                   @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,
+                   @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
     super.doMove(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
@@ -213,14 +218,14 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Deletes a file")
   @Throws(FileDeleteErrorTypeProvider.class)
-  public void delete(@Connection FileSystem fileSystem, @Optional @Path String path) {
+  public void delete(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String path) {
     super.doDelete(fileSystem, path);
   }
 
   /**
    * Renames the file pointed by {@code path} to the name provided on the {@code to} parameter
    * <p>
-   * {@code to} argument should not contain any path separator. {@link IllegalArgumentException} will be thrown if this
+   * {@code to} argument should not contain any path separator. {@code FTP:ILLEGAL_PATH} will be thrown if this
    * precondition is not honored.
    *
    * @param fileSystem a reference to the host {@link FileSystem}
@@ -230,7 +235,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Renames a file")
   @Throws(FileRenameErrorTypeProvider.class)
-  public void rename(@Connection FileSystem fileSystem, @Optional @Path String path,
+  public void rename(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String path,
                      @DisplayName("New Name") String to, @Optional(defaultValue = "false") boolean overwrite) {
     super.doRename(fileSystem, path, to, overwrite);
   }
@@ -243,7 +248,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("Creates a new directory")
   @Throws(FileRenameErrorTypeProvider.class)
-  public void createDirectory(@Connection FileSystem fileSystem, String directoryPath) {
+  public void createDirectory(@Connection FileSystem fileSystem,
+                              @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath) {
     super.doCreateDirectory(fileSystem, directoryPath);
   }
 }
