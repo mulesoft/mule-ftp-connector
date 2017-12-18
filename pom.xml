@@ -23,7 +23,7 @@
         <commonsIoVersion>2.4</commonsIoVersion>
         <commonsLangVersion>3.6</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <guavaVersion>18.0</guavaVersion>
+        <guavaVersion>23.5-jre</guavaVersion>
 
         <muleFileCommonsVersion>1.1.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>4.1.0-SNAPSHOT</muleTestsComponentPlugin>
