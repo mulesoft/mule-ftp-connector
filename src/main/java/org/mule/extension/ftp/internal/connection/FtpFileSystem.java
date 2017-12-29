@@ -258,13 +258,18 @@ public final class FtpFileSystem extends AbstractFileSystem {
     String basePath = getBasePath();
     if (basePath != null) {
       try {
-        client.changeWorkingDirectory(Paths.get(basePath).toString());
+        //client.changeWorkingDirectory(Paths.get(basePath).toString());
+        client.changeWorkingDirectory(Paths.get("/", basePath).toString());
       } catch (IOException e) {
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
                                        e);
       }
     }
+  }
+
+  public FTPClient getClient() {
+    return client;
   }
 
   /**

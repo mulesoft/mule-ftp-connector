@@ -35,7 +35,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpListCommand extends FtpCommand implements ListCommand {
+public final class FtpListCommand extends FtpCommand implements ListCommand<FtpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(FtpListCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
@@ -51,10 +51,10 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
    * {@inheritDoc}
    */
   @Override
-  public List<Result<InputStream, FileAttributes>> list(FileConnectorConfig config,
-                                                        String directoryPath,
-                                                        boolean recursive,
-                                                        Predicate<FileAttributes> matcher) {
+  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                           String directoryPath,
+                                                           boolean recursive,
+                                                           Predicate<FtpFileAttributes> matcher) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
     Path path = Paths.get(directoryAttributes.getPath());
@@ -67,7 +67,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
       throw exception(format("Could not change working directory to '%s' while trying to list that directory", path));
     }
 
-    List<Result<InputStream, FileAttributes>> accumulator = new LinkedList<>();
+    List<Result<InputStream, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
       doList(config, path, accumulator, recursive, matcher);
@@ -86,9 +86,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
 
   private void doList(FileConnectorConfig config,
                       Path path,
-                      List<Result<InputStream, FileAttributes>> accumulator,
+                      List<Result<InputStream, FtpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<FileAttributes> matcher)
+                      Predicate<FtpFileAttributes> matcher)
       throws IOException {
     LOGGER.debug("Listing directory {}", path);
 
@@ -101,14 +101,14 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
 
       for (FTPFile file : files) {
         final Path filePath = path.resolve(file.getName());
-        FileAttributes attributes = new FtpFileAttributes(filePath, file);
+        FtpFileAttributes attributes = new FtpFileAttributes(filePath, file);
 
         if (isVirtualDirectory(attributes.getName()) || !matcher.test(attributes)) {
           continue;
         }
 
         if (attributes.isDirectory()) {
-          accumulator.add(Result.<InputStream, FileAttributes>builder().output(null).attributes(attributes).build());
+          accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
 
           if (recursive) {
             Path recursionPath = path.resolve(normalizePath(attributes.getName()));

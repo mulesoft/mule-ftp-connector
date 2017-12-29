@@ -9,10 +9,12 @@ package org.mule.extension.ftp.internal;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
+import org.mule.extension.ftp.internal.source.FtpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.PrivilegedExport;
+import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
@@ -30,6 +32,7 @@ import javax.inject.Inject;
 @PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.connection",
     "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
 @ErrorTypes(FileError.class)
+@Sources(FtpDirectoryListener.class)
 @Xml(prefix = "ftp")
 public class FtpConnector extends FileConnectorConfig {
 
