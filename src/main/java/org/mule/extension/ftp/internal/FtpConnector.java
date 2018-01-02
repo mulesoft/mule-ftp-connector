@@ -30,7 +30,8 @@ import javax.inject.Inject;
 @Operations({FtpOperations.class})
 @ConnectionProviders(FtpConnectionProvider.class)
 @PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.connection",
-    "org.apache.commons.net.ftp"}, artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
+    "org.mule.extension.ftp.internal.source", "org.apache.commons.net.ftp"},
+    artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
 @ErrorTypes(FileError.class)
 @Sources(FtpDirectoryListener.class)
 @Xml(prefix = "ftp")
