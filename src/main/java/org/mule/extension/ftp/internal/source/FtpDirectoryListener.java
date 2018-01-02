@@ -88,6 +88,7 @@ import org.slf4j.LoggerFactory;
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
 @BackPressure(defaultMode = WAIT, supportedModes = WAIT)
+// TODO: MULE-13940 - add mimeType here too
 public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpDirectoryListener.class);
@@ -229,7 +230,7 @@ public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes>
       fileSystem = openConnection();
     } catch (Exception e) {
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
-                          e.getMessage()));
+                          e.getMessage()), e);
       return;
     }
 
