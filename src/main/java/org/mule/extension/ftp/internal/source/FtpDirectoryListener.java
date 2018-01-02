@@ -229,7 +229,6 @@ public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes>
     FtpFileSystem fileSystem;
     try {
       fileSystem = openConnection();
-    } catch (ConnectionException e) {
     } catch (Exception e) {
       if (e instanceof ConnectionException) {
         sourceCallback.onConnectionException((ConnectionException) e);
