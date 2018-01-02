@@ -21,6 +21,7 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.component.location.ComponentLocation;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -228,9 +229,15 @@ public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes>
     FtpFileSystem fileSystem;
     try {
       fileSystem = openConnection();
+    } catch (ConnectionException e) {
     } catch (Exception e) {
+      if (e instanceof ConnectionException) {
+        sourceCallback.onConnectionException((ConnectionException) e);
+      }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
-                          e.getMessage()), e);
+                          e.getMessage()),
+                   e);
+
       return;
     }
 
@@ -301,7 +308,12 @@ public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes>
   private FtpFileSystem openConnection() throws Exception {
 
     FtpFileSystem fileSystem = fileSystemProvider.connect();
-    fileSystem.changeToBaseDir();
+    try {
+      fileSystem.changeToBaseDir();
+    } catch (Exception e) {
+      fileSystemProvider.disconnect(fileSystem);
+      throw e;
+    }
     return fileSystem;
   }
 
