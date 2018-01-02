@@ -11,9 +11,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.AbstractFtpTestHarness;
-import org.mule.test.extension.file.common.api.FileTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.tck.junit4.rule.SystemProperty;
+import org.mule.test.extension.file.common.api.FileTestHarness;
 import org.mule.test.infrastructure.client.ftp.FTPTestClient;
 import org.mule.test.infrastructure.process.rules.FtpServer;
 
@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.junit.rules.TestRule;
 
@@ -37,7 +38,8 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
   private static final String FTP_USER = "anonymous";
   private static final String FTP_PASSWORD = "password";
 
-  private FtpServer ftpServer = new FtpServer("ftpPort", new File(FTP_SERVER_BASE_DIR, WORKING_DIR));
+  private final File serverBaseDir = new File(FTP_SERVER_BASE_DIR, WORKING_DIR);
+  private FtpServer ftpServer = new FtpServer("ftpPort", serverBaseDir);
   private SystemProperty workingDirSystemProperty = new SystemProperty(WORKING_DIR_SYSTEM_PROPERTY, WORKING_DIR);
   private FTPTestClient ftpClient;
 
@@ -74,8 +76,8 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
       }
     } finally {
       ftpServer.stop();
+      FileUtils.deleteDirectory(serverBaseDir);
     }
-
   }
 
   /**
@@ -195,5 +197,9 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
   @Override
   public void assertDeleted(String path) throws Exception {
     assertThat(fileExists(path), is(false));
+  }
+
+  public void setTimestamp(String path, LocalDateTime time) throws Exception {
+    ftpClient.setTimestamp(path, time);
   }
 }

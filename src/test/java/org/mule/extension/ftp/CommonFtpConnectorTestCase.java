@@ -6,10 +6,9 @@
  */
 package org.mule.extension.ftp;
 
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
-import org.mule.test.extension.file.common.api.FileTestHarness;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.runtime.api.message.Message;
@@ -29,7 +28,7 @@ public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTes
   protected static final String NAMESPACE = "FTP";
 
   @Rule
-  public final FileTestHarness testHarness = new DefaultFtpTestHarness();
+  public final DefaultFtpTestHarness testHarness = new DefaultFtpTestHarness();
 
   @Rule
   public SystemProperty ftpConfigFile = new SystemProperty("ftp.connection.config", "ftp-connection.xml");

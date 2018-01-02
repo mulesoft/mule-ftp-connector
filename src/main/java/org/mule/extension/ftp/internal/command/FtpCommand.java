@@ -48,13 +48,17 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
 
   protected final FTPClient client;
 
+  protected FtpCommand(FtpFileSystem fileSystem) {
+    this(fileSystem, fileSystem.getClient());
+  }
+
   /**
    * Creates a new instance
    *
    * @param fileSystem the {@link FileSystem} on which the operation is performed
    * @param client a ready to use {@link FTPClient} to perform the operations
    */
-  FtpCommand(FtpFileSystem fileSystem, FTPClient client) {
+  protected FtpCommand(FtpFileSystem fileSystem, FTPClient client) {
     super(fileSystem);
     this.client = client;
   }
