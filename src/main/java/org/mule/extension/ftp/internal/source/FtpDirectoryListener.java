@@ -14,7 +14,6 @@ import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.store.ObjectStoreSettings.unmanagedPersistent;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-import static org.mule.runtime.extension.api.runtime.source.BackPressureMode.WAIT;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -46,7 +45,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
-import org.mule.runtime.extension.api.annotation.source.BackPressure;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.Source;
 import org.mule.runtime.extension.api.runtime.source.SourceCallback;
@@ -88,7 +86,6 @@ import org.slf4j.LoggerFactory;
 @DisplayName("On New File")
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
-@BackPressure(defaultMode = WAIT, supportedModes = WAIT)
 // TODO: MULE-13940 - add mimeType here too
 public class FtpDirectoryListener extends Source<InputStream, FtpFileAttributes> {
 
