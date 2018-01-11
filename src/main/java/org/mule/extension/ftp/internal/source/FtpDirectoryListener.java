@@ -164,7 +164,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         pollContext.onConnectionException((ConnectionException) e);
       }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
-                          e.getMessage()), e);
+                          e.getMessage()),
+                   e);
 
       return;
     }
@@ -243,7 +244,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         }
       } catch (Throwable t) {
         LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
-                            fullPath, t.getMessage()), t);
+                            fullPath, t.getMessage()),
+                     t);
         if (result != null) {
           releaseRejectedResource(result, ctx);
         }
@@ -280,8 +282,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
-          format("Could not resolve path to directory '%s'. %s",
-                 directory, e.getMessage())),
+                                                                            format("Could not resolve path to directory '%s'. %s",
+                                                                                   directory, e.getMessage())),
                                      e);
     } finally {
       if (fileSystem != null) {

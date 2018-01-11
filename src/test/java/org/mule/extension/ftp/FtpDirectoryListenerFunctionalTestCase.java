@@ -128,7 +128,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
 
     File file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
     testHarness.write(file.getPath(), WATCH_CONTENT);
-    
+
     check(PROBER_TIMEOUT, PROBER_DELAY,
           () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
               testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, "renamed.txt").getPath()));
