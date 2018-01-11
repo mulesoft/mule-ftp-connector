@@ -42,7 +42,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   private static final String WATCH_CONTENT = "who watches the watchmen?";
   private static final String DR_MANHATTAN = "Dr. Manhattan";
   private static final String MATCH_FILE = "matchme.txt";
-  private static final int PROBER_TIMEOUT = 20000;
+  private static final int PROBER_TIMEOUT = 10000;
   private static final int PROBER_DELAY = 1000;
 
   private static List<Message> RECEIVED_MESSAGES;
@@ -126,7 +126,9 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
     stopFlow("listenWithoutMatcher");
     startFlow("moveToWithRename");
 
-    onFileCreated();
+    File file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
+    testHarness.write(file.getPath(), WATCH_CONTENT);
+    
     check(PROBER_TIMEOUT, PROBER_DELAY,
           () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
               testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, "renamed.txt").getPath()));

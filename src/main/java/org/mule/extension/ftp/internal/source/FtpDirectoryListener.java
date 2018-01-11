@@ -175,13 +175,15 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
           .filter(a -> a != null)
           .collect(toList());
 
-      fileSystemProvider.disconnect(fileSystem);
-      fileSystem = null;
-
       if (attributesList.isEmpty()) {
         return;
       }
       for (FtpFileAttributes attributes : attributesList) {
+
+        if (attributes.isDirectory()) {
+          continue;
+        }
+
         if (!matcher.test(attributes)) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
@@ -205,7 +207,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   @Override
-  public void releaseRejectedResource(Result<InputStream, FtpFileAttributes> result) {
+  public void releaseRejectedResource(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
     closeQuietly(result.getOutput());
   }
 
@@ -225,12 +227,11 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     String fullPath = attributes.getPath();
 
     PollItemStatus status = pollContext.accept(item -> {
+      SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result<InputStream, FtpFileAttributes> result = null;
       try {
 
-        SourceCallbackContext ctx = item.getSourceCallbackContext();
-
-        FtpFileSystem fileSystem = fileSystemProvider.connect();
+        FtpFileSystem fileSystem = openConnection();
         ctx.bindConnection(fileSystem);
 
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
@@ -244,7 +245,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
                             fullPath, t.getMessage()), t);
         if (result != null) {
-          releaseRejectedResource(result);
+          releaseRejectedResource(result, ctx);
         }
       }
     });
