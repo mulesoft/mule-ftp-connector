@@ -7,10 +7,8 @@
 package org.mule.extension.ftp;
 
 import static java.time.LocalDateTime.now;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.tck.probe.PollingProber.check;
@@ -44,7 +42,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   private static final String WATCH_CONTENT = "who watches the watchmen?";
   private static final String DR_MANHATTAN = "Dr. Manhattan";
   private static final String MATCH_FILE = "matchme.txt";
-  private static final int PROBER_TIMEOUT = 10000;
+  private static final int PROBER_TIMEOUT = 20000;
   private static final int PROBER_DELAY = 1000;
 
   private static List<Message> RECEIVED_MESSAGES;
@@ -108,19 +106,6 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
 
     assertPoll(file, DR_MANHATTAN);
     checkNot(PROBER_TIMEOUT, PROBER_DELAY, () -> RECEIVED_MESSAGES.size() > 1);
-  }
-
-  @Test
-  @Description("verifies that if two listeners poll the same file at the same time, only one picks it up")
-  public void twoSourcesGoForTheSameFileAndDeleteIt() throws Exception {
-    final File file = new File(SHARED_LISTENER_FOLDER_NAME, WATCH_FILE);
-    testHarness.write(file.getPath(), WATCH_CONTENT);
-
-    checkNot(PROBER_TIMEOUT, PROBER_DELAY, () -> RECEIVED_MESSAGES.size() > 1);
-
-    assertThat(RECEIVED_MESSAGES, hasSize(1));
-    FileAttributes attributes = (FileAttributes) RECEIVED_MESSAGES.get(0).getAttributes().getValue();
-    assertThat(attributes.getPath(), containsString(file.getPath()));
   }
 
   @Test

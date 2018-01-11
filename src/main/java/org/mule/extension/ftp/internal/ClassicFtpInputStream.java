@@ -12,6 +12,8 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
+import org.mule.runtime.api.util.LazyValue;
+import org.mule.runtime.core.api.util.func.CheckedSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,21 +31,21 @@ public class ClassicFtpInputStream extends FtpInputStream {
    * <p>
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
-   * @param config the {@link FtpConnector} which is configuring the connection
+   * @param config     the {@link FtpConnector} which is configuring the connection
    * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock the {@link PathLock} to be used
+   * @param lock       the {@link PathLock} to be used
    * @return a new {@link FtpInputStream}
    * @throws ConnectionException if a connection could not be established
    */
-  public static FtpInputStream newInstance(FtpConnector config, FtpFileAttributes attributes, PathLock lock)
-      throws ConnectionException {
-    ConnectionHandler<FtpFileSystem> connectionHandler = getConnectionHandler(config);
+  public static FtpInputStream newInstance(FtpConnector config, FtpFileAttributes attributes, PathLock lock) {
+    LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler =
+        new LazyValue<>((CheckedSupplier<ConnectionHandler<FtpFileSystem>>) () -> getConnectionHandler(config));
     return new ClassicFtpInputStream(getStreamSupplier(attributes, connectionHandler), connectionHandler, lock);
   }
 
-  private ClassicFtpInputStream(Supplier<InputStream> streamSupplier, ConnectionHandler<FtpFileSystem> connectionHandler,
-                                PathLock lock)
-      throws ConnectionException {
+  private ClassicFtpInputStream(Supplier<InputStream> streamSupplier,
+                                LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler,
+                                PathLock lock) {
     super(streamSupplier, connectionHandler, lock);
   }
 
@@ -53,6 +55,6 @@ public class ClassicFtpInputStream extends FtpInputStream {
    */
   @Override
   protected void beforeClose() throws IOException {
-    ((FtpFileSystem) getFtpFileSystem()).awaitCommandCompletion();
+    getFtpFileSystem().awaitCommandCompletion();
   }
 }

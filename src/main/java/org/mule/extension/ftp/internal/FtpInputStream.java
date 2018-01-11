@@ -15,7 +15,9 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.util.LazyValue;
 import org.mule.runtime.core.api.connector.ConnectionManager;
+import org.mule.runtime.core.api.util.func.CheckedSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +33,18 @@ import java.util.function.Supplier;
  */
 public abstract class FtpInputStream extends AbstractFileInputStream {
 
-  private final ConnectionHandler<FtpFileSystem> connectionHandler;
-  private final FtpFileSystem ftpFileSystem;
+  private final LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler;
+  private final LazyValue<FtpFileSystem> ftpFileSystem;
 
   protected static ConnectionHandler<FtpFileSystem> getConnectionHandler(FtpConnector config) throws ConnectionException {
     return config.getConnectionManager().getConnection(config);
   }
 
   protected static Supplier<InputStream> getStreamSupplier(FtpFileAttributes attributes,
-                                                           ConnectionHandler<FtpFileSystem> connectionHandler) {
+                                                           Supplier<ConnectionHandler<FtpFileSystem>> connectionHandler) {
     Supplier<InputStream> streamSupplier = () -> {
       try {
-        return connectionHandler.getConnection().retrieveFileContent(attributes);
+        return connectionHandler.get().getConnection().retrieveFileContent(attributes);
       } catch (ConnectionException e) {
         throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
                                        e);
@@ -53,12 +55,12 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
   }
 
 
-  protected FtpInputStream(Supplier<InputStream> streamSupplier, ConnectionHandler<FtpFileSystem> connectionHandler,
-                           PathLock lock)
-      throws ConnectionException {
+  protected FtpInputStream(Supplier<InputStream> streamSupplier,
+                           LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler,
+                           PathLock lock) {
     super(new LazyStreamSupplier(streamSupplier), lock);
     this.connectionHandler = connectionHandler;
-    this.ftpFileSystem = connectionHandler.getConnection();
+    this.ftpFileSystem = new LazyValue<>((CheckedSupplier<FtpFileSystem>) () -> connectionHandler.get().getConnection());
   }
 
   @Override
@@ -69,7 +71,7 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
       try {
         super.doClose();
       } finally {
-        connectionHandler.release();
+        connectionHandler.ifComputed(ConnectionHandler::release);
       }
     }
   }
@@ -85,6 +87,6 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
    * @return the {@link FtpFileSystem} used to obtain the stream
    */
   protected FtpFileSystem getFtpFileSystem() {
-    return ftpFileSystem;
+    return ftpFileSystem.get();
   }
 }

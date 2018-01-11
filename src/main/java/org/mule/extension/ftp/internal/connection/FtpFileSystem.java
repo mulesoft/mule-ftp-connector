@@ -28,6 +28,7 @@ import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.internal.command.FtpCopyCommand;
 import org.mule.extension.ftp.internal.command.FtpCreateDirectoryCommand;
@@ -59,7 +60,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpFileSystem extends AbstractFileSystem {
+public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
