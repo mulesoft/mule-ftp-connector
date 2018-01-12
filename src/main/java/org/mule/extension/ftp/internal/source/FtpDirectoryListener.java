@@ -208,7 +208,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   @Override
-  public void releaseRejectedResource(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
+  public void onRejectedItem(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
     closeQuietly(result.getOutput());
   }
 
@@ -247,7 +247,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
                             fullPath, t.getMessage()),
                      t);
         if (result != null) {
-          releaseRejectedResource(result, ctx);
+          onRejectedItem(result, ctx);
         }
       }
     });
