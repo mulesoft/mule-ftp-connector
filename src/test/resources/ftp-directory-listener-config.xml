@@ -12,41 +12,69 @@
     <ftp:matcher name="matcher" filenamePattern="matchme.txt" />
 
     <flow name="listenWithoutMatcher">
-        <ftp:listener config-ref="config" directory="matcherless" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="matcherless">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <flow-ref name="onEvent"/>
     </flow>
 
     <flow name="redundantListener1">
-        <ftp:listener config-ref="config" directory="shared" autoDelete="true" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="shared" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <flow-ref name="onSharedFolderFile" />
     </flow>
 
     <flow name="redundantListener2">
-        <ftp:listener config-ref="config" directory="shared" autoDelete="true" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="shared" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <flow-ref name="onSharedFolderFile" />
     </flow>
 
     <flow name="listenTxtOnly">
-        <ftp:listener config-ref="config" directory="withMatcher" matcher="matcher" autoDelete="true" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="withMatcher" matcher="matcher" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <set-payload value="Dr. Manhattan" />
         <flow-ref name="onEvent"/>
     </flow>
 
     <flow name="moveTo" initialState="stopped">
-        <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <set-variable variableName="moveTo" value="shared" />
         <flow-ref name="onEvent"/>
     </flow>
 
     <flow name="moveToWithRename" initialState="stopped">
-        <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" renameTo="#[vars.rename]" pollingFrequency="1"/>
+        <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" renameTo="#[vars.rename]">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
         <set-variable variableName="moveTo" value="shared" />
         <set-variable variableName="rename" value="renamed.txt" />
         <flow-ref name="onEvent"/>
     </flow>
     
     <flow name="modifiedWatermark" initialState="stopped">
-        <ftp:listener config-ref="config" directory="matcherless" autoDelete="false" watermarkEnabled="true" pollingFrequency="3"/>
+        <ftp:listener config-ref="config" directory="matcherless" autoDelete="false" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="7000"/>
+            </scheduling-strategy>
+        </ftp:listener>
         <flow-ref name="onEvent"/>
     </flow>
 

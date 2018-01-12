@@ -66,7 +66,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
     } catch (Exception e) {
       pathLock.release();
       closeQuietly(payload);
-      throw exception(format("Could not fetch file '%s'. %s", path, e.getMessage(), e));
+      throw exception(format("Could not fetch file '%s'. %s", path, e.getMessage()), e);
     }
   }
 }
