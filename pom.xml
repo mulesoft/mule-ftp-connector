@@ -13,7 +13,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-ftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <name>FTP Connector</name>
     <description>A Mule connector that provides functionality to manage files in an FTP server</description>
@@ -26,7 +26,7 @@
         <guavaVersion>23.5-jre</guavaVersion>
 
         <muleFileCommonsVersion>1.1.0-SNAPSHOT</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.1.0-SNAPSHOT</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>4.2.0-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
