@@ -20,6 +20,15 @@
         <flow-ref name="onEvent"/>
     </flow>
 
+    <flow name="listenNonRecursive" initialState="stopped">
+        <ftp:listener config-ref="config" directory="matcherless" recursive="false">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </ftp:listener>
+        <flow-ref name="onEvent"/>
+    </flow>
+
     <flow name="redundantListener1">
         <ftp:listener config-ref="config" directory="shared" autoDelete="true">
             <scheduling-strategy>
@@ -53,6 +62,7 @@
             <scheduling-strategy>
                 <fixed-frequency />
             </scheduling-strategy>
+            <ftp:matcher minSize="5" />
         </ftp:listener>
         <set-variable variableName="moveTo" value="shared" />
         <flow-ref name="onEvent"/>

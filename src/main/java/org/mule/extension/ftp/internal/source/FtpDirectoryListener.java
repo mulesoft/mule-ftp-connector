@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.1
  */
 @MediaType(value = ANY, strict = false)
-@DisplayName("On New File")
+@DisplayName("On New or Updated File")
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
 // TODO: MULE-13940 - add mimeType here too
