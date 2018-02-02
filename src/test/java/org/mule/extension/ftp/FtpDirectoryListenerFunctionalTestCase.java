@@ -26,6 +26,7 @@ import org.mule.runtime.core.api.processor.Processor;
 import java.io.File;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.qameta.allure.Description;
@@ -94,6 +95,25 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
     testHarness.write(file.getPath(), WATCH_CONTENT);
 
     assertPoll(file, WATCH_CONTENT);
+  }
+
+  @Test
+  @Description("Verifies that files created in subdirs are not picked")
+  public void nonRecursive() throws Exception {
+    stopFlow("listenWithoutMatcher");
+
+    startFlow("listenNonRecursive");
+    File subdir = new File(MATCHERLESS_LISTENER_FOLDER_NAME, "subdir");
+    testHarness.makeDir(subdir.getPath());
+    File file = new File(subdir, WATCH_FILE);
+    testHarness.write(file.getPath(), WATCH_CONTENT);
+
+    expectNot(file);
+
+    file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, "nonRecursive.txt");
+    final String nonRecursiveContent = "you shall not recurse";
+    testHarness.write(file.getPath(), nonRecursiveContent);
+    assertPoll(file, nonRecursiveContent);
   }
 
   @Test
@@ -183,22 +203,32 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   }
 
   private void assertPoll(File file, Object expectedContent) {
+    Message message = expect(file);
+    String payload = toString(message.getPayload().getValue());
+    assertThat(payload, equalTo(expectedContent));
+  }
+
+  private Message expect(File file) {
     Reference<Message> messageHolder = new Reference<>();
     check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
-      for (Message message : RECEIVED_MESSAGES) {
-        FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
-        if (attributes.getPath().contains(file.getPath())) {
-          messageHolder.set(message);
-          return true;
-        }
-      }
-
-      return false;
-
+      getPicked(file).ifPresent(messageHolder::set);
+      return messageHolder.get() != null;
     });
 
-    String payload = toString(messageHolder.get().getPayload().getValue());
-    assertThat(payload, equalTo(expectedContent));
+    return messageHolder.get();
+  }
+
+  private void expectNot(File file) {
+    checkNot(PROBER_TIMEOUT, PROBER_DELAY, () -> getPicked(file).isPresent());
+  }
+
+  private Optional<Message> getPicked(File file) {
+    return RECEIVED_MESSAGES.stream()
+        .filter(message -> {
+          FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
+          return attributes.getPath().contains(file.getPath());
+        })
+        .findFirst();
   }
 
   private void startFlow(String flowName) throws Exception {
