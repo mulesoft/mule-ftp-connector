@@ -8,6 +8,7 @@ package org.mule.extension.ftp.api.ftp;
 
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.file.common.api.AbstractFileAttributes;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -21,11 +22,22 @@ import org.apache.commons.net.ftp.FTPFile;
  */
 public class FtpFileAttributes extends AbstractFileAttributes {
 
+  @Parameter
   private LocalDateTime timestamp;
+
+  @Parameter
   private String name;
+
+  @Parameter
   private long size;
+
+  @Parameter
   private boolean regularFile;
+
+  @Parameter
   private boolean directory;
+
+  @Parameter
   private boolean symbolicLink;
 
   /**
