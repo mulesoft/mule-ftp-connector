@@ -11,8 +11,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
@@ -226,7 +228,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
     return RECEIVED_MESSAGES.stream()
         .filter(message -> {
           FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
-          return attributes.getPath().contains(file.getPath());
+          return attributes.getPath().contains(normalizePath(file.getPath()));
         })
         .findFirst();
   }
