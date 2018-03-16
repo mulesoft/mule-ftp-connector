@@ -15,6 +15,7 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.failure
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
@@ -259,7 +260,7 @@ public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
     String basePath = getBasePath();
     if (basePath != null) {
       try {
-        client.changeWorkingDirectory(Paths.get("/", basePath).toString());
+        client.changeWorkingDirectory(normalizePath(Paths.get("/").resolve(getBasePath())));
       } catch (IOException e) {
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
