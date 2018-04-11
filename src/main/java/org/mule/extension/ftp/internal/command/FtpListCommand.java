@@ -103,12 +103,14 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
         final Path filePath = path.resolve(file.getName());
         FtpFileAttributes attributes = new FtpFileAttributes(filePath, file);
 
-        if (isVirtualDirectory(attributes.getName()) || !matcher.test(attributes)) {
+        if (isVirtualDirectory(attributes.getName())) {
           continue;
         }
 
         if (attributes.isDirectory()) {
-          accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
+          if (matcher.test(attributes)) {
+            accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
+          }
 
           if (recursive) {
             Path recursionPath = path.resolve(normalizePath(attributes.getName()));
@@ -123,7 +125,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
             }
           }
         } else {
-          accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false));
+          if (matcher.test(attributes)) {
+            accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false));
+          }
         }
       }
     }

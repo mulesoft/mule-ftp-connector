@@ -32,4 +32,17 @@
         <test:processor class="org.mule.extension.ftp.FtpListTestCase$TestProcessor"/>
         <test:processor class="org.mule.extension.ftp.FtpListTestCase$TestProcessor"/>
     </flow>
+
+    <flow name="listFilesRecursivelyWithNameFilter">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
+            <ftp:matcher directories="EXCLUDE" filenamePattern="*"/>
+        </ftp:list>
+    </flow>
+
+    <flow name="listFilesRecursivelyWithSpecificNameFilter">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
+            <ftp:matcher directories="EXCLUDE" filenamePattern="test-file-6.html"/>
+        </ftp:list>
+    </flow>
+
 </mule>
