@@ -9,11 +9,11 @@ package org.mule.extension.ftp.internal.connection;
 import static java.lang.String.format;
 import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
+import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
-
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -29,17 +29,17 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Connects to an FTP server
@@ -162,7 +162,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
       throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
     } catch (Exception e) {
       throw client.getReplyCode() != 0
-          ? handleClientReplyCode(client.getReplyCode())
+          ? handleClientReplyCode(client.getReplyCode(), e)
           : new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
@@ -188,15 +188,32 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
    * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
    */
   private ConnectionException handleClientReplyCode(int replyCode) {
+    return handleClientReplyCode(replyCode, null);
+  }
+
+  /**
+   * Handles a {@link FTPClient} reply code and returns a {@link FTPConnectionException} specifying the correspondent
+   * {@link FileError} indicating the cause of the failure.
+   *
+   * @param replyCode FTP Client reply code
+   * @param cause the cause exception
+   * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
+   */
+  protected ConnectionException handleClientReplyCode(int replyCode, Throwable cause) {
     switch (replyCode) {
       case 501:
       case 530:
-        return new FTPConnectionException(getErrorMessage(connectionSettings, replyCode, "User cannot log in"),
+        return new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
                                           INVALID_CREDENTIALS);
       case 421:
-        return new FTPConnectionException(getErrorMessage(connectionSettings, replyCode, "Service is unavailable"),
+        return new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
                                           SERVICE_NOT_AVAILABLE);
     }
+    if (cause != null) {
+      return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
+                                        CONNECTIVITY);
+    }
+
     return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
   }
 
@@ -204,7 +221,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
   }
 
-  private String getErrorMessage(FtpConnectionSettings connectionSettings, int replyCode, String message) {
+  protected String getErrorMessage(int replyCode, String message) {
     return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(),
                   format(ERROR_CODE_MASK, replyCode, message));
   }
