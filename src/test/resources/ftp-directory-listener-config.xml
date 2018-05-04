@@ -14,7 +14,7 @@
     <flow name="listenWithoutMatcher">
         <ftp:listener config-ref="config" directory="matcherless">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <flow-ref name="onEvent"/>
@@ -23,7 +23,7 @@
     <flow name="listenNonRecursive" initialState="stopped">
         <ftp:listener config-ref="config" directory="matcherless" recursive="false">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <flow-ref name="onEvent"/>
@@ -32,7 +32,7 @@
     <flow name="redundantListener1">
         <ftp:listener config-ref="config" directory="shared" autoDelete="true">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <flow-ref name="onSharedFolderFile" />
@@ -41,7 +41,7 @@
     <flow name="redundantListener2">
         <ftp:listener config-ref="config" directory="shared" autoDelete="true">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <flow-ref name="onSharedFolderFile" />
@@ -50,7 +50,7 @@
     <flow name="listenTxtOnly">
         <ftp:listener config-ref="config" directory="withMatcher" matcher="matcher" autoDelete="true">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <set-payload value="Dr. Manhattan" />
@@ -60,7 +60,7 @@
     <flow name="moveTo" initialState="stopped">
         <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
             <ftp:matcher minSize="5" />
         </ftp:listener>
@@ -71,7 +71,7 @@
     <flow name="moveToWithRename" initialState="stopped">
         <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" renameTo="#[vars.rename]">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
         <set-variable variableName="moveTo" value="shared" />
