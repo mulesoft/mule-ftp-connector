@@ -309,20 +309,25 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
           file = files[0];
         } else {
           // List command result is a directory
-          if (path.getParent() != null) {
-            files = client.listDirectories(normalizePath(path.getParent().toString()));
-            return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
-          } else {
-            // root directory
-            file = createRootFile();
-          }
+          return getDirectoryFromParent(path);
         }
       } else if (files.length == 0) {
-        file = null;
+        // List command result may be an empty directory
+        return getDirectoryFromParent(path);
       }
     }
-
     return Optional.ofNullable(file);
+  }
+
+  private Optional<FTPFile> getDirectoryFromParent(Path path) throws IOException {
+    String filePath = normalizePath(path);
+    if (path.getParent() != null) {
+      FTPFile[] files = client.listDirectories(normalizePath(path.getParent().toString()));
+      return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
+    } else {
+      // root directory
+      return Optional.ofNullable(createRootFile());
+    }
   }
 
   /**
