@@ -35,8 +35,8 @@ import org.junit.rules.TestRule;
  */
 public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
 
-  private static final String FTP_USER = "anonymous";
-  private static final String FTP_PASSWORD = "password";
+  public static final String FTP_USER = "anonymous";
+  public static final String FTP_PASSWORD = "password";
 
   private final File serverBaseDir = new File(FTP_SERVER_BASE_DIR, WORKING_DIR);
   private FtpServer ftpServer = new FtpServer("ftpPort", serverBaseDir);
