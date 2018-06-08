@@ -21,7 +21,7 @@
     <properties>
         <commonsNetVersion>3.5</commonsNetVersion>
         <commonsIoVersion>2.4</commonsIoVersion>
-        <commonsLangVersion>3.6</commonsLangVersion>
+        <commonsLangVersion>3.7</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>25.1-jre</guavaVersion>
 
