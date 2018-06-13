@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
@@ -30,6 +31,7 @@ import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
@@ -319,8 +321,13 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> getFileFromPath(Path path) throws IOException {
     String filePath = normalizePath(path);
+    FTPFile file = null;
     // Check if MLST command is supported
-    FTPFile file = client.mlistFile(filePath);
+    try {
+      file = client.mlistFile(filePath);
+    } catch (MalformedServerReplyException ex) {
+      LOGGER.warn(ex.getMessage());
+    }
     if (file == null) {
       FTPFile[] files = client.listFiles(filePath);
       if (files.length >= 1) {
