@@ -19,7 +19,7 @@
     <description>A Mule connector that provides functionality to manage files in an FTP server</description>
 
     <properties>
-        <commonsNetVersion>3.5</commonsNetVersion>
+        <commonsNetVersion>3.6</commonsNetVersion>
         <commonsIoVersion>2.6</commonsIoVersion>
         <commonsLangVersion>3.8.1</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
