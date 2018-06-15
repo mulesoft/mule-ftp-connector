@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
@@ -19,6 +20,9 @@ import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREA
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
+
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
@@ -35,6 +39,9 @@ import org.junit.Test;
 public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEMP_DIRECTORY = "files";
+
+  @Rule
+  public ExpectedException expectedException = none();
 
   @Override
   protected String getConfigFile() {
@@ -148,6 +155,15 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     InputStream content = (InputStream) readPath(path, false).getPayload().getValue();
 
     assertThat(Arrays.equals(toByteArray(content), HELLO_WORLD.getBytes(customEncoding)), is(true));
+  }
+
+  @Test
+  public void doWriteFileWithSameNameAsFolder() throws Exception {
+    expectedException.expectMessage("because it is a directory");
+    testHarness.makeDir(TEMP_DIRECTORY);
+
+    String pathToExistingDirectory = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).toString();
+    doWrite(pathToExistingDirectory, HELLO_WORLD, OVERWRITE, false);
   }
 
   private void doWriteNotExistingFileWithCreatedParent(FileWriteMode mode) throws Exception {
