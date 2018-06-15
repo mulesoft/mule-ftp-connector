@@ -16,6 +16,7 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.lock.NullPathLock;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -66,6 +67,10 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
                                                           + "Use a different write mode or point to a path which doesn't exist",
                                                       path, mode));
         } else if (mode == OVERWRITE) {
+          if (file.isDirectory()) {
+            throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                         file.getPath()));
+          }
           fileSystem.delete(file.getPath());
         }
       }
