@@ -26,6 +26,7 @@ import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
+import org.mule.extension.file.common.api.connection.Disconnectable;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -61,7 +62,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
+public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> implements Disconnectable {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
@@ -335,5 +336,15 @@ public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
   @Override
   protected CreateDirectoryCommand getCreateDirectoryCommand() {
     return createDirectoryCommand;
+  }
+
+  /**
+   * Obtains a {@link FtpFileAttributes} for the given {@code filePath}
+   *
+   * @param filePath the path to the file you want
+   * @return a {@link FtpFileAttributes} or {@code null} if it doesn't exist
+   */
+  public FtpFileAttributes getFileAttributes(String filePath) {
+    return ((FtpReadCommand) readCommand).getFile(filePath);
   }
 }

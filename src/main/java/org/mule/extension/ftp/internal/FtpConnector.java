@@ -18,8 +18,12 @@ import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Connects to an FTP server
@@ -36,6 +40,27 @@ import javax.inject.Inject;
 @Sources(FtpDirectoryListener.class)
 @Xml(prefix = "ftp")
 public class FtpConnector extends FileConnectorConfig {
+
+  /**
+   * Wait time between size checks to determine if a file is ready to be read. This allows a file write to complete before
+   * processing. If no value is provided, the check will not be performed. When enabled, Mule performs two size checks waiting the
+   * specified time between calls. If both checks return the same value, the file is ready to be read.This attribute works in
+   * tandem with {@link #timeBetweenSizeCheckUnit}.
+   */
+  @Parameter
+  @Summary("Wait time between size checks to determine if a file is ready to be read.")
+  @Optional
+  private Long timeBetweenSizeCheck;
+
+  /**
+   * A {@link TimeUnit} which qualifies the {@link #timeBetweenSizeCheck} attribute.
+   * <p>
+   * Defaults to {@code MILLISECONDS}
+   */
+  @Parameter
+  @Optional(defaultValue = "MILLISECONDS")
+  @Summary("Time unit to be used in the wait time between size checks")
+  private TimeUnit timeBetweenSizeCheckUnit;
 
   @Inject
   private ConnectionManager connectionManager;

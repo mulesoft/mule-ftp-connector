@@ -43,6 +43,15 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
    */
   @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
+    return read(config, filePath, lock, null);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                     Long timeBetweenSizeCheck) {
     FtpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -59,7 +68,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
 
     InputStream payload = null;
     try {
-      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, pathLock);
+      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
       return Result.<InputStream, FtpFileAttributes>builder().output(payload)
           .mediaType(fileSystem.getFileMessageMediaType(attributes))
           .attributes(attributes).build();

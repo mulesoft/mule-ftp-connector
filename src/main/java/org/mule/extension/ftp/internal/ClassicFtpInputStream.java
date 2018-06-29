@@ -11,13 +11,8 @@ import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.connection.ConnectionHandler;
-import org.mule.runtime.api.util.LazyValue;
-import org.mule.runtime.core.api.util.func.CheckedSupplier;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.function.Supplier;
 
 /**
  * Implementation of {@link FtpInputStream} for FTP connections
@@ -37,16 +32,16 @@ public class ClassicFtpInputStream extends FtpInputStream {
    * @return a new {@link FtpInputStream}
    * @throws ConnectionException if a connection could not be established
    */
-  public static FtpInputStream newInstance(FtpConnector config, FtpFileAttributes attributes, PathLock lock) {
-    LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler =
-        new LazyValue<>((CheckedSupplier<ConnectionHandler<FtpFileSystem>>) () -> getConnectionHandler(config));
-    return new ClassicFtpInputStream(getStreamSupplier(attributes, connectionHandler), connectionHandler, lock);
+  public static FtpInputStream newInstance(FtpConnector config, FtpFileAttributes attributes, PathLock lock,
+                                           Long timeBetweenSizeCheck)
+      throws ConnectionException {
+    return new ClassicFtpInputStream(new ConnectionAwareSupplier(attributes, getConnectionManager(config), timeBetweenSizeCheck,
+                                                                 config),
+                                     lock);
   }
 
-  private ClassicFtpInputStream(Supplier<InputStream> streamSupplier,
-                                LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler,
-                                PathLock lock) {
-    super(streamSupplier, connectionHandler, lock);
+  private ClassicFtpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) throws ConnectionException {
+    super(connectionAwareSupplier, lock);
   }
 
   /**
@@ -55,6 +50,6 @@ public class ClassicFtpInputStream extends FtpInputStream {
    */
   @Override
   protected void beforeClose() throws IOException {
-    getFtpFileSystem().awaitCommandCompletion();
+    getFtpFileSystem().ifPresent(ftpFileSystem -> ftpFileSystem.awaitCommandCompletion());
   }
 }

@@ -33,4 +33,16 @@
         <object-to-string-transformer />
     </flow>
 
+    <flow name="readFileThatIsDeleted">
+        <ftp:read config-ref="config" path="#[vars.path]"/>
+        <ftp:delete config-ref="config" path="#[vars.path]"/>
+        <object-to-string-transformer />
+    </flow>
+
+    <flow name="readFileWithSizeCheck">
+        <ftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2000"/>
+        <object-to-string-transformer />
+    </flow>
+
+
 </mule>
