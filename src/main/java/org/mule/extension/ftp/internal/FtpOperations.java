@@ -59,8 +59,6 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * If the listing encounters a directory, the output list will include its contents depending on the value of the
    * {@code recursive} parameter.
    * <p>
-   * If {@code recursive} is set to {@code true} but a found directory is rejected by the {@code matcher}, then there won't be any
-   * recursion into such directory.
    *
    * @param config the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
