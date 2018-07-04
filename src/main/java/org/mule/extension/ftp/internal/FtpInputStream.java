@@ -6,13 +6,12 @@
  */
 package org.mule.extension.ftp.internal;
 
-import static java.lang.Thread.sleep;
 import static java.util.Optional.ofNullable;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
-import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
+import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
+import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
@@ -24,10 +23,10 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 import org.slf4j.Logger;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * An {@link AbstractFileInputStream} implementation which obtains a {@link FtpFileSystem} through a {@link ConnectionManager} and
@@ -39,15 +38,15 @@ import java.util.function.Supplier;
  */
 public abstract class FtpInputStream extends AbstractFileInputStream {
 
-  protected ConnectionAwareSupplier connectionAwareSupplier;
+  protected FtpFileInputStreamSupplier ftpFileInputStreamSupplier;
 
   protected static ConnectionManager getConnectionManager(FtpConnector config) throws ConnectionException {
     return config.getConnectionManager();
   }
 
-  protected FtpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) throws ConnectionException {
-    super(new LazyStreamSupplier(connectionAwareSupplier), lock);
-    this.connectionAwareSupplier = connectionAwareSupplier;
+  protected FtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, PathLock lock) throws ConnectionException {
+    super(new LazyStreamSupplier(ftpFileInputStreamSupplier), lock);
+    this.ftpFileInputStreamSupplier = ftpFileInputStreamSupplier;
   }
 
   @Override
@@ -58,7 +57,7 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
       try {
         super.doClose();
       } finally {
-        connectionAwareSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
+        ftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
       }
     }
   }
@@ -74,88 +73,57 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
    * @return {@link Optional} of the {@link FtpFileSystem} used to obtain the stream
    */
   protected Optional<FtpFileSystem> getFtpFileSystem() {
-    return connectionAwareSupplier.getFtpFileSystem();
+    return ftpFileInputStreamSupplier.getFtpFileSystem();
   }
 
-  protected static final class ConnectionAwareSupplier implements Supplier<InputStream> {
+  protected static class FtpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
 
-    private static final Logger LOGGER = getLogger(ConnectionAwareSupplier.class);
-    private static final String FILE_NO_LONGER_EXISTS_MESSAGE =
-        "Error reading file from path %s. It no longer exists at the time of reading.";
-    private static final String STARTING_WAIT_MESSAGE = "Starting wait to check if the file size of the file %s is stable.";
-    private static final int MAX_SIZE_CHECK_RETRIES = 2;
+    private static final Logger LOGGER = getLogger(AbstractFileInputStreamSupplier.class);
 
     private ConnectionHandler<FtpFileSystem> connectionHandler;
-    private FtpFileAttributes attributes;
     private ConnectionManager connectionManager;
     private FtpFileSystem ftpFileSystem;
-    private Long timeBetweenSizeCheck;
     private FtpConnector config;
 
-    ConnectionAwareSupplier(FtpFileAttributes attributes, ConnectionManager connectionManager,
-                            Long timeBetweenSizeCheck, FtpConnector config) {
-      this.attributes = attributes;
+    FtpFileInputStreamSupplier(FtpFileAttributes attributes, ConnectionManager connectionManager,
+                               Long timeBetweenSizeCheck, FtpConnector config) {
+      super(attributes, timeBetweenSizeCheck);
       this.connectionManager = connectionManager;
-      this.timeBetweenSizeCheck = timeBetweenSizeCheck;
       this.config = config;
     }
 
     @Override
-    public InputStream get() {
+    protected FileAttributes getUpdatedAttributes() {
       try {
-        FtpFileAttributes updatedAttributes = getUpdatedAttributes(config, connectionManager, attributes.getPath());
-        if (updatedAttributes != null && timeBetweenSizeCheck != null && timeBetweenSizeCheck > 0) {
-          updatedAttributes = getUpdatedStableAttributes(config, connectionManager, updatedAttributes);
+        ConnectionHandler<FtpFileSystem> connectionHandler = connectionManager.getConnection(config);
+        FtpFileSystem ftpFileSystem = connectionHandler.getConnection();
+        FtpFileAttributes updatedFtpFileAttributes = ftpFileSystem.getFileAttributes(attributes.getPath());
+        connectionHandler.release();
+        if (updatedFtpFileAttributes == null) {
+          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
         }
-        if (updatedAttributes == null) {
-          throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
-              + " was read but does not exist anymore."));
-        }
-        connectionHandler = connectionManager.getConnection(config);
-        ftpFileSystem = connectionHandler.getConnection();
-        return ftpFileSystem.retrieveFileContent(updatedAttributes);
+        return updatedFtpFileAttributes;
       } catch (ConnectionException e) {
         throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
                                        e);
       }
     }
 
-    private FtpFileAttributes getUpdatedStableAttributes(FtpConnector config, ConnectionManager connectionManager,
-                                                         FtpFileAttributes updatedAttributes)
-        throws ConnectionException {
-      FtpFileAttributes oldAttributes;
-      int retries = 0;
-      do {
-        oldAttributes = updatedAttributes;
-        try {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format(STARTING_WAIT_MESSAGE, attributes.getPath()));
-          }
-          sleep(timeBetweenSizeCheck);
-        } catch (InterruptedException e) {
-          throw new MuleRuntimeException(createStaticMessage("Execution was interrupted while waiting to recheck file sizes"),
-                                         e);
+    @Override
+    protected InputStream getContentInputStream() {
+      try {
+        connectionHandler = connectionManager.getConnection(config);
+        ftpFileSystem = connectionHandler.getConnection();
+        return ftpFileSystem.retrieveFileContent(attributes);
+      } catch (MuleRuntimeException e) {
+        if (e.getCause() instanceof FileNotFoundException) {
+          onFileDeleted(e);
         }
-        updatedAttributes = getUpdatedAttributes(config, connectionManager, attributes.getPath());
-      } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize()
-          && retries++ < MAX_SIZE_CHECK_RETRIES);
-      if (retries > MAX_SIZE_CHECK_RETRIES) {
-        throw new FileBeingModifiedException(createStaticMessage("File on path " + attributes.getPath()
-            + " is still being written."));
+        throw e;
+      } catch (ConnectionException e) {
+        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
+                                       e);
       }
-      return updatedAttributes;
-    }
-
-    private FtpFileAttributes getUpdatedAttributes(FtpConnector config, ConnectionManager connectionManager, String filePath)
-        throws ConnectionException {
-      ConnectionHandler<FtpFileSystem> connectionHandler = connectionManager.getConnection(config);
-      FtpFileSystem ftpFileSystem = connectionHandler.getConnection();
-      FtpFileAttributes updatedFtpFileAttributes = ftpFileSystem.getFileAttributes(filePath);
-      connectionHandler.release();
-      if (updatedFtpFileAttributes == null) {
-        LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, filePath));
-      }
-      return updatedFtpFileAttributes;
     }
 
     public Optional<ConnectionHandler> getConnectionHandler() {
@@ -167,5 +135,4 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
     }
 
   }
-
 }

@@ -83,7 +83,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                                                        StreamingHelper streamingHelper) {
     PagingProvider result =
         doPagedList(config, directoryPath, recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit), streamingHelper);
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
+                    streamingHelper);
     return (PagingProvider<FtpFileSystem, Result<CursorProvider, FtpFileAttributes>>) result;
   }
 
@@ -123,7 +124,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
     Result result =
         doRead(config, fileSystem, path, lock,
-               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit));
+               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
     return (Result<InputStream, FtpFileAttributes>) result;
   }
 

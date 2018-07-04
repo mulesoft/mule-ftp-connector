@@ -197,7 +197,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       List<FtpFileAttributes> attributesList =
           fileSystem
               .list(config, directoryPath.toString(), recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit))
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null))
               .stream()
               .map(result -> result.getAttributes().orElse(null))
               .filter(a -> a != null)
@@ -264,7 +264,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         result = fileSystem.read(config, attributes.getPath(), false,
-                                 config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit));
+                                 config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit)
+                                     .orElse(null));
         item.setResult(result);
         item.setId(attributes.getPath());
         if (watermarkEnabled) {

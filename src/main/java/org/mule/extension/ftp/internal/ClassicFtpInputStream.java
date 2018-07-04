@@ -35,13 +35,14 @@ public class ClassicFtpInputStream extends FtpInputStream {
   public static FtpInputStream newInstance(FtpConnector config, FtpFileAttributes attributes, PathLock lock,
                                            Long timeBetweenSizeCheck)
       throws ConnectionException {
-    return new ClassicFtpInputStream(new ConnectionAwareSupplier(attributes, getConnectionManager(config), timeBetweenSizeCheck,
-                                                                 config),
+    return new ClassicFtpInputStream(new FtpFileInputStreamSupplier(attributes, getConnectionManager(config),
+                                                                    timeBetweenSizeCheck,
+                                                                    config),
                                      lock);
   }
 
-  private ClassicFtpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) throws ConnectionException {
-    super(connectionAwareSupplier, lock);
+  private ClassicFtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, PathLock lock) throws ConnectionException {
+    super(ftpFileInputStreamSupplier, lock);
   }
 
   /**
