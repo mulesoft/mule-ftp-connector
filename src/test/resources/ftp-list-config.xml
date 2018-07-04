@@ -15,6 +15,11 @@
         <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" />
     </flow>
 
+    <flow name="listWithStableSizeTime">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                  timeBetweenSizeCheck="200"/>
+    </flow>
+
     <flow name="listWithEmbeddedPredicate">
         <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <ftp:matcher filenamePattern="*[1-2]*.html" />
@@ -37,6 +42,24 @@
         <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <ftp:matcher directories="EXCLUDE" filenamePattern="*"/>
         </ftp:list>
+    </flow>
+
+    <flow name="listFilesWithFilesStillBeingWritten">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                  timeBetweenSizeCheck="2000">
+            <ftp:matcher directories="EXCLUDE" filenamePattern="*"/>
+        </ftp:list>
+        <foreach>
+            <try>
+                <test:processor class="org.mule.extension.ftp.FtpListTestCase$FilesWrittenProcessor"/>
+                <object-to-string-transformer/>
+                <error-handler>
+                    <on-error-continue enableNotifications="true" logException="true" type="ANY">
+                        <test:processor class="org.mule.extension.ftp.FtpListTestCase$FilesBeingWrittenProcessor"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </foreach>
     </flow>
 
     <flow name="listFilesRecursivelyWithSpecificNameFilter">

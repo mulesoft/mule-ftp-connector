@@ -50,11 +50,25 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   /**
    * {@inheritDoc}
    */
+  @Deprecated
   @Override
   public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
                                                            String directoryPath,
                                                            boolean recursive,
                                                            Predicate<FtpFileAttributes> matcher) {
+    return list(config, directoryPath, recursive, matcher, null);
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                           String directoryPath,
+                                                           boolean recursive,
+                                                           Predicate<FtpFileAttributes> matcher,
+                                                           Long timeBetweenSizeCheck) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
     Path path = Paths.get(directoryAttributes.getPath());
@@ -70,7 +84,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     List<Result<InputStream, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
-      doList(config, path, accumulator, recursive, matcher);
+      doList(config, path, accumulator, recursive, matcher, timeBetweenSizeCheck);
 
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
         throw exception(format("Failed to list files on directory '%s'", path));
@@ -88,7 +102,8 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                       Path path,
                       List<Result<InputStream, FtpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<FtpFileAttributes> matcher)
+                      Predicate<FtpFileAttributes> matcher,
+                      Long timeBetweenSizeCheck)
       throws IOException {
     LOGGER.debug("Listing directory {}", path);
 
@@ -118,7 +133,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
               throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                      recursionPath));
             }
-            doList(config, recursionPath, accumulator, recursive, matcher);
+            doList(config, recursionPath, accumulator, recursive, matcher, timeBetweenSizeCheck);
             if (!client.changeToParentDirectory()) {
               throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
                                      recursionPath.getParent()));
@@ -126,7 +141,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           }
         } else {
           if (matcher.test(attributes)) {
-            accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false));
+            accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false, timeBetweenSizeCheck));
           }
         }
       }

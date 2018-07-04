@@ -26,8 +26,10 @@ import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -37,9 +39,12 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Ftp connector operations
@@ -54,8 +59,6 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * If the listing encounters a directory, the output list will include its contents depending on the value of the
    * {@code recursive} parameter.
    * <p>
-   * If {@code recursive} is set to {@code true} but a found directory is rejected by the {@code matcher}, then there won't be any
-   * recursion into such directory.
    *
    * @param config the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
@@ -67,13 +70,22 @@ public final class FtpOperations extends BaseFileSystemOperations {
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
-  public List<Result<InputStream, FtpFileAttributes>> list(@Config FileConnectorConfig config,
-                                                           @Connection FtpFileSystem fileSystem,
-                                                           @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath,
-                                                           @Optional(defaultValue = "false") boolean recursive,
-                                                           @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher) {
-    List result = doList(config, fileSystem, directoryPath, recursive, matcher);
-    return (List<Result<InputStream, FtpFileAttributes>>) result;
+  public PagingProvider<FtpFileSystem, Result<CursorProvider, FtpFileAttributes>> list(@Config FileConnectorConfig config,
+                                                                                       @Path(type = DIRECTORY,
+                                                                                           location = EXTERNAL) String directoryPath,
+                                                                                       @Optional(
+                                                                                           defaultValue = "false") boolean recursive,
+                                                                                       @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher,
+                                                                                       @ConfigOverride @Placement(
+                                                                                           tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                                                       @ConfigOverride @Placement(
+                                                                                           tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
+                                                                                       StreamingHelper streamingHelper) {
+    PagingProvider result =
+        doPagedList(config, directoryPath, recursive, matcher,
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
+                    streamingHelper);
+    return (PagingProvider<FtpFileSystem, Result<CursorProvider, FtpFileAttributes>>) result;
   }
 
   /**
@@ -105,8 +117,14 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                      @DisplayName("File Path") @Path(type = FILE,
                                                          location = EXTERNAL) String path,
                                                      @Optional(defaultValue = "false") @Placement(
-                                                         tab = ADVANCED_TAB) boolean lock) {
-    Result result = doRead(config, fileSystem, path, lock);
+                                                         tab = ADVANCED_TAB) boolean lock,
+                                                     @ConfigOverride @Placement(
+                                                         tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                     @ConfigOverride @Placement(
+                                                         tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
+    Result result =
+        doRead(config, fileSystem, path, lock,
+               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
     return (Result<InputStream, FtpFileAttributes>) result;
   }
 

@@ -7,14 +7,22 @@
 package org.mule.extension.ftp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
+import static org.junit.rules.ExpectedException.none;
 import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
+
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
+import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -35,6 +43,10 @@ import org.junit.Test;
 @Feature(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
+  private static String DELETED_FILE_NAME = "deleted.txt";
+  private static String DELETED_FILE_CONTENT = "non existant content";
+  private static String WATCH_FILE = "watch.txt";
+
   @Override
   protected String getConfigFile() {
     return "ftp-read-config.xml";
@@ -45,6 +57,9 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     super.doSetUp();
     testHarness.createHelloWorldFile();
   }
+
+  @Rule
+  public ExpectedException expectedException = none();
 
   @Test
   public void read() throws Exception {
@@ -126,6 +141,30 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
       }
       return event;
     }
+  }
+
+  @Test
+  public void readFileThatIsDeleted() throws Exception {
+    expectedException.expectCause(hasCause(instanceOf(DeletedFileWhileReadException.class)));
+    expectedException.expectMessage("was read but does not exist anymore.");
+    testHarness.write(DELETED_FILE_NAME, DELETED_FILE_CONTENT);
+    flowRunner("readFileThatIsDeleted").withVariable("path", DELETED_FILE_NAME).run().getMessage().getPayload().getValue();
+  }
+
+  @Test
+  public void readWhileStillWriting() throws Exception {
+    expectedException.expectCause(hasCause(instanceOf(FileBeingModifiedException.class)));
+    expectedException.expectMessage("is still being written");
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 500);
+    flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage().getPayload().getValue();
+  }
+
+  @Test
+  public void readWhileFinishWriting() throws Exception {
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaaaa", 500);
+    String result = (String) flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage()
+        .getPayload().getValue();
+    assertThat(result, is("aaaaa"));
   }
 
   private Message readWithLock() throws Exception {

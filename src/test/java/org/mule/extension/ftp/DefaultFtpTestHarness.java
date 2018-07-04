@@ -6,10 +6,13 @@
  */
 package org.mule.extension.ftp;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
+
 import org.mule.extension.AbstractFtpTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -202,4 +205,20 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
   public void setTimestamp(String path, LocalDateTime time) throws Exception {
     ftpClient.setTimestamp(path, time);
   }
+
+  protected void writeByteByByteAsync(String path, String content, long delayBetweenCharacters) throws Exception {
+
+    new Thread(() -> {
+      try {
+        for (int i = 1; i <= content.length(); i++) {
+          ftpClient.putFile(path, content.substring(0, i));
+          sleep(delayBetweenCharacters);
+        }
+      } catch (Exception e) {
+        fail("Error trying to write in file");
+      }
+    }).start();
+
+  }
+
 }

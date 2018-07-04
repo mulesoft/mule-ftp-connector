@@ -6,7 +6,12 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static java.util.Optional.ofNullable;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
+import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
@@ -15,13 +20,13 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.api.util.LazyValue;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.mule.runtime.core.api.util.func.CheckedSupplier;
+import org.slf4j.Logger;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Supplier;
+import java.util.Optional;
 
 /**
  * An {@link AbstractFileInputStream} implementation which obtains a {@link FtpFileSystem} through a {@link ConnectionManager} and
@@ -33,34 +38,15 @@ import java.util.function.Supplier;
  */
 public abstract class FtpInputStream extends AbstractFileInputStream {
 
-  private final LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler;
-  private final LazyValue<FtpFileSystem> ftpFileSystem;
+  protected FtpFileInputStreamSupplier ftpFileInputStreamSupplier;
 
-  protected static ConnectionHandler<FtpFileSystem> getConnectionHandler(FtpConnector config) throws ConnectionException {
-    return config.getConnectionManager().getConnection(config);
+  protected static ConnectionManager getConnectionManager(FtpConnector config) throws ConnectionException {
+    return config.getConnectionManager();
   }
 
-  protected static Supplier<InputStream> getStreamSupplier(FtpFileAttributes attributes,
-                                                           Supplier<ConnectionHandler<FtpFileSystem>> connectionHandler) {
-    Supplier<InputStream> streamSupplier = () -> {
-      try {
-        return connectionHandler.get().getConnection().retrieveFileContent(attributes);
-      } catch (ConnectionException e) {
-        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
-                                       e);
-      }
-    };
-
-    return streamSupplier;
-  }
-
-
-  protected FtpInputStream(Supplier<InputStream> streamSupplier,
-                           LazyValue<ConnectionHandler<FtpFileSystem>> connectionHandler,
-                           PathLock lock) {
-    super(new LazyStreamSupplier(streamSupplier), lock);
-    this.connectionHandler = connectionHandler;
-    this.ftpFileSystem = new LazyValue<>((CheckedSupplier<FtpFileSystem>) () -> connectionHandler.get().getConnection());
+  protected FtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, PathLock lock) throws ConnectionException {
+    super(new LazyStreamSupplier(ftpFileInputStreamSupplier), lock);
+    this.ftpFileInputStreamSupplier = ftpFileInputStreamSupplier;
   }
 
   @Override
@@ -71,7 +57,7 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
       try {
         super.doClose();
       } finally {
-        connectionHandler.ifComputed(ConnectionHandler::release);
+        ftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
       }
     }
   }
@@ -84,9 +70,69 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
   protected void beforeClose() throws IOException {}
 
   /**
-   * @return the {@link FtpFileSystem} used to obtain the stream
+   * @return {@link Optional} of the {@link FtpFileSystem} used to obtain the stream
    */
-  protected FtpFileSystem getFtpFileSystem() {
-    return ftpFileSystem.get();
+  protected Optional<FtpFileSystem> getFtpFileSystem() {
+    return ftpFileInputStreamSupplier.getFtpFileSystem();
+  }
+
+  protected static class FtpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
+
+    private static final Logger LOGGER = getLogger(AbstractFileInputStreamSupplier.class);
+
+    private ConnectionHandler<FtpFileSystem> connectionHandler;
+    private ConnectionManager connectionManager;
+    private FtpFileSystem ftpFileSystem;
+    private FtpConnector config;
+
+    FtpFileInputStreamSupplier(FtpFileAttributes attributes, ConnectionManager connectionManager,
+                               Long timeBetweenSizeCheck, FtpConnector config) {
+      super(attributes, timeBetweenSizeCheck);
+      this.connectionManager = connectionManager;
+      this.config = config;
+    }
+
+    @Override
+    protected FileAttributes getUpdatedAttributes() {
+      try {
+        ConnectionHandler<FtpFileSystem> connectionHandler = connectionManager.getConnection(config);
+        FtpFileSystem ftpFileSystem = connectionHandler.getConnection();
+        FtpFileAttributes updatedFtpFileAttributes = ftpFileSystem.getFileAttributes(attributes.getPath());
+        connectionHandler.release();
+        if (updatedFtpFileAttributes == null) {
+          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
+        }
+        return updatedFtpFileAttributes;
+      } catch (ConnectionException e) {
+        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
+                                       e);
+      }
+    }
+
+    @Override
+    protected InputStream getContentInputStream() {
+      try {
+        connectionHandler = connectionManager.getConnection(config);
+        ftpFileSystem = connectionHandler.getConnection();
+        return ftpFileSystem.retrieveFileContent(attributes);
+      } catch (MuleRuntimeException e) {
+        if (e.getCause() instanceof FileNotFoundException) {
+          onFileDeleted(e);
+        }
+        throw e;
+      } catch (ConnectionException e) {
+        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
+                                       e);
+      }
+    }
+
+    public Optional<ConnectionHandler> getConnectionHandler() {
+      return ofNullable(connectionHandler);
+    }
+
+    public Optional<FtpFileSystem> getFtpFileSystem() {
+      return ofNullable(ftpFileSystem);
+    }
+
   }
 }
