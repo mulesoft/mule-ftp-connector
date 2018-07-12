@@ -8,6 +8,7 @@ package org.mule.extension.ftp.api.ftp;
 
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import org.mule.extension.file.common.api.AbstractFileAttributes;
+import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.nio.file.Path;
@@ -23,9 +24,12 @@ import org.apache.commons.net.ftp.FTPFile;
 public class FtpFileAttributes extends AbstractFileAttributes {
 
   @Parameter
+  @Optional
   private LocalDateTime timestamp;
 
   @Parameter
+  // TODO MULE-15337: Remove redundant 'name' attribute in next major version,
+  // since it represents the same that 'fileName' from AbstractFileAttributes.
   private String name;
 
   @Parameter
@@ -48,8 +52,9 @@ public class FtpFileAttributes extends AbstractFileAttributes {
    */
   public FtpFileAttributes(Path path, FTPFile ftpFile) {
     super(path);
-    timestamp = asDateTime(ftpFile.getTimestamp().toInstant());
-    name = ftpFile.getName();
+    timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
+    // TODO MULE-15337: Remove redundant 'name' attribute in next major version
+    name = ftpFile.getName() != null ? ftpFile.getName() : "";
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
     directory = ftpFile.isDirectory();
@@ -57,7 +62,7 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   }
 
   /**
-   * @return The last time the file was modified
+   * @return The last time the file was modified, or {@code null} if such information is not available.
    */
   public LocalDateTime getTimestamp() {
     return timestamp;
