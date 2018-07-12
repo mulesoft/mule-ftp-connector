@@ -28,7 +28,7 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   private LocalDateTime timestamp;
 
   @Parameter
-  // TODO MULE-XXXXX: Remove redundant 'name' attribute in next major version,
+  // TODO MULE-15337: Remove redundant 'name' attribute in next major version,
   // since it represents the same that 'fileName' from AbstractFileAttributes.
   private String name;
 
@@ -53,7 +53,7 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   public FtpFileAttributes(Path path, FTPFile ftpFile) {
     super(path);
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
-    // TODO MULE-XXXXX: Remove redundant 'name' attribute in next major version
+    // TODO MULE-15337: Remove redundant 'name' attribute in next major version
     name = ftpFile.getName() != null ? ftpFile.getName() : "";
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
