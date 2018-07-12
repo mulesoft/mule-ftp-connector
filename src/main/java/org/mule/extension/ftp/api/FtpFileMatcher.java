@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.function.Predicate;
 
 /**
- * A set of criterias used to filter files stored in a FTP server. The file's properties
+ * A set of criterias used to filter files stored in a FTP server.
  *
  * @since 1.0
  */
@@ -27,6 +27,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
 
   /**
    * Files created before this date are rejected.
+   * If no creation date is available, the File will be processed.
    */
   @Parameter
   @Optional
@@ -34,6 +35,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
 
   /**
    * Files created after this date are rejected.
+   * If no creation date is available, the File will be processed.
    */
   @Parameter
   @Optional
@@ -42,11 +44,13 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   @Override
   protected Predicate<FtpFileAttributes> addConditions(Predicate<FtpFileAttributes> predicate) {
     if (timestampSince != null) {
-      predicate = predicate.and(attributes -> FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
+        || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
     }
 
     if (timestampUntil != null) {
-      predicate = predicate.and(attributes -> FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
+        || FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
     }
 
     return predicate;

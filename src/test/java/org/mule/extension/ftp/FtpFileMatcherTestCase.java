@@ -80,4 +80,18 @@ public class FtpFileMatcherTestCase
     builder.setTimestampUntil(LocalDateTime.of(1982, 4, 2, 0, 0));
     assertReject();
   }
+
+  @Test
+  public void acceptTimestampSinceWhenMissingTimestamp() {
+    when(attributes.getTimestamp()).thenReturn(null);
+    builder.setTimestampSince(LocalDateTime.of(1980, 1, 1, 0, 0));
+    assertMatch();
+  }
+
+  @Test
+  public void timestampUntilWhenMissingTimestamp() {
+    when(attributes.getTimestamp()).thenReturn(null);
+    builder.setTimestampUntil(LocalDateTime.of(1990, 1, 1, 0, 0));
+    assertMatch();
+  }
 }
