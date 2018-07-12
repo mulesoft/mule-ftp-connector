@@ -269,7 +269,13 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         item.setResult(result);
         item.setId(attributes.getPath());
         if (watermarkEnabled) {
-          item.setWatermark(attributes.getTimestamp());
+          if (attributes.getTimestamp() != null) {
+            item.setWatermark(attributes.getTimestamp());
+          } else {
+            LOGGER.warn(format("Use of watermark for files processing is enabled, but file [%s] does not have the"
+                + " corresponding modification timestamp. Watermark ignored for this file.",
+                               fullPath));
+          }
         }
       } catch (Throwable t) {
         LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
