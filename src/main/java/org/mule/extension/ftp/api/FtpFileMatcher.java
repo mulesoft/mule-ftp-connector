@@ -45,12 +45,12 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   protected Predicate<FtpFileAttributes> addConditions(Predicate<FtpFileAttributes> predicate) {
     if (timestampSince != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-        || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
+          || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
     }
 
     if (timestampUntil != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-        || FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
+          || FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
     }
 
     return predicate;
