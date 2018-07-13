@@ -26,7 +26,6 @@ import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.connection.Disconnectable;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -62,7 +61,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> implements Disconnectable {
+public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
