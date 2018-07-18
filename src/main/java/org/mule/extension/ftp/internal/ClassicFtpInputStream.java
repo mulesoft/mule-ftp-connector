@@ -41,7 +41,8 @@ public class ClassicFtpInputStream extends FtpInputStream {
                                      lock);
   }
 
-  private ClassicFtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, PathLock lock) throws ConnectionException {
+  protected ClassicFtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, PathLock lock)
+      throws ConnectionException {
     super(ftpFileInputStreamSupplier, lock);
   }
 

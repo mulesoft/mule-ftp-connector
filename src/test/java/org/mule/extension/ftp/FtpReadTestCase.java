@@ -12,15 +12,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.rules.ExpectedException.none;
-import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
-
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
@@ -38,7 +35,9 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 @Feature(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
@@ -80,8 +79,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     assertThat(response.getPayload().getDataType().getMediaType().getPrimaryType(), is(MediaType.BINARY.getPrimaryType()));
     assertThat(response.getPayload().getDataType().getMediaType().getSubType(), is(MediaType.BINARY.getSubType()));
 
-    AbstractFileInputStream payload = (AbstractFileInputStream) response.getPayload().getValue();
-    assertThat(payload.isLocked(), is(false));
+    InputStream payload = (InputStream) response.getPayload().getValue();
 
     byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
     org.apache.commons.io.IOUtils.read(payload, readContent);
@@ -107,21 +105,6 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
                                             "since it's a directory");
     readPath("files");
   }
-
-  @Test
-  public void readLockReleasedOnContentConsumed() throws Exception {
-    Message message = readWithLock();
-    getPayloadAsString(message);
-
-    assertThat(isLocked(message), is(false));
-  }
-
-  @Test
-  public void readLockReleasedOnEarlyClose() throws Exception {
-    Message message = readWithLock();
-    assertThat(isLocked(message), is(false));
-  }
-
 
   @Test
   public void getProperties() throws Exception {
