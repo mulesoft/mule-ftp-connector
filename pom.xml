@@ -26,7 +26,7 @@
         <guavaVersion>23.5-jre</guavaVersion>
 
         <muleFileCommonsVersion>1.1.1</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.1.1</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
