@@ -143,6 +143,63 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   }
 
   @Test
+  @Description("Verifies that files are moved after processing even if autoDelete is configured")
+  public void moveToAndAutoDelete() throws Exception {
+    stopFlow("listenWithoutMatcher");
+    stopFlow("redundantListener1");
+    stopFlow("redundantListener2");
+    stopFlow("listenTxtOnly");
+
+    startFlow("moveToAndAutoDelete");
+
+    onFileCreated();
+    check(PROBER_TIMEOUT, PROBER_DELAY,
+          () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
+              testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+  }
+
+  @Test
+  @Description("Verifies that files that cannot be moved because a file already exists in the other directory with that name are deleted")
+  public void moveToAndAutoDeleteWithSameFileName() throws Exception {
+    stopFlow("listenWithoutMatcher");
+    stopFlow("redundantListener1");
+    stopFlow("redundantListener2");
+    stopFlow("listenTxtOnly");
+
+    startFlow("moveToAndAutoDelete");
+    onFileCreated();
+    check(PROBER_TIMEOUT, PROBER_DELAY,
+          () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
+              testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+    RECEIVED_MESSAGES.clear();
+    onFileCreated();
+    check(PROBER_TIMEOUT, PROBER_DELAY,
+          () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
+              testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+  }
+
+  @Test
+  @Description("Verifies that files that cannot be moved because a file already exists in the other directory with that name remain untouched")
+  public void moveToWithSameFileName() throws Exception {
+    stopFlow("listenWithoutMatcher");
+    stopFlow("redundantListener1");
+    stopFlow("redundantListener2");
+    stopFlow("listenTxtOnly");
+
+    startFlow("moveTo");
+    onFileCreated();
+    check(PROBER_TIMEOUT, PROBER_DELAY,
+          () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()) &&
+              testHarness.fileExists(new File(SHARED_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+    RECEIVED_MESSAGES.clear();
+    onFileCreated();
+    check(PROBER_TIMEOUT, PROBER_DELAY,
+          () -> testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+    checkNot(PROBER_TIMEOUT, PROBER_DELAY,
+             () -> !testHarness.fileExists(new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE).getPath()));
+  }
+
+  @Test
   @Description("Verifies that files are moved and renamed after processing")
   public void moveToWithRename() throws Exception {
     stopFlow("listenWithoutMatcher");

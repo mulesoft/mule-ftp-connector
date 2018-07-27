@@ -262,21 +262,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-    try {
-      postAction.validateSelf();
-    } catch (IllegalArgumentException e) {
-      LOGGER.error(e.getMessage());
-    }
-
     FtpFileSystem fileSystem = ctx.getConnection();
     fileSystem.changeToBaseDir();
     ctx.<FtpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      if (postAction.isAutoDelete()) {
-        fileSystem.delete(attrs.getPath());
-      } else if (postAction.getMoveToDirectory() != null) {
-        fileSystem.move(config, attrs.getPath(), postAction.getMoveToDirectory(), false, true,
-                        postAction.getRenameTo());
-      }
+      postAction.apply(fileSystem, attrs, config);
     });
   }
 
