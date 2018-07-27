@@ -68,6 +68,17 @@
         <flow-ref name="onEvent"/>
     </flow>
 
+    <flow name="moveToAndAutoDelete" initialState="stopped">
+        <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1000"/>
+            </scheduling-strategy>
+            <ftp:matcher minSize="5"/>
+        </ftp:listener>
+        <set-variable variableName="moveTo" value="shared"/>
+        <flow-ref name="onEvent"/>
+    </flow>
+
     <flow name="moveToWithRename" initialState="stopped">
         <ftp:listener config-ref="config" directory="matcherless" moveToDirectory="#[vars.moveTo]" renameTo="#[vars.rename]">
             <scheduling-strategy>
@@ -78,7 +89,7 @@
         <set-variable variableName="rename" value="renamed.txt" />
         <flow-ref name="onEvent"/>
     </flow>
-    
+
     <flow name="modifiedWatermark" initialState="stopped">
         <ftp:listener config-ref="config" directory="matcherless" autoDelete="false" watermarkEnabled="true">
             <scheduling-strategy>
@@ -92,7 +103,7 @@
         <object-to-string-transformer />
         <test:processor class="org.mule.extension.ftp.FtpDirectoryListenerFunctionalTestCase$TestProcessor"/>
     </sub-flow>
-    
+
     <sub-flow name="onSharedFolderFile">
         <test:processor waitTime="1000" />
         <flow-ref name="onEvent" />
