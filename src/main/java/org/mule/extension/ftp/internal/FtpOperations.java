@@ -165,11 +165,11 @@ public final class FtpOperations extends BaseFileSystemOperations {
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode) {
-      if (encoding != null) {
-          LOGGER
-                  .warn("Deprecated parameter 'encoding' was configured for operation 'ftp:write'. This parameter will be ignored, not altering the operation behavior");
-      }
-      super.doWrite(config, fileSystem, path, content, createParentDirectories, lock, mode);
+    if (encoding != null) {
+      LOGGER
+          .warn("Deprecated parameter 'encoding' was configured for operation 'ftp:write'. This parameter will be ignored, not altering the operation behavior");
+    }
+    super.doWrite(config, fileSystem, path, content, createParentDirectories, lock, mode);
   }
 
   /**
