@@ -11,6 +11,8 @@ import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.file.common.api.BaseFileSystemOperations;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -46,12 +48,16 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+
 /**
  * Ftp connector operations
  *
  * @since 1.0
  */
 public final class FtpOperations extends BaseFileSystemOperations {
+
+  private static final Logger LOGGER = getLogger(FtpOperations.class);
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -143,8 +149,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path of the file to be written
    * @param content the content to be written into the file. Defaults to the current {@link Message} payload
-   * @param encoding when {@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *        not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
+   * @param encoding this parameter is deprecated and will do nothing if configured
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
    * @param lock whether or not to lock the file. Defaults to false
    * @param mode a {@link FileWriteMode}. Defaults to {@code OVERWRITE}
@@ -155,11 +160,16 @@ public final class FtpOperations extends BaseFileSystemOperations {
   public void write(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
                     @Path(type = FILE, location = EXTERNAL) String path,
                     @Content @Summary("Content to be written into the file") InputStream content,
-                    @Optional @Summary("Encoding when trying to write a String file. If not set, defaults to the configuration one or the Mule default") String encoding,
+                    @Optional @Summary("Deprecated: This parameter will not be taken into account for the operation execution") @Placement(
+                        tab = ADVANCED_TAB) @DisplayName("Encoding (DEPRECATED)") String encoding,
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode) {
-    super.doWrite(config, fileSystem, path, content, encoding, createParentDirectories, lock, mode);
+      if (encoding != null) {
+          LOGGER
+                  .warn("Deprecated parameter 'encoding' was configured for operation 'ftp:write'. This parameter will be ignored, not altering the operation behavior");
+      }
+      super.doWrite(config, fileSystem, path, content, createParentDirectories, lock, mode);
   }
 
   /**
