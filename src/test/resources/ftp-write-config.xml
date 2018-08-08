@@ -8,7 +8,7 @@
     <import file="ftp-read-config.xml"/>
 
     <flow name="write">
-        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" encoding="#[vars.encoding]" />
+        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
     </flow>
 
     <flow name="writeStaticContent">
