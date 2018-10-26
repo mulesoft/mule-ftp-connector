@@ -7,10 +7,12 @@
 package org.mule.extension.ftp.internal;
 
 import static java.lang.Thread.currentThread;
-import org.apache.commons.io.FilenameUtils;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 import java.net.URL;
 import java.nio.file.Path;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Utility class for normalizing FTP paths
@@ -27,7 +29,7 @@ public class FtpUtils {
    */
   public static String normalizePath(String path) {
     path = path.length() > 2 && (path.charAt(1) == ':' || path.charAt(2) == ':') ? path.substring(path.indexOf(':') + 1) : path;
-    return FilenameUtils.normalize(path, true);
+    return FilenameUtils.normalize(path, !IS_OS_WINDOWS);
   }
 
   public static String normalizePath(Path path) {
