@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp;
 
-import static java.lang.System.lineSeparator;
+import static java.io.File.pathSeparator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
@@ -35,7 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class FtpFileAttributesTestCase {
 
   private static final String EXPECTED_FILENAME = "hello.txt";
-  private static final String EXPECTED_PATH = lineSeparator() + "root" + lineSeparator() + EXPECTED_FILENAME;
+  private static final String EXPECTED_PATH = pathSeparator + "root" + pathSeparator + EXPECTED_FILENAME;
   private static final Path EXPECTED_FILENAME_PATH = Paths.get(EXPECTED_FILENAME);
   private static final long EXPECTED_SIZE = 100L;
   private static final boolean IS_DIRECTORY = false;
