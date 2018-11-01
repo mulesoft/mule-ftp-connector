@@ -12,6 +12,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 
 import java.nio.file.Path;

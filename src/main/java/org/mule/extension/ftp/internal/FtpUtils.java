@@ -7,10 +7,11 @@
 package org.mule.extension.ftp.internal;
 
 import static java.lang.Thread.currentThread;
-import org.apache.commons.io.FilenameUtils;
 
 import java.net.URL;
 import java.nio.file.Path;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Utility class for normalizing FTP paths
