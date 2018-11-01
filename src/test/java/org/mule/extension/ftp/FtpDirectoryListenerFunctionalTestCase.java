@@ -223,33 +223,33 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
 
     startFlow("modifiedWatermark");
 
-    final File file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
-    final File file2 = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE + "2");
-    testHarness.write(file.getPath(), WATCH_CONTENT);
-    testHarness.write(file2.getPath(), WATCH_CONTENT);
+    final String filePath = MATCHERLESS_LISTENER_FOLDER_NAME + "/" + WATCH_FILE;
+    final String filePath2 = MATCHERLESS_LISTENER_FOLDER_NAME + "/" + WATCH_FILE + "2";
+    testHarness.write(filePath, WATCH_CONTENT);
+    testHarness.write(filePath2, WATCH_CONTENT);
 
     check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
       if (RECEIVED_MESSAGES.size() == 2) {
-        return RECEIVED_MESSAGES.stream().anyMatch(m -> containsPath(m, file.getPath())) &&
-            RECEIVED_MESSAGES.stream().anyMatch(m -> containsPath(m, file2.getPath()));
+        return RECEIVED_MESSAGES.stream().anyMatch(m -> containsPath(m, filePath)) &&
+            RECEIVED_MESSAGES.stream().anyMatch(m -> containsPath(m, filePath2));
       }
 
       return false;
     });
 
-    assertThat(testHarness.fileExists(file.getPath()), is(true));
-    assertThat(testHarness.fileExists(file2.getPath()), is(true));
+    assertThat(testHarness.fileExists(filePath), is(true));
+    assertThat(testHarness.fileExists(filePath2), is(true));
 
     Thread.sleep(2000);
     final String modifiedData = "modified!";
     RECEIVED_MESSAGES.clear();
-    testHarness.write(file.getPath(), modifiedData);
-    testHarness.setTimestamp(file.getPath(), now().plus(1, ChronoUnit.DAYS));
+    testHarness.write(filePath, modifiedData);
+    testHarness.setTimestamp(filePath, now().plus(1, ChronoUnit.DAYS));
 
     check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
       if (RECEIVED_MESSAGES.size() == 1) {
         Message message = RECEIVED_MESSAGES.get(0);
-        return containsPath(message, file.getPath()) && message.getPayload().getValue().toString().contains(modifiedData);
+        return containsPath(message, filePath) && message.getPayload().getValue().toString().contains(modifiedData);
       }
 
       return false;
