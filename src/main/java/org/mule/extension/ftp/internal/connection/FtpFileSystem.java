@@ -61,7 +61,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
+public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
