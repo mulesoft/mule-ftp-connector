@@ -21,12 +21,13 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.slf4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+
+import org.slf4j.Logger;
 
 /**
  * An {@link AbstractFileInputStream} implementation which obtains a {@link FtpFileSystem} through a {@link ConnectionManager} and
@@ -52,10 +53,10 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
   @Override
   protected void doClose() throws IOException {
     try {
-      beforeClose();
+      super.doClose();
     } finally {
       try {
-        super.doClose();
+        beforeConnectionRelease();
       } finally {
         ftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
       }
@@ -63,11 +64,12 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
   }
 
   /**
-   * Template method for performing operations just before the stream is closed. This default implementation is empty.
+   * Template method for performing operations just after the stream is closed but before the connection is released. This default
+   * implementation is empty.
    *
    * @throws IOException
    */
-  protected void beforeClose() throws IOException {}
+  protected void beforeConnectionRelease() throws IOException {}
 
   /**
    * @return {@link Optional} of the {@link FtpFileSystem} used to obtain the stream
