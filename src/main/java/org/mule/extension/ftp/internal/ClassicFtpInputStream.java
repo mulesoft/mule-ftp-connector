@@ -50,11 +50,11 @@ public class ClassicFtpInputStream extends FtpInputStream {
   }
 
   /**
-   * Invokes {@link FtpFileSystem#awaitCommandCompletion()} to make sure that the operation is completed before closing the
-   * stream
+   * Invokes {@link FtpFileSystem#awaitCommandCompletion()} to make sure that the operation is completed before the connection is
+   * released
    */
   @Override
-  protected void beforeClose() throws IOException {
+  protected void beforeConnectionRelease() throws IOException {
     getFtpFileSystem().awaitCommandCompletion();
   }
 }
