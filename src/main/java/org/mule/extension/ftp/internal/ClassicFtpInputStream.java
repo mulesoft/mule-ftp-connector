@@ -51,7 +51,7 @@ public class ClassicFtpInputStream extends FtpInputStream {
    * stream
    */
   @Override
-  protected void beforeClose() throws IOException {
+  protected void beforeConnectionRelease() throws IOException {
     getFtpFileSystem().ifPresent(ftpFileSystem -> ftpFileSystem.awaitCommandCompletion());
   }
 }

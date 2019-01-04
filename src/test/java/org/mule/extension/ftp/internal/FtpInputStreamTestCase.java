@@ -8,22 +8,27 @@ package org.mule.extension.ftp.internal;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
 import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;
-import java.util.Optional;
+import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,6 +46,11 @@ public class FtpInputStreamTestCase {
   @Mock
   private ConnectionHandler connectionHandler;
 
+  @Mock
+  private InputStream inputStream;
+
+  @Mock
+  private FtpFileSystem ftpFileSystem;
 
   @Before
   public void setUp() throws Exception {
@@ -51,7 +61,7 @@ public class FtpInputStreamTestCase {
     }).when(pathLock).release();
 
     when(streamSupplier.getFtpFileSystem()).thenReturn(empty());
-    when(streamSupplier.getConnectionHandler()).thenReturn(Optional.of(connectionHandler));
+    when(streamSupplier.getConnectionHandler()).thenReturn(of(connectionHandler));
     when(streamSupplier.get()).thenReturn(new ByteArrayInputStream(STREAM_CONTENT.getBytes(UTF_8)));
   }
 
@@ -82,6 +92,22 @@ public class FtpInputStreamTestCase {
 
     verify(pathLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
+  }
+
+  @Test
+  public void inputStreamClosesBeforeCompletePendingIsCalled() throws Exception {
+    when(streamSupplier.get()).thenReturn(inputStream);
+    when(inputStream.read()).thenReturn(5, 6, -1);
+    when(streamSupplier.getFtpFileSystem()).thenReturn(of(ftpFileSystem));
+    FtpInputStream ftpInputStream = new ClassicFtpInputStream(streamSupplier, pathLock);
+
+    ftpInputStream.read();
+    ftpInputStream.read();
+    ftpInputStream.read();
+
+    InOrder inOrder = inOrder(inputStream, ftpFileSystem);
+    inOrder.verify(inputStream).close();
+    inOrder.verify(ftpFileSystem).awaitCommandCompletion();
   }
 
 }
