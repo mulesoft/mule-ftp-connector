@@ -23,7 +23,6 @@ import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
 import org.mule.extension.file.common.api.command.DeleteCommand;
 import org.mule.extension.file.common.api.command.ListCommand;
 import org.mule.extension.file.common.api.command.MoveCommand;
-import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.lock.PathLock;
@@ -83,7 +82,7 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
   private final DeleteCommand deleteCommand;
   private final ListCommand listCommand;
   private final MoveCommand moveCommand;
-  private final ReadCommand readCommand;
+  private final FtpReadCommand readCommand;
   private final RenameCommand renameCommand;
   private final WriteCommand writeCommand;
   private final LockFactory lockFactory;
@@ -277,7 +276,7 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
    * {@inheritDoc}
    */
   @Override
-  protected ReadCommand getReadCommand() {
+  public FtpReadCommand getReadCommand() {
     return readCommand;
   }
 
