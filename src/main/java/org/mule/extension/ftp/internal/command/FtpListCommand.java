@@ -40,12 +40,14 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
   private static final Logger LOGGER = getLogger(FtpListCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
+  private final FtpReadCommand ftpReadCommand;
 
   /**
    * {@inheritDoc}
    */
-  public FtpListCommand(FtpFileSystem fileSystem, FTPClient client) {
+  public FtpListCommand(FtpFileSystem fileSystem, FTPClient client, FtpReadCommand ftpReadCommand) {
     super(fileSystem, client);
+    this.ftpReadCommand = ftpReadCommand;
   }
 
   /**
@@ -142,7 +144,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           }
         } else {
           if (matcher.test(attributes)) {
-            accumulator.add(fileSystem.getReadCommand().read(config, attributes, false, timeBetweenSizeCheck));
+            accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
           }
         }
       }
