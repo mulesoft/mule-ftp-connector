@@ -101,9 +101,9 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
     deleteCommand = new FtpDeleteCommand(this, client);
-    listCommand = new FtpListCommand(this, client);
     moveCommand = new FtpMoveCommand(this, client);
     readCommand = new FtpReadCommand(this, client);
+    listCommand = new FtpListCommand(this, client, (FtpReadCommand) readCommand);
     renameCommand = new FtpRenameCommand(this, client);
     writeCommand = new FtpWriteCommand(this, client);
   }

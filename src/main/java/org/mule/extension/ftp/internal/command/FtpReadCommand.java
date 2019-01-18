@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
+
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullPathLock;
@@ -63,6 +64,15 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
       throw exception("Found exception while trying to read path " + filePath, e);
     }
 
+    return read(config, attributes, lock, timeBetweenSizeCheck);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
+                                                     Long timeBetweenSizeCheck) {
     Path path = Paths.get(attributes.getPath());
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
 

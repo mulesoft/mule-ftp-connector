@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ListCommand;
@@ -39,12 +40,14 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
   private static final Logger LOGGER = getLogger(FtpListCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
+  private final FtpReadCommand ftpReadCommand;
 
   /**
    * {@inheritDoc}
    */
-  public FtpListCommand(FtpFileSystem fileSystem, FTPClient client) {
+  public FtpListCommand(FtpFileSystem fileSystem, FTPClient client, FtpReadCommand ftpReadCommand) {
     super(fileSystem, client);
+    this.ftpReadCommand = ftpReadCommand;
   }
 
   /**
@@ -141,7 +144,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           }
         } else {
           if (matcher.test(attributes)) {
-            accumulator.add(fileSystem.read(config, normalizePath(filePath.toString()), false, timeBetweenSizeCheck));
+            accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
           }
         }
       }
