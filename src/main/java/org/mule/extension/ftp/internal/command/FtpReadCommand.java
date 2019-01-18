@@ -10,7 +10,6 @@ import static java.lang.String.format;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullPathLock;
 import org.mule.extension.file.common.api.lock.PathLock;
@@ -18,7 +17,6 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
-import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
@@ -70,18 +68,9 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   }
 
   /**
-   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)} This method can be used
-   * instead of {@link FtpReadCommand#read(FileConnectorConfig, String, boolean, Long)} to avoid asking the FTP server for the
-   * file attributes again if that information is already collected.
-   *
-   * @param config the config that is parameterizing this operation
-   * @param attributes the attributes of the file you want to read
-   * @param lock whether or not to lock the file
-   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FtpFileAttributes}
-   *         object as {@link Message#getAttributes()}
-   * @throws IllegalArgumentException if the file at the given path doesn't exist
+   * {@inheritDoc}
    */
+  @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
     Path path = Paths.get(attributes.getPath());
