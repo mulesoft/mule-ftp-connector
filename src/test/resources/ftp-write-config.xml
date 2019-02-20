@@ -10,29 +10,32 @@
     <import file="ftp-read-config.xml"/>
 
     <flow name="write">
-        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]"
+                   createParentDirectories="#[vars.createParent]"/>
     </flow>
 
     <flow name="writeStaticContent">
-        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+        <ftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]"
+                   createParentDirectories="#[vars.createParent]">
             <ftp:content>Hello World!</ftp:content>
         </ftp:write>
     </flow>
 
     <flow name="readAndWrite">
-        <ftp:read config-ref="config" path="#[vars.path]" />
-        <set-payload value="Hello World!" />
+        <ftp:read config-ref="config" path="#[vars.path]"/>
+        <set-payload value="Hello World!"/>
         <ftp:write config-ref="config" path="#[vars.path]" mode="OVERWRITE"/>
     </flow>
 
     <flow name="writeWithLock">
-        <ftp:write config-ref="config" lock="true" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        <ftp:write config-ref="config" lock="true" path="#[vars.path]" mode="#[vars.mode]"
+                   createParentDirectories="#[vars.createParent]"/>
     </flow>
 
     <flow name="writeFromStreamWithLock">
         <java:invoke-static class="org.mule.extension.ftp.FtpWriteTestCase" method="getContentStream()" />
         <ftp:write config-ref="config" path="#[vars.path]" lock="true" mode="#[vars.mode]"
-                    createParentDirectories="#[vars.createParent]"/>
+                   createParentDirectories="#[vars.createParent]"/>
     </flow>
 
     <flow name="writeAlreadyLocked">
