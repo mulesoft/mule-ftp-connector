@@ -32,8 +32,10 @@ import org.mule.runtime.core.api.event.CoreEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -158,8 +160,16 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
   public void writeOnLockedFile() throws Exception {
     final String path = "file";
     testHarness.write(path, HELLO_WORLD);
-    flowRunner("writeAlreadyLocked").withVariable("path", path).withVariable("createParent", false).withVariable("mode", APPEND)
-        .withVariable("encoding", null).withPayload(HELLO_WORLD).run();
+    Exception exception = flowRunner("writeAlreadyLocked").withVariable("path", path).withVariable("createParent", false)
+        .withVariable("mode", APPEND)
+        .withVariable("encoding", null).withPayload(HELLO_WORLD).runExpectingException();
+
+    Method methodGetErrors = exception.getCause().getClass().getMethod("getErrors");
+    Object error = ((List<Object>) methodGetErrors.invoke(exception.getCause())).get(0);
+    Method methodGetErrorType = error.getClass().getMethod("getErrorType");
+    methodGetErrorType.setAccessible(true);
+    Object fileError = methodGetErrorType.invoke(error);
+    assertThat(fileError.toString(), is("FILE:FILE_LOCK"));
   }
 
   @Test
