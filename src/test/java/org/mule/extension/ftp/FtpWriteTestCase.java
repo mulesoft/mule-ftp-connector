@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.rules.ExpectedException.none;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
@@ -21,6 +22,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PA
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.mule.extension.file.common.api.FileWriteMode;
@@ -28,9 +30,12 @@ import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.core.api.event.CoreEvent;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -140,6 +145,34 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
   }
 
   @Test
+  public void writeWithLock() throws Exception {
+    testHarness.makeDir(TEMP_DIRECTORY);
+    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    doWrite("writeWithLock", path, HELLO_WORLD, CREATE_NEW, false);
+
+    String content = toString(readPath(path).getPayload().getValue());
+    assertThat(content, is(HELLO_WORLD));
+  }
+
+  //TODO: MULE-16515 ignore this test until issue is fixed.
+  @Test
+  @Ignore
+  public void writeOnLockedFile() throws Exception {
+    final String path = "file";
+    testHarness.write(path, HELLO_WORLD);
+    Exception exception = flowRunner("writeAlreadyLocked").withVariable("path", path).withVariable("createParent", false)
+        .withVariable("mode", APPEND)
+        .withVariable("encoding", null).withPayload(HELLO_WORLD).runExpectingException();
+
+    Method methodGetErrors = exception.getCause().getClass().getMethod("getErrors");
+    Object error = ((List<Object>) methodGetErrors.invoke(exception.getCause())).get(0);
+    Method methodGetErrorType = error.getClass().getMethod("getErrorType");
+    methodGetErrorType.setAccessible(true);
+    Object fileError = methodGetErrorType.invoke(error);
+    assertThat(fileError.toString(), is("FILE:FILE_LOCK"));
+  }
+
+  @Test
   public void writeWithCustomEncoding() throws Exception {
     final String defaultEncoding = muleContext.getConfiguration().getDefaultEncoding();
     assertThat(defaultEncoding, is(notNullValue()));
@@ -176,7 +209,6 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     assertThat(content, is(HELLO_WORLD));
   }
 
-
   private void doWriteOnNotExistingFile(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
     String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
@@ -198,5 +230,28 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
     doWrite(filePath, HELLO_WORLD, mode, false);
     return toString(readPath(filePath).getPayload().getValue());
+  }
+
+  public static InputStream getContentStream() {
+    return (new InputStream() {
+
+      String text = "Hello World!";
+      char[] textArray = text.toCharArray();
+      int index = -1;
+
+      @Override
+      public int read() throws IOException {
+        try {
+          Thread.sleep(10);
+        } catch (InterruptedException e) {
+          fail();
+        }
+        if (index < text.length() - 1) {
+          index++;
+          return (int) textArray[index];
+        }
+        return -1;
+      }
+    });
   }
 }
