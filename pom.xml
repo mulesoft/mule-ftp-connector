@@ -27,6 +27,7 @@
 
         <muleFileCommonsVersion>1.2.0</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
+        <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
@@ -72,7 +73,7 @@
         <dependency>
             <groupId>org.mule.tests</groupId>
             <artifactId>mule-tests-runner</artifactId>
-            <version>4.1.5</version>
+            <version>${muleTestsRunnerVersion}</version>
             <scope>test</scope>
         </dependency>
 
