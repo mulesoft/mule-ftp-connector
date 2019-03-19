@@ -346,4 +346,8 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
   public FtpFileAttributes getFileAttributes(String filePath) {
     return ((FtpReadCommand) readCommand).getFile(filePath);
   }
+
+  public Path getBasePathObject() {
+    return Paths.get("/").resolve(getBasePath());
+  }
 }

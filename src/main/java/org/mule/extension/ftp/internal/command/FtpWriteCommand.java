@@ -61,14 +61,17 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
-    Path path = resolvePath(filePath);
-    FileAttributes file = getFile(filePath);
+    Path path = resolvePathFromBasePath(filePath);
+    FileAttributes file = getFile(path, false);
 
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     try {
 
       if (file == null) {
-        assureParentFolderExists(path, createParentDirectory);
+        FileAttributes directory = getFile(path.getParent(), false);
+        if (directory == null) {
+          assureParentFolderExists(path, createParentDirectory);
+        }
       } else {
         if (mode == CREATE_NEW) {
           throw new FileAlreadyExistsException(format(
@@ -80,7 +83,6 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
             throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
                                                          file.getPath()));
           }
-          fileSystem.delete(file.getPath());
         }
       }
 
