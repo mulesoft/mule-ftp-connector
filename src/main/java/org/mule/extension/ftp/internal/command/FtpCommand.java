@@ -90,6 +90,18 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
 
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
     Path path = resolvePath(normalizePath(filePath));
+    return getFileFromAbsolutePath(path, requireExistence);
+  }
+
+  public FtpFileAttributes getFile(Path filePath) {
+    return getFile(filePath, false);
+  }
+
+  protected FtpFileAttributes getFile(Path path, boolean requireExistence) {
+    return getFileFromAbsolutePath(path, requireExistence);
+  }
+
+  protected FtpFileAttributes getFileFromAbsolutePath(Path path, boolean requireExistence) {
     Optional<FTPFile> ftpFile;
     try {
       ftpFile = getFileFromPath(path);
@@ -161,6 +173,14 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
       path = path.resolve(filePath);
     }
 
+    return path;
+  }
+
+  protected Path resolvePathFromBasePath(String filePath) {
+    Path path = fileSystem.getBasePathObject();
+    if (filePath != null) {
+      path = path.resolve(filePath);
+    }
     return path;
   }
 
