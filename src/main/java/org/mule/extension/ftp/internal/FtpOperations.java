@@ -6,7 +6,6 @@
  */
 package org.mule.extension.ftp.internal;
 
-import static java.lang.String.format;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
@@ -166,7 +165,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
     }
 
     if (isBlank(path)) {
-      throw new IllegalPathException(format("path cannot be null nor blank"));
+      throw new IllegalPathException("path cannot be null nor blank");
     }
 
     fileSystem.write(path, content, mode, lock, createParentDirectories);
