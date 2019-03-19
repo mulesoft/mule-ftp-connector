@@ -336,4 +336,8 @@ public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
   protected CreateDirectoryCommand getCreateDirectoryCommand() {
     return createDirectoryCommand;
   }
+
+  public Path getBasePathObject() {
+    return Paths.get("/").resolve(getBasePath());
+  }
 }

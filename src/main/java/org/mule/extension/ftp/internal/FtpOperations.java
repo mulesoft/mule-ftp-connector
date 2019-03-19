@@ -9,8 +9,10 @@ package org.mule.extension.ftp.internal;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+import static org.mule.runtime.core.api.util.StringUtils.isBlank;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.file.common.api.BaseFileSystemOperations;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -22,6 +24,8 @@ import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileRenameErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileWriteErrorTypeProvider;
+import org.mule.extension.file.common.api.exceptions.IllegalContentException;
+import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -141,7 +145,15 @@ public final class FtpOperations extends BaseFileSystemOperations {
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode) {
-    super.doWrite(config, fileSystem, path, content, encoding, createParentDirectories, lock, mode);
+    if (content == null) {
+      throw new IllegalContentException("Cannot write a null content");
+    }
+
+    if (isBlank(path)) {
+      throw new IllegalPathException("path cannot be null nor blank");
+    }
+
+    fileSystem.write(path, content, mode, lock, createParentDirectories);
   }
 
   /**
