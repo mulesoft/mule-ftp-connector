@@ -6,7 +6,6 @@
  */
 package org.mule.extension.ftp.internal;
 
-import static java.lang.String.format;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
