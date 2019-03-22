@@ -21,12 +21,15 @@ import org.mule.extension.file.common.api.lock.NullPathLock;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,41 +65,81 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
     Path path = resolvePathFromBasePath(filePath);
-    FileAttributes file = getFile(path, false);
-
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    String normalizedPath = normalizePath(path);
+    OutputStream outputStream = null;
     try {
-
-      if (file == null) {
-        FileAttributes directory = getFile(path.getParent(), false);
-        if (directory == null) {
-          assureParentFolderExists(path, createParentDirectory);
+      if (mode != CREATE_NEW && canWriteToPathDirectly(path)) {
+        try {
+          outputStream = getOutputStream(normalizedPath, mode);
+          if (!FTPReply.isPositivePreliminary(client.getReplyCode())) {
+            closeSilently(outputStream);
+            outputStream = null;
+          }
+        } catch (Exception e) {
+          // Something went wrong while trying to get the OutputStream to write the file, do not fail here and do a full
+          // validation.
         }
-      } else {
-        if (mode == CREATE_NEW) {
-          throw new FileAlreadyExistsException(format(
-                                                      "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
-                                                          + "Use a different write mode or point to a path which doesn't exist",
-                                                      path, mode));
-        } else if (mode == OVERWRITE) {
-          if (file.isDirectory()) {
-            throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                         file.getPath()));
+      }
+
+      if (outputStream == null) {
+        FileAttributes file = getFile(path, false);
+        if (file == null) {
+          FileAttributes directory = getFile(path.getParent(), false);
+          if (directory == null) {
+            assureParentFolderExists(path, createParentDirectory);
+          }
+        } else {
+          if (mode == CREATE_NEW) {
+            throw new FileAlreadyExistsException(format(
+                                                        "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
+                                                            + "Use a different write mode or point to a path which doesn't exist",
+                                                        path, mode));
+          } else if (mode == OVERWRITE) {
+            if (file.isDirectory()) {
+              throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                           file.getPath()));
+            }
           }
         }
       }
 
-      String normalizedPath = normalizePath(path);
-      try (OutputStream outputStream = getOutputStream(normalizedPath, mode)) {
+      try {
+        if (outputStream == null) {
+          outputStream = getOutputStream(normalizedPath, mode);
+        }
         IOUtils.copy(content, outputStream);
         LOGGER.debug("Successfully wrote to path {}", normalizedPath);
       } catch (Exception e) {
         throw exception(format("Exception was found writing to file '%s'", normalizedPath), e);
       } finally {
+        closeSilently(outputStream);
         fileSystem.awaitCommandCompletion();
       }
     } finally {
       pathLock.release();
+    }
+  }
+
+  private boolean canWriteToPathDirectly(Path path) {
+    boolean parentDirectoryExists = false;
+    boolean pathIsDirectory = true;
+    try {
+      parentDirectoryExists = client.changeWorkingDirectory(normalizePath(path.getParent()));
+      pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
+    } catch (IOException e) {
+      // Assume that quick validations went wrong and do a full validation.
+    }
+    return parentDirectoryExists && !pathIsDirectory;
+  }
+
+  private void closeSilently(Closeable closeable) {
+    try {
+      if (closeable != null) {
+        closeable.close();
+      }
+    } catch (Exception e) {
+      // Do nothing
     }
   }
 
