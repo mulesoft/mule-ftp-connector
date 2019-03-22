@@ -128,7 +128,8 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
       parentDirectoryExists = client.changeWorkingDirectory(normalizePath(path.getParent()));
       pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
     } catch (IOException e) {
-      // Assume that quick validations went wrong and do a full validation.
+      // Assume that validations went wrong and you cannot write directly.
+      return false;
     }
     return parentDirectoryExists && !pathIsDirectory;
   }
