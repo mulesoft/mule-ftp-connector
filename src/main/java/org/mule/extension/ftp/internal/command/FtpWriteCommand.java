@@ -68,6 +68,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     String normalizedPath = normalizePath(path);
     OutputStream outputStream = null;
+    boolean outputStreamObtained = false;
     try {
       if (mode != CREATE_NEW && canWriteToPathDirectly(path)) {
         try {
@@ -75,6 +76,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
           if (!FTPReply.isPositivePreliminary(client.getReplyCode())) {
             closeSilently(outputStream);
             outputStream = null;
+            outputStreamObtained = true;
           }
         } catch (Exception e) {
           // Something went wrong while trying to get the OutputStream to write the file, do not fail here and do a full
@@ -82,30 +84,12 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
         }
       }
 
-      if (outputStream == null) {
-        FileAttributes file = getFile(path, false);
-        if (file == null) {
-          FileAttributes directory = getFile(path.getParent(), false);
-          if (directory == null) {
-            assureParentFolderExists(path, createParentDirectory);
-          }
-        } else {
-          if (mode == CREATE_NEW) {
-            throw new FileAlreadyExistsException(format(
-                                                        "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
-                                                            + "Use a different write mode or point to a path which doesn't exist",
-                                                        path, mode));
-          } else if (mode == OVERWRITE) {
-            if (file.isDirectory()) {
-              throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                           file.getPath()));
-            }
-          }
-        }
+      if (!outputStreamObtained) {
+        validatePath(path, createParentDirectory, mode);
       }
 
       try {
-        if (outputStream == null) {
+        if (!outputStreamObtained) {
           outputStream = getOutputStream(normalizedPath, mode);
         }
         IOUtils.copy(content, outputStream);
@@ -118,6 +102,28 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
       }
     } finally {
       pathLock.release();
+    }
+  }
+
+  private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
+    FileAttributes file = getFile(path, false);
+    if (file == null) {
+      FileAttributes directory = getFile(path.getParent(), false);
+      if (directory == null) {
+        assureParentFolderExists(path, createParentDirectory);
+      }
+    } else {
+      if (mode == CREATE_NEW) {
+        throw new FileAlreadyExistsException(format(
+                                                    "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
+                                                        + "Use a different write mode or point to a path which doesn't exist",
+                                                    path, mode));
+      } else if (mode == OVERWRITE) {
+        if (file.isDirectory()) {
+          throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                       file.getPath()));
+        }
+      }
     }
   }
 
