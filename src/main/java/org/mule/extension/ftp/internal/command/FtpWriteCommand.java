@@ -73,10 +73,11 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
       if (mode != CREATE_NEW && canWriteToPathDirectly(path)) {
         try {
           outputStream = getOutputStream(normalizedPath, mode);
-          if (!FTPReply.isPositivePreliminary(client.getReplyCode())) {
+          if (FTPReply.isPositivePreliminary(client.getReplyCode())) {
+            outputStreamObtained = true;
+          } else {
             closeSilently(outputStream);
             outputStream = null;
-            outputStreamObtained = true;
           }
         } catch (Exception e) {
           // Something went wrong while trying to get the OutputStream to write the file, do not fail here and do a full
