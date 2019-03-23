@@ -72,15 +72,16 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                                                            boolean recursive,
                                                            Predicate<FtpFileAttributes> matcher,
                                                            Long timeBetweenSizeCheck) {
-
-    FileAttributes directoryAttributes = getExistingFile(directoryPath);
-    Path path = Paths.get(directoryAttributes.getPath());
-
-    if (!directoryAttributes.isDirectory()) {
-      throw cannotListFileException(path);
-    }
+    Path path = resolvePath(normalizePath(directoryPath));
 
     if (!tryChangeWorkingDirectory(path.toString())) {
+
+      FileAttributes directoryAttributes = getExistingFile(directoryPath);
+
+      if (!directoryAttributes.isDirectory()) {
+        throw cannotListFileException(path);
+      }
+
       throw exception(format("Could not change working directory to '%s' while trying to list that directory", path));
     }
 
