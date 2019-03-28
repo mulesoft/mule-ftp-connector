@@ -21,7 +21,7 @@
     <properties>
         <commonsNetVersion>3.6</commonsNetVersion>
         <commonsIoVersion>2.6</commonsIoVersion>
-        <commonsLangVersion>3.7</commonsLangVersion>
+        <commonsLangVersion>3.8.1</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
 
         <muleFileCommonsVersion>1.3.0-SNAPSHOT</muleFileCommonsVersion>
