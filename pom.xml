@@ -23,7 +23,6 @@
         <commonsIoVersion>2.6</commonsIoVersion>
         <commonsLangVersion>3.6</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <guavaVersion>23.5-jre</guavaVersion>
 
         <muleFileCommonsVersion>1.2.0</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -62,12 +61,6 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commonsCollectionsVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guavaVersion}</version>
         </dependency>
 
         <dependency>
