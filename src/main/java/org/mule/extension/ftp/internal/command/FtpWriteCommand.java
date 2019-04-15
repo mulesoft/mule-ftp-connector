@@ -109,6 +109,9 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
     FileAttributes file = getFile(path, false);
     if (file == null) {
+      if (canChangeCurrentWorkingDirToDirectory(path)) {
+        throw pathIsADirectoryException(path);
+      }
       FileAttributes directory = getFile(path.getParent(), false);
       if (directory == null) {
         assureParentFolderExists(path, createParentDirectory);
@@ -121,11 +124,25 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
                                                     path, mode));
       } else if (mode == OVERWRITE) {
         if (file.isDirectory()) {
-          throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                       file.getPath()));
+          throw pathIsADirectoryException(path);
         }
       }
     }
+  }
+
+  private IllegalPathException pathIsADirectoryException(Path path) {
+    return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                  path));
+  }
+
+  private boolean canChangeCurrentWorkingDirToDirectory(Path path) {
+    boolean pathIsDirectory;
+    try {
+      pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
+    } catch (IOException e) {
+      return false;
+    }
+    return pathIsDirectory;
   }
 
   private boolean canWriteToPathDirectly(Path path) {
