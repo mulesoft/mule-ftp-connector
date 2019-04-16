@@ -22,7 +22,6 @@ import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -135,26 +134,16 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
                                                   path));
   }
 
-  private boolean canChangeWorkingDirToPath(Path path) {
-    boolean pathIsDirectory;
-    try {
-      pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
-    } catch (IOException e) {
-      return false;
-    }
-    return pathIsDirectory;
-  }
-
   private boolean canWriteToPathDirectly(Path path) {
     return parentDirectoryExists(path) && !pathIsDirectory(path);
   }
 
   private boolean parentDirectoryExists(Path path) {
-    return canChangeWorkingDirToPath(path.getParent());
+    return getPathToDirectory(path.getParent().toString()).isPresent();
   }
 
   private boolean pathIsDirectory(Path path) {
-    return canChangeWorkingDirToPath(path);
+    return getPathToDirectory(path.toString()).isPresent();
   }
 
   private void closeSilently(Closeable closeable) {
