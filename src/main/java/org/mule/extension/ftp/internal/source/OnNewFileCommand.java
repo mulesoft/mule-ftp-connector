@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
-import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.ftp.internal.command.FtpCommand;
@@ -15,6 +14,7 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * A {@link FtpCommand} which implements support functionality for {@link FtpDirectoryListener}
@@ -34,11 +34,10 @@ public class OnNewFileCommand extends FtpCommand {
    * @return the resolved {@link Path} to listen on
    */
   public Path resolveRootPath(String directory) throws IOException {
-    Path path = fileSystem.getBasePathObject().resolve(directory);
-    if (!fileSystem.getClient().changeWorkingDirectory(normalizePath(path))) {
+    Optional<Path> path = getPathToDirectory(directory);
+    if (!path.isPresent()) {
       throw new IllegalPathException(format("Path '%s' doesn't exist", path.toString()));
     }
-
-    return path;
+    return path.get();
   }
 }

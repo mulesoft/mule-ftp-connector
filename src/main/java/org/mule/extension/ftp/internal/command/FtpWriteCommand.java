@@ -109,7 +109,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
     FileAttributes file = getFile(path, false);
     if (file == null) {
-      if (canChangeCurrentWorkingDirToPath(path)) {
+      if (pathIsDirectory(path)) {
         throw pathIsADirectoryException(path);
       }
       FileAttributes directory = getFile(path.getParent(), false);
@@ -135,7 +135,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
                                                   path));
   }
 
-  private boolean canChangeCurrentWorkingDirToPath(Path path) {
+  private boolean canChangeWorkingDirToPath(Path path) {
     boolean pathIsDirectory;
     try {
       pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
@@ -146,16 +146,15 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   }
 
   private boolean canWriteToPathDirectly(Path path) {
-    boolean parentDirectoryExists = false;
-    boolean pathIsDirectory = true;
-    try {
-      parentDirectoryExists = client.changeWorkingDirectory(normalizePath(path.getParent()));
-      pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
-    } catch (IOException e) {
-      // Assume that validations went wrong and you cannot write directly.
-      return false;
-    }
-    return parentDirectoryExists && !pathIsDirectory;
+    return parentDirectoryExists(path) && !pathIsDirectory(path);
+  }
+
+  private boolean parentDirectoryExists(Path path) {
+    return canChangeWorkingDirToPath(path.getParent());
+  }
+
+  private boolean pathIsDirectory(Path path) {
+    return canChangeWorkingDirToPath(path);
   }
 
   private void closeSilently(Closeable closeable) {
