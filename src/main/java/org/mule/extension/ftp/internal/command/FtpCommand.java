@@ -423,7 +423,7 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
    * @param directory directory you want to get the path from
    * @return an {@link Optional} with the path to the directory if it exists, or an empty one if the directory does not exist.
    */
-  public Optional<Path> getPathToDirectory(String directory) {
+  protected Optional<Path> getPathToDirectory(String directory) {
     Path path = fileSystem.getBasePathObject().resolve(directory);
     boolean couldChangeWorkingDir;
     try {
