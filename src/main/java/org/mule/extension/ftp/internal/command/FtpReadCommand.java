@@ -49,11 +49,6 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
     }
 
-    try {
-      attributes = new FtpFileAttributes(resolvePath(filePath), client.listFiles(filePath)[0]);
-    } catch (Exception e) {
-      throw exception("Found exception while trying to read path " + filePath, e);
-    }
 
     return read(config, attributes, lock);
   }
