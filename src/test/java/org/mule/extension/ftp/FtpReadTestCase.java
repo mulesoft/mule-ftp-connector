@@ -45,6 +45,8 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
   private static String DELETED_FILE_NAME = "deleted.txt";
   private static String DELETED_FILE_CONTENT = "non existant content";
   private static String WATCH_FILE = "watch.txt";
+  private static String WATCH_SPACES_FILE_NAME = "watch with-spaces.txt";
+  private static String WATCH_SPACES_FILE_CONTENT = "Content of the file with spaces in its name.";
 
   @Override
   protected String getConfigFile() {
@@ -148,6 +150,13 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     String result = (String) flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage()
         .getPayload().getValue();
     assertThat(result, is("aaaaa"));
+  }
+
+  @Test
+  public void readFileWithSpaceInItsName() throws Exception {
+    testHarness.write(WATCH_SPACES_FILE_NAME, WATCH_SPACES_FILE_CONTENT);
+    String content = (String) readPath(WATCH_SPACES_FILE_NAME).getPayload().getValue();
+    assertThat(content, is(WATCH_SPACES_FILE_CONTENT));
   }
 
   private Message readWithLock() throws Exception {
