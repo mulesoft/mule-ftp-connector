@@ -276,11 +276,12 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
     FileAttributes sourceFile = getExistingFile(source);
     Path targetPath = resolvePath(target);
     FileAttributes targetFile = getFile(targetPath.toString());
+    // This additional check has to be added because there are directories that exist that do not appear when listed.
+    boolean targetPathIsDirectory = getPathToDirectory(target).isPresent();
     String targetFileName = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
-
-    if (targetFile != null) {
-      if (targetFile.isDirectory()) {
-        if (sourceFile.isDirectory() && sourceFile.getName().equals(targetFile.getName()) && !overwrite) {
+    if (targetPathIsDirectory || targetFile != null) {
+      if (targetPathIsDirectory || targetFile.isDirectory()) {
+        if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getName().equals(targetFile.getName())) && !overwrite) {
           throw alreadyExistsException(targetPath);
         } else {
           Path sourcePath = resolvePath(targetFileName);
@@ -411,6 +412,27 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
 
   private String enrichExceptionMessage(String message) {
     return format("%s. Ftp reply code: %d", message, client.getReplyCode());
+  }
+
+  /**
+   * Given a {@link String}path to a directory relative to the basePath, this method checks if the directory exists and returns an
+   * {@link Optional} with the {@link Path} to it, or an empty one if the directory does not exist. To check the existance of the
+   * directory it is tried to change the working directory to it. Note that if the check is successful the underlying
+   * {@link FtpFileSystem} will have its working directory changed.
+   *
+   * @param directory directory you want to get the path from
+   * @return an {@link Optional} with the path to the directory if it exists, or an empty one if the directory does not exist.
+   */
+  protected Optional<Path> getPathToDirectory(String directory) {
+    Path path = fileSystem.getBasePathObject().resolve(directory);
+    boolean couldChangeWorkingDir;
+    try {
+      couldChangeWorkingDir = fileSystem.getClient().changeWorkingDirectory(normalizePath(path));
+    } catch (IOException e) {
+      couldChangeWorkingDir = false;
+    }
+
+    return couldChangeWorkingDir ? Optional.of(path) : Optional.empty();
   }
 
 }
