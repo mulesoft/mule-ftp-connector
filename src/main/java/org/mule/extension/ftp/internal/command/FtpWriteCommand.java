@@ -22,7 +22,6 @@ import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -109,6 +108,9 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
     FileAttributes file = getFile(path, false);
     if (file == null) {
+      if (pathIsDirectory(path)) {
+        throw pathIsADirectoryException(path);
+      }
       FileAttributes directory = getFile(path.getParent(), false);
       if (directory == null) {
         assureParentFolderExists(path, createParentDirectory);
@@ -121,24 +123,27 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
                                                     path, mode));
       } else if (mode == OVERWRITE) {
         if (file.isDirectory()) {
-          throw new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                       file.getPath()));
+          throw pathIsADirectoryException(path);
         }
       }
     }
   }
 
+  private IllegalPathException pathIsADirectoryException(Path path) {
+    return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                  path));
+  }
+
   private boolean canWriteToPathDirectly(Path path) {
-    boolean parentDirectoryExists = false;
-    boolean pathIsDirectory = true;
-    try {
-      parentDirectoryExists = client.changeWorkingDirectory(normalizePath(path.getParent()));
-      pathIsDirectory = client.changeWorkingDirectory(normalizePath(path));
-    } catch (IOException e) {
-      // Assume that validations went wrong and you cannot write directly.
-      return false;
-    }
-    return parentDirectoryExists && !pathIsDirectory;
+    return parentDirectoryExists(path) && !pathIsDirectory(path);
+  }
+
+  private boolean parentDirectoryExists(Path path) {
+    return getPathToDirectory(path.getParent().toString()).isPresent();
+  }
+
+  private boolean pathIsDirectory(Path path) {
+    return getPathToDirectory(path.toString()).isPresent();
   }
 
   private void closeSilently(Closeable closeable) {

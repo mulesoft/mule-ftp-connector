@@ -13,7 +13,6 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -44,7 +43,6 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -302,7 +300,6 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     FtpFileSystem fileSystem = null;
     try {
       fileSystem = fileSystemProvider.connect();
-      fileSystem.changeToBaseDir();
       return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
