@@ -90,7 +90,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
         doPagedList(config, directoryPath, recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
                     streamingHelper);
-    return (PagingProvider<FtpFileSystem, Result<Object, FtpFileAttributes>>) result;
+    return result;
   }
 
   /**
