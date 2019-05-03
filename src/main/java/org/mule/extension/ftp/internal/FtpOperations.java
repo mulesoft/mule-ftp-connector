@@ -73,23 +73,24 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Summary("List all the files from given directory")
+  @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<FtpFileSystem, Result<CursorProvider, FtpFileAttributes>> list(@Config FileConnectorConfig config,
-                                                                                       @Path(type = DIRECTORY,
-                                                                                           location = EXTERNAL) String directoryPath,
-                                                                                       @Optional(
-                                                                                           defaultValue = "false") boolean recursive,
-                                                                                       @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher,
-                                                                                       @ConfigOverride @Placement(
-                                                                                           tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
-                                                                                       @ConfigOverride @Placement(
-                                                                                           tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
-                                                                                       StreamingHelper streamingHelper) {
+  public PagingProvider<FtpFileSystem, Result<Object, FtpFileAttributes>> list(@Config FileConnectorConfig config,
+                                                                               @Path(type = DIRECTORY,
+                                                                                   location = EXTERNAL) String directoryPath,
+                                                                               @Optional(
+                                                                                   defaultValue = "false") boolean recursive,
+                                                                               @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher,
+                                                                               @ConfigOverride @Placement(
+                                                                                   tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                                               @ConfigOverride @Placement(
+                                                                                   tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
+                                                                               StreamingHelper streamingHelper) {
     PagingProvider result =
         doPagedList(config, directoryPath, recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
                     streamingHelper);
-    return (PagingProvider<FtpFileSystem, Result<CursorProvider, FtpFileAttributes>>) result;
+    return result;
   }
 
   /**
