@@ -99,6 +99,15 @@
         <flow-ref name="onEvent"/>
     </flow>
 
+    <flow name="listenOnDefaultDirectory">
+        <ftp:listener config-ref="config" recursive="false">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1000"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <flow-ref name="onEvent"/>
+    </flow>
+
     <sub-flow name="onEvent">
         <object-to-string-transformer />
         <test:processor class="org.mule.extension.ftp.FtpDirectoryListenerFunctionalTestCase$TestProcessor"/>
