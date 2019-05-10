@@ -160,7 +160,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
   public void write(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
                     @Path(type = FILE, location = EXTERNAL) String path,
                     @Content @Summary("Content to be written into the file") InputStream content,
-                    @Optional @Summary("Encoding when trying to write a String file. If not set, defaults to the configuration one or the Mule default") String encoding,
+                    @Optional @Summary("Deprecated: This parameter will not be taken into account for the operation execution") @Placement(
+                        tab = ADVANCED_TAB) @DisplayName("Encoding (DEPRECATED)") String encoding,
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode) {
