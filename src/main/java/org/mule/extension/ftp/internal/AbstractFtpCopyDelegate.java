@@ -124,7 +124,7 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
                          FtpFileSystem writerConnection)
       throws IOException {
     final FileWriteMode mode = overwrite ? FileWriteMode.OVERWRITE : FileWriteMode.CREATE_NEW;
-    writerConnection.write(targetPath, inputStream, mode, false, true);
+    writerConnection.write(targetPath, inputStream, mode, false, true, config.getDefaultWriteEncoding());
   }
 
   private ConnectionHandler<FtpFileSystem> getWriterConnection(FileConnectorConfig config) throws ConnectionException {

@@ -51,7 +51,6 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   /**
    * {@inheritDoc}
    */
-  @Deprecated
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
                     String encoding) {

@@ -100,7 +100,7 @@
     </flow>
 
     <flow name="listenOnDefaultDirectory">
-        <ftp:listener config-ref="config" recursive="false">
+        <ftp:listener config-ref="config" recursive="false"  timeBetweenSizeCheck="100">
             <scheduling-strategy>
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
