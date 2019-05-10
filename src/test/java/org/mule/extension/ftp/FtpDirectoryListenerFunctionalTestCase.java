@@ -45,6 +45,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   private static final String WATCH_CONTENT = "who watches the watchmen?";
   private static final String DR_MANHATTAN = "Dr. Manhattan";
   private static final String MATCH_FILE = "matchme.txt";
+  private static final String DEFAULT_DIRECTORY_CONTENT = "defaultdefaultdefault";
   private static final int PROBER_TIMEOUT = 10000;
   private static final int PROBER_DELAY = 1000;
 
@@ -86,6 +87,14 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
     File file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
     testHarness.write(file.getPath(), WATCH_CONTENT);
     assertPoll(file, WATCH_CONTENT);
+  }
+
+  @Test
+  @Description("Verifies that a created file in the default directory is picked")
+  public void onFileCreatedOnDefaultDirectory() throws Exception {
+    File file = new File(WATCH_FILE);
+    testHarness.write(file.getPath(), DEFAULT_DIRECTORY_CONTENT);
+    assertPoll(file, DEFAULT_DIRECTORY_CONTENT);
   }
 
   @Test
