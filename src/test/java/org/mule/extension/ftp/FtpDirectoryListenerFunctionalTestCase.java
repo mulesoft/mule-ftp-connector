@@ -127,7 +127,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
     testHarness.write(rejectedFile.getPath(), WATCH_CONTENT);
 
     assertPoll(file, DR_MANHATTAN);
-    checkNot(PROBER_TIMEOUT, PROBER_DELAY, () -> RECEIVED_MESSAGES.size() > 1);
+    checkNot(50000, PROBER_DELAY, () -> RECEIVED_MESSAGES.size() > 1);
   }
 
   @Test
