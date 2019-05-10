@@ -121,12 +121,14 @@ public final class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
     } catch (FTPConnectionClosedException e) {
       // this is valid and expected if the server closes the connection prematurely as a result of the logout... ignore
     } catch (Exception e) {
-      LOGGER.warn("Exception found trying to logout from ftp at " + toURL(null), e);
+      LOGGER.warn("Exception found trying to logout from ftp at {} ", toURL(null));
+      LOGGER.debug(e.getMessage(), e);
     } finally {
       try {
         client.disconnect();
       } catch (Exception e) {
-        LOGGER.warn("Exception found trying to disconnect from ftp at " + toURL(null), e);
+        LOGGER.warn("Exception found trying to disconnect from ftp at {} ", toURL(null));
+        LOGGER.debug(e.getMessage(), e);
       }
     }
   }
