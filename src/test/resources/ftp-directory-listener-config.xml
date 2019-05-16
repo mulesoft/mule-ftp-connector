@@ -48,12 +48,11 @@
     </flow>
 
     <flow name="listenTxtOnly">
-        <ftp:listener config-ref="config" directory="withMatcher" matcher="matcher" autoDelete="true">
+        <ftp:listener config-ref="config" directory="withMatcher" matcher="matcher" autoDelete="true" timeBetweenSizeCheck="100">
             <scheduling-strategy>
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
-        <set-payload value="Dr. Manhattan" />
         <flow-ref name="onEvent"/>
     </flow>
 
@@ -100,7 +99,7 @@
     </flow>
 
     <flow name="listenOnDefaultDirectory">
-        <ftp:listener config-ref="config" recursive="false">
+        <ftp:listener config-ref="config" recursive="false" timeBetweenSizeCheck="100">
             <scheduling-strategy>
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
