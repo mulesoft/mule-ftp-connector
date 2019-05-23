@@ -64,7 +64,6 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   /**
    * {@inheritDoc}
    */
-  @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
     Path path = Paths.get(attributes.getPath());
