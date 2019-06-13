@@ -192,21 +192,19 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     }
 
     try {
-      List<FtpFileAttributes> attributesList =
+      List<Result<InputStream, FtpFileAttributes>> files =
           fileSystem
               .list(config, directoryPath.toString(), recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null))
-              .stream()
-              .map(result -> result.getAttributes().orElse(null))
-              .filter(a -> a != null)
-              .collect(toList());
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
 
-      if (attributesList.isEmpty()) {
+      if (files.isEmpty()) {
         return;
       }
-      for (FtpFileAttributes attributes : attributesList) {
+      for (Result<InputStream, FtpFileAttributes> file : files) {
 
-        if (attributes.isDirectory()) {
+        FtpFileAttributes attributes = file.getAttributes().orElse(null);
+
+        if (attributes == null || attributes.isDirectory()) {
           continue;
         }
 
@@ -217,7 +215,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
           return;
         }
 
-        if (!processFile(attributes, pollContext)) {
+        if (!processFile(file, pollContext)) {
           break;
         }
       }
@@ -249,22 +247,17 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     return fileSystem;
   }
 
-  private boolean processFile(FtpFileAttributes attributes, PollContext<InputStream, FtpFileAttributes> pollContext) {
+  private boolean processFile(Result<InputStream, FtpFileAttributes> file,
+                              PollContext<InputStream, FtpFileAttributes> pollContext) {
+    FtpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
 
     PollItemStatus status = pollContext.accept(item -> {
       SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result<InputStream, FtpFileAttributes> result = null;
       try {
-
-        FtpFileSystem fileSystem = openConnection();
-        ctx.bindConnection(fileSystem);
-
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
-        result = fileSystem.read(config, attributes.getPath(), false,
-                                 config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit)
-                                     .orElse(null));
-        item.setResult(result);
+        item.setResult(file);
         item.setId(attributes.getPath());
         if (watermarkEnabled) {
           if (attributes.getTimestamp() != null) {
@@ -289,10 +282,21 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-    FtpFileSystem fileSystem = ctx.getConnection();
-    fileSystem.changeToBaseDir();
     ctx.<FtpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      postAction.apply(fileSystem, attrs, config);
+      FtpFileSystem fileSystem = null;
+      try {
+        fileSystem = fileSystemProvider.connect();
+        fileSystem.changeToBaseDir();
+        postAction.apply(fileSystem, attrs, config);
+      } catch (ConnectionException e) {
+        LOGGER
+            .error("An error occurred while retrieving a connection to apply the post processing action to the file {} , it was neither moved nor deleted.",
+                   attrs.getPath());
+      } finally {
+        if (fileSystem != null) {
+          fileSystemProvider.disconnect(fileSystem);
+        }
+      }
     });
   }
 
