@@ -7,9 +7,7 @@
 
 
     <ftp:config name="config">
-        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftpPort}" workingDir="${workingDir}">
-            <pooling-profile maxActive="5" exhaustedAction="WHEN_EXHAUSTED_WAIT" maxWait="20000"/>
-        </ftp:connection>
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftpPort}" workingDir="${workingDir}"/>
     </ftp:config>
 
 </mule>
