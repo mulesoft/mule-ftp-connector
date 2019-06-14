@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+
+    <import file="ftp-connection.xml"/>
+
+    <flow name="listenWithoutMatcher">
+        <ftp:listener config-ref="config" directory="input" autoDelete="true" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1000"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <test:processor waitTime="5000"/>
+        <test:processor
+                class="org.mule.extension.ftp.FtpDirectoryListenerPollFailureConsistencyFunctionaTestCase$TestProcessor"/>
+    </flow>
+
+</mule>
