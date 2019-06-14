@@ -45,9 +45,6 @@
         <munit:behavior>
             <set-variable variableName="amountOfFiles" value="#[100]"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <munit-tools:store key="fileNames">
-                <munit-tools:value>#[[]]</munit-tools:value>
-            </munit-tools:store>
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.amountOfFiles]">
@@ -76,7 +73,7 @@
             </scheduling-strategy>
         </ftp:listener>
         <set-payload value="attributes.fileName"/>
-        <flow-ref name="addFileName"/>
+        <munit-tools:queue/>
         <logger message="#[%dw 2.0
                             import * from dw::Runtime
                             output application/json
@@ -84,8 +81,5 @@
                             'Waiting for 5 seconds' wait 5000]"/>
     </flow>
 
-    <flow name="addFileName">
-        <munit-tools:queue/>
-    </flow>
 
 </mule>
