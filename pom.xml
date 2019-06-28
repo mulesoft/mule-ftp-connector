@@ -31,8 +31,8 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.0.0-SNAPSHOT</munit.extensions.maven.plugin.version>
-        <munit.version>2.2.0-SNAPSHOT</munit.version>
+        <munit.extensions.maven.plugin.version>1.0.0-BETA2</munit.extensions.maven.plugin.version>
+        <munit.version>2.2.0-BETA2</munit.version>
         <mavenResources.version>3.0.2</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
