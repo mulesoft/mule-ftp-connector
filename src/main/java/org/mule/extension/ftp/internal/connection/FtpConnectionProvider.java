@@ -138,6 +138,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private FTPClient setupClient() throws ConnectionException {
     FTPClient client = createClient();
+
+    client.setRemoteVerificationEnabled(isRemoteVerificationEnabled());
+
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
@@ -168,7 +171,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
     return client;
   }
-
+  
   protected FTPClient createClient() {
     return new FTPClient();
   }
@@ -257,4 +260,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
+
+  public boolean isRemoteVerificationEnabled() {
+      return connectionSettings.isRemoteVerificationEnabled();
+  }
+
 }

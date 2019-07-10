@@ -50,6 +50,20 @@ public final class FtpConnectionSettings {
   @Placement(order = 4)
   private String password;
 
+
+  /**
+   * Enable or disable verification that the remote host taking part
+   * of a data connection is the same as the host to which the control
+   * connection is attached.  The default is for verification to be
+   * enabled.  You may set this value at any time, whether the
+   * FTPClient is currently connected or not.
+   */
+  @Parameter
+  @Optional
+  @Placement(order = 5)
+  private boolean remoteVerificationEnabled = true;
+
+
   public int getPort() {
     return port;
   }
@@ -69,4 +83,13 @@ public final class FtpConnectionSettings {
   public void setHost(String host) {
     this.host = host;
   }
+
+  public void setRemoteVerificationEnabled(boolean remoteVerificationEnabled) {
+      this.remoteVerificationEnabled = remoteVerificationEnabled;
+  }
+
+  public boolean isRemoteVerificationEnabled() {
+      return this.remoteVerificationEnabled;
+  }
+
 }
