@@ -437,7 +437,7 @@ public abstract class FtpCommand extends UriBasedFileCommand<FtpFileSystem> {
 
       while (!fragments.isEmpty()) {
         URI fragment = fragments.pop();
-        makeDirectory(fragment.getPath());
+        makeDirectory(normalizeUri(fragment).getPath());
         changeWorkingDirectory(fragment.getPath());
       }
     } catch (Exception e) {

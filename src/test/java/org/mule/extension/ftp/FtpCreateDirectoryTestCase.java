@@ -122,29 +122,30 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void createBlankDirectory() throws Exception {
-    testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
+    testHarness.expectedError().expectErrorType("FTP", "ILLEGAL_PATH");
     testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
     doCreateDirectory("");
   }
 
   @Test
   public void createDirectoryWithSpace() throws Exception {
-    testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
+    testHarness.expectedError().expectErrorType("FTP", "ILLEGAL_PATH");
     testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
     doCreateDirectory(" ");
   }
 
   @Test
   public void createComplexDirectoryWithSpace() throws Exception {
+    testHarness.expectedError().expectErrorType("MULE", "UNKNOWN");
+    testHarness.expectedError().expectMessage(containsString("Failed to create directory /base/zarasa/ "));
     doCreateDirectory("zarasa/ /valid");
-    assertThat(testHarness.dirExists("zarasa/ "), is(true));
-    assertThat(testHarness.dirExists("zarasa/ /valid"), is(true));
   }
 
   @Test
   public void createDirectoryWithSpaceAndSlash() throws Exception {
+    testHarness.expectedError().expectErrorType("MULE", "UNKNOWN");
+    testHarness.expectedError().expectMessage(containsString("Failed to create directory /base/ "));
     doCreateDirectory(" /");
-    assertThat(testHarness.dirExists(" "), is(true));
   }
 
   @Test
