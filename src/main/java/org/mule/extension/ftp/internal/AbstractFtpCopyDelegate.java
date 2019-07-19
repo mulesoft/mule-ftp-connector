@@ -7,6 +7,8 @@
 package org.mule.extension.ftp.internal;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileWriteMode;
@@ -18,6 +20,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -47,11 +50,11 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
    * Performs a recursive copy
    *  @param config the config which is parameterizing this operation
    * @param source the {@link FileAttributes} for the file to be copied
-   * @param targetPath the {@link Path} to the target destination
+   * @param targetUri the {@link URI} to the target destination
    * @param overwrite whether to overwrite existing target paths
    */
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, Path targetPath, boolean overwrite) {
+  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
     ConnectionHandler<FtpFileSystem> writerConnectionHandler;
     final FtpFileSystem writerConnection;
     try {
@@ -60,18 +63,18 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
     } catch (ConnectionException e) {
       throw command
           .exception(format("FTP Copy operations require the use of two FTP connections. An exception was found trying to obtain second connection to"
-              + "copy the path '%s' to '%s'", source.getPath(), targetPath), e);
+              + "copy the path '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
     }
     try {
       if (source.isDirectory()) {
-        copyDirectory(config, Paths.get(source.getPath()), targetPath, overwrite, writerConnection);
+        copyDirectory(config, createUri(source.getPath()), targetUri, overwrite, writerConnection);
       } else {
-        copyFile(config, source, targetPath, overwrite, writerConnection);
+        copyFile(config, source, targetUri, overwrite, writerConnection);
       }
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetPath), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri.getPath()), e);
     } finally {
       writerConnectionHandler.release();
     }
@@ -86,6 +89,9 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
    * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
    */
   protected abstract void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
+                                        FtpFileSystem writerConnection);
+
+  protected abstract void copyDirectory(FileConnectorConfig config, URI sourcePath, URI target, boolean overwrite,
                                         FtpFileSystem writerConnection);
 
   /**
@@ -117,6 +123,33 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
     } catch (Exception e) {
       throw command
           .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(), target), e);
+    }
+  }
+
+  protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
+                          FtpFileSystem writerConnection) {
+    FileAttributes targetFile = command.getFile(target.getPath());
+    if (targetFile != null) {
+      if (overwrite) {
+        fileSystem.delete(targetFile.getPath());
+      } else {
+        throw command.alreadyExistsException(target);
+      }
+    }
+
+    try (InputStream inputStream = fileSystem.retrieveFileContent(source)) {
+      if (inputStream == null) {
+        throw command
+            .exception(format("Could not read file '%s' while trying to copy it to remote path '%s'", source.getPath(),
+                              target.getPath()));
+      }
+
+      writeCopy(config, target.getPath(), inputStream, overwrite, writerConnection);
+    } catch (Exception e) {
+      throw command
+          .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(),
+                            target.getPath()),
+                     e);
     }
   }
 

@@ -11,6 +11,7 @@ import org.mule.extension.file.common.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
@@ -51,6 +52,17 @@ public class FtpFileAttributes extends AbstractFileAttributes {
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
   public FtpFileAttributes(Path path, FTPFile ftpFile) {
+    super(path);
+    timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
+    // TODO MULE-15337: Remove redundant 'name' attribute in next major version
+    name = ftpFile.getName() != null ? ftpFile.getName() : "";
+    size = ftpFile.getSize();
+    regularFile = ftpFile.isFile();
+    directory = ftpFile.isDirectory();
+    symbolicLink = ftpFile.isSymbolicLink();
+  }
+
+  public FtpFileAttributes(URI path, FTPFile ftpFile) {
     super(path);
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
     // TODO MULE-15337: Remove redundant 'name' attribute in next major version

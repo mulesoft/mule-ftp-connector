@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -20,8 +21,8 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -55,7 +56,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
                                                      Long timeBetweenSizeCheck) {
     FtpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
-      throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
+      throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
     return read(config, attributes, lock, timeBetweenSizeCheck);
@@ -67,7 +68,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
-    Path path = Paths.get(attributes.getPath());
+    URI path = createUri(attributes.getPath());
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
 
     InputStream payload = null;

@@ -10,6 +10,8 @@ import static java.lang.String.format;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.file.common.api.FileAttributes;
@@ -24,6 +26,7 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
@@ -63,13 +66,15 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
-    Path path = resolvePathFromBasePath(filePath);
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
-    String normalizedPath = normalizePath(path);
+    //Path path = resolvePathFromBasePath(filePath);
+    URI baseUri = createUri("/", fileSystem.getBasePath());
+    URI uri = createUri(baseUri.getPath(), filePath);
+    PathLock pathLock = lock ? fileSystem.lock(uri) : new NullPathLock(uri);
+    String normalizedPath = normalizePath(uri.getPath());
     OutputStream outputStream = null;
     boolean outputStreamObtained = false;
     try {
-      if (mode != CREATE_NEW && canWriteToPathDirectly(path)) {
+      if (mode != CREATE_NEW && canWriteToPathDirectly(uri)) {
         try {
           outputStream = getOutputStream(normalizedPath, mode);
           if (FTPReply.isPositivePreliminary(client.getReplyCode())) {
@@ -85,7 +90,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
       }
 
       if (!outputStreamObtained) {
-        validatePath(path, createParentDirectory, mode);
+        validateUri(uri, createParentDirectory, mode);
       }
 
       try {
@@ -129,21 +134,62 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     }
   }
 
+  private void validateUri(URI uri, boolean createParentDirectory, FileWriteMode mode) {
+    FileAttributes file = getFile(uri.getPath(), false);
+    if (file == null) {
+      if (pathIsDirectory(uri)) {
+        throw pathIsADirectoryException(uri);
+      }
+      FileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
+      if (directory == null) {
+        assureParentFolderExists(uri, createParentDirectory);
+      }
+    } else {
+      if (mode == CREATE_NEW) {
+        throw new FileAlreadyExistsException(format(
+                                                    "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
+                                                        + "Use a different write mode or point to a path which doesn't exist",
+                                                    uri.getPath(), mode));
+      } else if (mode == OVERWRITE) {
+        if (file.isDirectory()) {
+          throw pathIsADirectoryException(uri);
+        }
+      }
+    }
+  }
+
   private IllegalPathException pathIsADirectoryException(Path path) {
     return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
                                                   path));
+  }
+
+  private IllegalPathException pathIsADirectoryException(URI uri) {
+    return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
+                                                  uri.getPath()));
   }
 
   private boolean canWriteToPathDirectly(Path path) {
     return parentDirectoryExists(path) && !pathIsDirectory(path);
   }
 
+  private boolean canWriteToPathDirectly(URI uri) {
+    return parentDirectoryExists(uri) && !pathIsDirectory(uri);
+  }
+
   private boolean parentDirectoryExists(Path path) {
     return getPathToDirectory(path.getParent().toString()).isPresent();
   }
 
+  private boolean parentDirectoryExists(URI uri) {
+    return getPathToDirectory(trimLastFragment(uri).getPath()).isPresent();
+  }
+
   private boolean pathIsDirectory(Path path) {
     return getPathToDirectory(path.toString()).isPresent();
+  }
+
+  private boolean pathIsDirectory(URI uri) {
+    return getPathToDirectory(uri.getPath()).isPresent();
   }
 
   private void closeSilently(Closeable closeable) {

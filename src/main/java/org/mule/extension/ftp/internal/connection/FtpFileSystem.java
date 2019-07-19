@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
@@ -17,6 +18,7 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.file.common.api.AbstractFileSystem;
+import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
@@ -47,6 +49,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,7 +64,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
+public class FtpFileSystem extends ExternalFileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
@@ -121,13 +124,13 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
     } catch (FTPConnectionClosedException e) {
       // this is valid and expected if the server closes the connection prematurely as a result of the logout... ignore
     } catch (Exception e) {
-      LOGGER.warn("Exception found trying to logout from ftp at {} ", toURL(null));
+      LOGGER.warn("Exception found trying to logout from ftp at {} ", toURL(createUri("")));
       LOGGER.debug(e.getMessage(), e);
     } finally {
       try {
         client.disconnect();
       } catch (Exception e) {
-        LOGGER.warn("Exception found trying to disconnect from ftp at {} ", toURL(null));
+        LOGGER.warn("Exception found trying to disconnect from ftp at {} ", toURL(createUri("")));
         LOGGER.debug(e.getMessage(), e);
       }
     }
@@ -245,12 +248,24 @@ public class FtpFileSystem extends AbstractFileSystem<FtpFileAttributes> {
     return new URLPathLock(toURL(path), lockFactory);
   }
 
+  protected PathLock createLock(URI uri) {
+    return new URLPathLock(toURL(uri), lockFactory);
+  }
+
   private URL toURL(Path path) {
     try {
       return new URL("ftp", client.getRemoteAddress().toString(), client.getRemotePort(),
                      path != null ? path.toString() : EMPTY);
     } catch (MalformedURLException e) {
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
+    }
+  }
+
+  private URL toURL(URI uri) {
+    try {
+      return new URL("ftp", client.getRemoteAddress().toString(), client.getRemotePort(), uri != null ? uri.getPath() : EMPTY);
+    } catch (MalformedURLException e) {
+      throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
     }
   }
 

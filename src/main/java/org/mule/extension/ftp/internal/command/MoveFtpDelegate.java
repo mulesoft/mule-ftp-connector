@@ -13,6 +13,7 @@ import org.mule.extension.ftp.internal.FtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
+import java.net.URI;
 import java.nio.file.Path;
 
 public class MoveFtpDelegate implements FtpCopyDelegate {
@@ -26,21 +27,21 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
   }
 
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, Path targetPath, boolean overwrite) {
+  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
     try {
-      if (command.exists(targetPath)) {
+      if (command.exists(targetUri)) {
         if (overwrite) {
-          fileSystem.delete(targetPath.toString());
+          fileSystem.delete(targetUri.getPath());
         } else {
-          command.alreadyExistsException(targetPath);
+          command.alreadyExistsException(targetUri);
         }
       }
 
-      command.rename(source.getPath(), targetPath.toString(), overwrite);
+      command.rename(source.getPath(), targetUri.getPath(), overwrite);
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetPath), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri.getPath()), e);
     }
   }
 }
