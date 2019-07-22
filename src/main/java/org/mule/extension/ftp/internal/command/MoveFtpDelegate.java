@@ -14,7 +14,6 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 public class MoveFtpDelegate implements FtpCopyDelegate {
 

@@ -22,8 +22,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -114,7 +112,6 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                       Long timeBetweenSizeCheck)
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
-    Path path = Paths.get(uri.getPath());
 
     FTPListParseEngine engine = client.initiateListParsing();
     while (engine.hasNext()) {
@@ -124,9 +121,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       }
 
       for (FTPFile file : files) {
-        final Path filePath = path.resolve(file.getName());
         final URI fileUri = createUri(uri.getPath(), file.getName());
-        FtpFileAttributes attributes2 = new FtpFileAttributes(filePath, file);
         FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
 
         if (isVirtualDirectory(attributes.getName())) {
@@ -139,7 +134,6 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           }
 
           if (recursive) {
-            Path recursionPath2 = path.resolve(normalizePath(attributes.getName()));
             URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
             if (!client.changeWorkingDirectory(attributes.getName())) {
               throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",

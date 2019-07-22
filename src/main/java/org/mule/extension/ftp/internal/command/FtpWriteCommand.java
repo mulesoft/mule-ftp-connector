@@ -27,7 +27,6 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
@@ -110,30 +109,6 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     }
   }
 
-  private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
-    FileAttributes file = getFile(path, false);
-    if (file == null) {
-      if (pathIsDirectory(path)) {
-        throw pathIsADirectoryException(path);
-      }
-      FileAttributes directory = getFile(path.getParent(), false);
-      if (directory == null) {
-        assureParentFolderExists(path, createParentDirectory);
-      }
-    } else {
-      if (mode == CREATE_NEW) {
-        throw new FileAlreadyExistsException(format(
-                                                    "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
-                                                        + "Use a different write mode or point to a path which doesn't exist",
-                                                    path, mode));
-      } else if (mode == OVERWRITE) {
-        if (file.isDirectory()) {
-          throw pathIsADirectoryException(path);
-        }
-      }
-    }
-  }
-
   private void validateUri(URI uri, boolean createParentDirectory, FileWriteMode mode) {
     FileAttributes file = getFile(uri.getPath(), false);
     if (file == null) {
@@ -158,34 +133,17 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     }
   }
 
-  private IllegalPathException pathIsADirectoryException(Path path) {
-    return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                  path));
-  }
-
   private IllegalPathException pathIsADirectoryException(URI uri) {
     return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
                                                   uri.getPath()));
-  }
-
-  private boolean canWriteToPathDirectly(Path path) {
-    return parentDirectoryExists(path) && !pathIsDirectory(path);
   }
 
   private boolean canWriteToPathDirectly(URI uri) {
     return parentDirectoryExists(uri) && !pathIsDirectory(uri);
   }
 
-  private boolean parentDirectoryExists(Path path) {
-    return getPathToDirectory(path.getParent().toString()).isPresent();
-  }
-
   private boolean parentDirectoryExists(URI uri) {
     return getPathToDirectory(trimLastFragment(uri).getPath()).isPresent();
-  }
-
-  private boolean pathIsDirectory(Path path) {
-    return getPathToDirectory(path.toString()).isPresent();
   }
 
   private boolean pathIsDirectory(URI uri) {
