@@ -286,7 +286,7 @@ public abstract class FtpCommand extends UriBasedFileCommand<FtpFileSystem> {
       throw new FileAlreadyExistsException(format("Directory '%s' already exists", uri.getPath()));
     }
 
-    mkdirs(uri);
+    mkdirs(normalizeUri(uri));
   }
 
   /**

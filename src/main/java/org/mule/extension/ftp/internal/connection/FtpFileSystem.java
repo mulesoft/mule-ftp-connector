@@ -52,6 +52,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -353,6 +354,10 @@ public class FtpFileSystem extends ExternalFileSystem {
    */
   public FtpFileAttributes getFileAttributes(String filePath) {
     return ((FtpReadCommand) readCommand).getFile(filePath);
+  }
+
+  public Path getBasePathObject() {
+    return Paths.get("/").resolve(getBasePath());
   }
 
 }
