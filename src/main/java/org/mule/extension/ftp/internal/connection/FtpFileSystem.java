@@ -52,7 +52,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -230,7 +229,7 @@ public class FtpFileSystem extends ExternalFileSystem {
 
   /**
    * Awaits for the underlying {@link #client} to complete any pending commands. This is necessary for certain operations such as
-   * write. Using the {@link #client} before tnhat can result in unexpected behavior
+   * write. Using the {@link #client} before that can result in unexpected behavior
    */
   public void awaitCommandCompletion() {
     try {
@@ -244,21 +243,13 @@ public class FtpFileSystem extends ExternalFileSystem {
   }
 
   @Override
+  @Deprecated
   protected PathLock createLock(Path path) {
-    return new URLPathLock(toURL(path), lockFactory);
+    throw new IllegalStateException("This method is deprecated in the FTP Connector. Use createLock(URI uri) instead.");
   }
 
   protected PathLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
-  }
-
-  private URL toURL(Path path) {
-    try {
-      return new URL("ftp", client.getRemoteAddress().toString(), client.getRemotePort(),
-                     path != null ? path.toString() : EMPTY);
-    } catch (MalformedURLException e) {
-      throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
-    }
   }
 
   private URL toURL(URI uri) {
@@ -277,7 +268,7 @@ public class FtpFileSystem extends ExternalFileSystem {
     String basePath = getBasePath();
     if (basePath != null) {
       try {
-        client.changeWorkingDirectory(normalizePath(Paths.get("/").resolve(getBasePath())));
+        client.changeWorkingDirectory(normalizePath(createUri("/", getBasePath()).getPath()));
       } catch (IOException e) {
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
@@ -364,7 +355,4 @@ public class FtpFileSystem extends ExternalFileSystem {
     return ((FtpReadCommand) readCommand).getFile(filePath);
   }
 
-  public Path getBasePathObject() {
-    return Paths.get("/").resolve(getBasePath());
-  }
 }

@@ -137,15 +137,15 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void createComplexDirectoryWithSpace() throws Exception {
     testHarness.expectedError().expectErrorType("MULE", "UNKNOWN");
-    testHarness.expectedError().expectMessage(containsString("Failed to create directory /base/zarasa/ "));
+    testHarness.expectedError()
+        .expectMessage(containsString("Found exception trying to recursively create directory base/zarasa/ /valid"));
     doCreateDirectory("zarasa/ /valid");
   }
 
   @Test
   public void createDirectoryWithSpaceAndSlash() throws Exception {
-    testHarness.expectedError().expectErrorType("MULE", "UNKNOWN");
-    testHarness.expectedError().expectMessage(containsString("Failed to create directory /base/ "));
     doCreateDirectory(" /");
+    assertThat(testHarness.dirExists(" "), is(true));
   }
 
   @Test
