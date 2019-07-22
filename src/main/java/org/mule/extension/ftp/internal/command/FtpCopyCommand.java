@@ -55,33 +55,6 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
     }
 
     @Override
-    protected void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
-                                 FtpFileSystem writerConnection) {
-      changeWorkingDirectory(sourcePath);
-      FTPFile[] files;
-      try {
-        files = client.listFiles();
-      } catch (IOException e) {
-        throw exception(format("Could not list contents of directory '%s' while trying to copy it to %s", sourcePath, target), e);
-      }
-
-      for (FTPFile file : files) {
-        if (isVirtualDirectory(file.getName())) {
-          continue;
-        }
-
-        FileAttributes fileAttributes = new FtpFileAttributes(sourcePath.resolve(file.getName()), file);
-
-        if (fileAttributes.isDirectory()) {
-          Path targetPath = target.resolve(fileAttributes.getName());
-          copyDirectory(config, Paths.get(fileAttributes.getPath()), targetPath, overwrite, writerConnection);
-        } else {
-          copyFile(config, fileAttributes, target.resolve(fileAttributes.getName()), overwrite, writerConnection);
-        }
-      }
-    }
-
-    @Override
     protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI targetUri, boolean overwrite,
                                  FtpFileSystem writerConnection) {
       changeWorkingDirectory(sourceUri.getPath());
@@ -108,13 +81,6 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
           copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
-    }
-
-    @Override
-    protected void copyFile(FileConnectorConfig config, FileAttributes source, Path target, boolean overwrite,
-                            FtpFileSystem writerConnection) {
-      super.copyFile(config, source, target, overwrite, writerConnection);
-      fileSystem.awaitCommandCompletion();
     }
 
     @Override

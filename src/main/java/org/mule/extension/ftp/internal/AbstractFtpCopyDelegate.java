@@ -21,8 +21,6 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Abstract implementation of {@link FtpCopyDelegate} for copying operations which require to FTP connections, one for reading the
@@ -82,15 +80,12 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
 
   /**
    * Performs a recursive copy of a directory
-   *  @param config the config which is parameterizing this operation
+   * @param config the config which is parameterizing this operation
    * @param sourcePath the path to the directory to be copied
    * @param target the target path
    * @param overwrite whether to overwrite the target files if they already exists
    * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
    */
-  protected abstract void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
-                                        FtpFileSystem writerConnection);
-
   protected abstract void copyDirectory(FileConnectorConfig config, URI sourcePath, URI target, boolean overwrite,
                                         FtpFileSystem writerConnection);
 
@@ -102,30 +97,6 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
    * @param overwrite whether to overwrite the target files if they already exists
    * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
    */
-  protected void copyFile(FileConnectorConfig config, FileAttributes source, Path target, boolean overwrite,
-                          FtpFileSystem writerConnection) {
-    FileAttributes targetFile = command.getFile(target.toString());
-    if (targetFile != null) {
-      if (overwrite) {
-        fileSystem.delete(targetFile.getPath());
-      } else {
-        throw command.alreadyExistsException(target);
-      }
-    }
-
-    try (InputStream inputStream = fileSystem.retrieveFileContent(source)) {
-      if (inputStream == null) {
-        throw command
-            .exception(format("Could not read file '%s' while trying to copy it to remote path '%s'", source.getPath(), target));
-      }
-
-      writeCopy(config, target.toString(), inputStream, overwrite, writerConnection);
-    } catch (Exception e) {
-      throw command
-          .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(), target), e);
-    }
-  }
-
   protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
                           FtpFileSystem writerConnection) {
     FileAttributes targetFile = command.getFile(target.getPath());

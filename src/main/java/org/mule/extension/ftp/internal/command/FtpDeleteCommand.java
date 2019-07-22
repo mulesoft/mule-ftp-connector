@@ -17,8 +17,6 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -42,11 +40,10 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
   public void delete(String filePath) {
     FileAttributes fileAttributes = getExistingFile(filePath);
     boolean isDirectory = fileAttributes.isDirectory();
-    Path path = Paths.get(fileAttributes.getPath());
     URI uri = createUri(fileAttributes.getPath());
 
     if (isDirectory) {
-      LOGGER.debug("Preparing to delete directory '{}'", path);
+      LOGGER.debug("Preparing to delete directory '{}'", uri.getPath());
       deleteDirectory(uri);
     } else {
       deleteFile(uri);
@@ -54,7 +51,6 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
   }
 
   private void deleteFile(URI uri) {
-    Path filePath = Paths.get(uri.getPath());
     fileSystem.verifyNotLocked(uri);
     try {
       if (!client.deleteFile(normalizePath(uri.getPath()))) {
@@ -67,8 +63,6 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
   }
 
   private void deleteDirectory(URI uri) {
-    Path path = Paths.get(uri.getPath());
-    changeWorkingDirectory(path);
     changeWorkingDirectory(uri.getPath());
     FTPFile[] files;
     try {
@@ -82,10 +76,8 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
         continue;
       }
 
-      FileAttributes fileAttributes2 = new FtpFileAttributes(path.resolve(file.getName()), file);
       FileAttributes fileAttributes = new FtpFileAttributes(createUri(uri.getPath(), file.getName()), file);
 
-      final Path filePath = Paths.get(fileAttributes.getPath());
       final URI fileUri = createUri(fileAttributes.getPath());
       if (fileAttributes.isDirectory()) {
         deleteDirectory(fileUri);
