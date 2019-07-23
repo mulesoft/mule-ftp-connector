@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.when;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -94,7 +95,7 @@ public class FtpFileAttributesTestCase {
   }
 
   private FtpFileAttributes getFtpFileAttributes() {
-    return new FtpFileAttributes(path, ftpFile);
+    return new FtpFileAttributes(createUri(path.toString()), ftpFile);
   }
 
 }

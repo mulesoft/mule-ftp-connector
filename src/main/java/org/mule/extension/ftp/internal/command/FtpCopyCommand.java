@@ -18,8 +18,6 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;

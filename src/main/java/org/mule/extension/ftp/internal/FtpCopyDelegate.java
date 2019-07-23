@@ -10,7 +10,6 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 /**
  * A delegate object for copying files
