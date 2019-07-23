@@ -14,7 +14,6 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -32,7 +31,7 @@ public class OnNewFileCommand extends FtpCommand {
    * Resolves the root path on which the listener needs to be created
    *
    * @param directory the path that the user configured on the listener
-   * @return the resolved {@link Path} to listen on
+   * @return the resolved {@link URI} to listen on
    */
   public URI resolveRootUri(String directory) throws IOException {
     Optional<URI> uri = getPathToDirectory(directory);

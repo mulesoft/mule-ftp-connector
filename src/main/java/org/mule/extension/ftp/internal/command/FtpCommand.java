@@ -163,12 +163,6 @@ public abstract class FtpCommand extends UriBasedFileCommand<FtpFileSystem> {
     LOGGER.debug("working directory changed to {}", path);
   }
 
-  /**
-   * Returns a {@link Path} relative to the {@code basePath} and the given {@code filePath}
-   *
-   * @param filePath the path to a file or directory
-   * @return a relative {@link Path}
-   */
   @Override
   protected Path resolvePath(String filePath) {
     throw new IllegalStateException("This method is no longer supported in the FTP Connector, use resolveUri(String filePath) instead.");
