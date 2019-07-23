@@ -30,6 +30,7 @@ import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
@@ -248,7 +249,7 @@ public class FtpFileSystem extends ExternalFileSystem {
     throw new IllegalStateException("This method is deprecated in the FTP Connector. Use createLock(URI uri) instead.");
   }
 
-  protected PathLock createLock(URI uri) {
+  protected UriLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
   }
 

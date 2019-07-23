@@ -19,8 +19,8 @@ import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.NullPathLock;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
@@ -68,7 +68,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     //Path path = resolvePathFromBasePath(filePath);
     URI baseUri = createUri("/", fileSystem.getBasePath());
     URI uri = createUri(baseUri.getPath(), filePath);
-    PathLock pathLock = lock ? fileSystem.lock(uri) : new NullPathLock(uri);
+    UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     String normalizedPath = normalizePath(uri.getPath());
     OutputStream outputStream = null;
     boolean outputStreamObtained = false;
@@ -105,7 +105,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
         fileSystem.awaitCommandCompletion();
       }
     } finally {
-      pathLock.release();
+      uriLock.release();
     }
   }
 

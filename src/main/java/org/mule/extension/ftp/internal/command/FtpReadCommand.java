@@ -13,7 +13,9 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullPathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
 import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.FtpConnector;
@@ -69,16 +71,16 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
     URI path = createUri(attributes.getPath());
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    UriLock uriLock = lock ? fileSystem.lock(path) : new NullUriLock(path);
 
     InputStream payload = null;
     try {
-      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
+      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, uriLock, timeBetweenSizeCheck);
       return Result.<InputStream, FtpFileAttributes>builder().output(payload)
           .mediaType(fileSystem.getFileMessageMediaType(attributes))
           .attributes(attributes).build();
     } catch (Exception e) {
-      pathLock.release();
+      uriLock.release();
       closeQuietly(payload);
       throw exception(format("Could not fetch file '%s'. %s", path, e.getMessage()), e);
     }

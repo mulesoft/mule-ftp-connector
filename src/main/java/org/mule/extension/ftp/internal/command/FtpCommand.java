@@ -19,7 +19,7 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.command.FileCommand;
-import org.mule.extension.file.common.api.command.UriBasedFileCommand;
+import org.mule.extension.file.common.api.command.ExternalFileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0
  */
-public abstract class FtpCommand extends UriBasedFileCommand<FtpFileSystem> {
+public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
   protected static final String ROOT = "/";
