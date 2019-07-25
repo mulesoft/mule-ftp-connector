@@ -8,6 +8,8 @@ package org.mule.extension.ftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
@@ -17,7 +19,7 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 
-import java.nio.file.Paths;
+import java.net.URI;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -26,6 +28,8 @@ import org.junit.Test;
 public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 
   private static final String RENAME_TO = "renamed";
+
+  private URI uri = createUri(HELLO_PATH);
 
   @Override
   protected String getConfigFile() {
@@ -49,7 +53,7 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void renameDirectory() throws Exception {
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().toString();
+    final String sourcePath = trimLastFragment(uri).getPath();
     doRename(sourcePath);
 
     assertThat(testHarness.dirExists(sourcePath), is(false));
@@ -69,7 +73,7 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
     testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
                                             "parameter of rename operation should not contain any file separator character");
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().toString();
+    final String sourcePath = trimLastFragment(uri).getPath();
     doRename("rename", sourcePath, "path/with/parts", true);
   }
 
@@ -87,7 +91,7 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void targetAlreadyExistsWithOverwrite() throws Exception {
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().resolve(RENAME_TO).toString();
+    final String sourcePath = createUri(trimLastFragment(uri).getPath(), RENAME_TO).getPath();
     testHarness.write(sourcePath, "I was here first");
 
     doRename(HELLO_PATH, true);
@@ -95,12 +99,12 @@ public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
   }
 
   private void assertRenamedFile() throws Exception {
-    final String targetPath =
-        Paths.get(testHarness.getWorkingDirectory()).resolve(HELLO_PATH).getParent().resolve(RENAME_TO).toString();
+    final URI parentUri = trimLastFragment(createUri(testHarness.getWorkingDirectory(), HELLO_PATH));
+    final String targetUri = createUri(parentUri.getPath(), RENAME_TO).getPath();
 
-    assertThat(testHarness.fileExists(targetPath), is((true)));
+    assertThat(testHarness.fileExists(targetUri), is((true)));
     assertThat(testHarness.fileExists(HELLO_PATH), is((false)));
-    assertThat(readPathAsString(targetPath), is(HELLO_WORLD));
+    assertThat(readPathAsString(targetUri), is(HELLO_WORLD));
   }
 
   private void doRename(String source) throws Exception {

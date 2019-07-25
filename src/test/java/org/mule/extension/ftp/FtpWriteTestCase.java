@@ -13,6 +13,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.rules.ExpectedException.none;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
@@ -33,7 +34,6 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -137,7 +137,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void writeStaticContent() throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY + "/test.txt").getPath();
     doWrite("writeStaticContent", path, "", CREATE_NEW, false);
 
     String content = toString(readPath(path).getPayload().getValue());
@@ -147,7 +147,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
   @Test
   public void writeWithLock() throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY + "/test.txt").getPath();
     doWrite("writeWithLock", path, HELLO_WORLD, CREATE_NEW, false);
 
     String content = toString(readPath(path).getPayload().getValue());
@@ -184,7 +184,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     final String filename = "encoding.txt";
 
     doWrite("write", filename, HELLO_WORLD, CREATE_NEW, false, customEncoding);
-    String path = Paths.get(testHarness.getWorkingDirectory()).resolve(filename).toString();
+    String path = createUri(testHarness.getWorkingDirectory(), filename).getPath();
     InputStream content = (InputStream) readPath(path, false).getPayload().getValue();
 
     assertThat(Arrays.equals(toByteArray(content), HELLO_WORLD.getBytes(customEncoding)), is(true));
@@ -195,13 +195,14 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     expectedException.expectMessage("because it is a directory");
     testHarness.makeDir(TEMP_DIRECTORY);
 
-    String pathToExistingDirectory = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).toString();
+    String pathToExistingDirectory = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath();
+
     doWrite(pathToExistingDirectory, HELLO_WORLD, OVERWRITE, false);
   }
 
   private void doWriteNotExistingFileWithCreatedParent(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "a/b/test.txt").toString();
+    String path = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY + "/a/b/test.txt").getPath();
 
     doWrite(path, HELLO_WORLD, mode, true);
 
@@ -211,7 +212,8 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private void doWriteOnNotExistingFile(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY + "/test.txt").getPath();
+
     doWrite(path, HELLO_WORLD, mode, false);
 
     String content = toString(readPath(path));
@@ -220,7 +222,8 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private void doWriteOnNotExistingParentWithoutCreateFolder(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "a/b/test.txt").toString();
+    String path = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY + "/a/b/test.txt").getPath();
+
     doWrite(path, HELLO_WORLD, mode, false);
   }
 

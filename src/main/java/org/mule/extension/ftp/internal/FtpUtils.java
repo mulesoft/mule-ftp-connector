@@ -6,10 +6,6 @@
  */
 package org.mule.extension.ftp.internal;
 
-import static java.lang.Thread.currentThread;
-
-import java.net.URL;
-
 import org.apache.commons.io.FilenameUtils;
 
 /**
