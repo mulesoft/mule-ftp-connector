@@ -17,7 +17,6 @@ import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;

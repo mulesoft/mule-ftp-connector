@@ -30,8 +30,4 @@ public class FtpUtils {
     return FilenameUtils.normalize(path, true);
   }
 
-  public static String resolvePath(String pathOrResourceName) {
-    URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
-    return resource != null ? resource.getPath() : pathOrResourceName;
-  }
 }

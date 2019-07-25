@@ -65,7 +65,6 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
-    //Path path = resolvePathFromBasePath(filePath);
     URI baseUri = createUri("/", fileSystem.getBasePath());
     URI uri = createUri(baseUri.getPath(), filePath);
     UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);

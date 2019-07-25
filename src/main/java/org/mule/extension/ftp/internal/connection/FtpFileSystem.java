@@ -17,8 +17,8 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.success
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.file.common.api.AbstractExternalFileSystem;
 import org.mule.extension.file.common.api.AbstractFileSystem;
-import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
@@ -64,7 +64,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public class FtpFileSystem extends ExternalFileSystem {
+public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
@@ -246,7 +246,7 @@ public class FtpFileSystem extends ExternalFileSystem {
   @Override
   @Deprecated
   protected PathLock createLock(Path path) {
-    throw new IllegalStateException("This method is deprecated in the FTP Connector. Use createLock(URI uri) instead.");
+    throw new UnsupportedOperationException("This method is deprecated in the FTP Connector. Use createLock(URI uri) instead.");
   }
 
   protected UriLock createLock(URI uri) {

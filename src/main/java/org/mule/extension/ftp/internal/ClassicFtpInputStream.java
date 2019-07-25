@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal;
 
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -29,7 +28,7 @@ public class ClassicFtpInputStream extends FtpInputStream {
    *
    * @param config     the {@link FtpConnector} which is configuring the connection
    * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock       the {@link PathLock} to be used
+   * @param lock       the {@link UriLock} to be used
    * @return a new {@link FtpInputStream}
    * @throws ConnectionException if a connection could not be established
    */

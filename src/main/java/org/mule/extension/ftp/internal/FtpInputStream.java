@@ -12,7 +12,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;

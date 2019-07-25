@@ -47,11 +47,11 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   /**
    * Creates a new instance
    *
-   * @param path the file's {@link URI}
+   * @param uri the file's {@link URI}
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
-  public FtpFileAttributes(URI path, FTPFile ftpFile) {
-    super(path);
+  public FtpFileAttributes(URI uri, FTPFile ftpFile) {
+    super(uri);
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
     // TODO MULE-15337: Remove redundant 'name' attribute in next major version
     name = ftpFile.getName() != null ? ftpFile.getName() : "";

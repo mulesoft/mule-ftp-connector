@@ -122,7 +122,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    */
   @Override
   protected boolean exists(Path path) {
-    throw new IllegalStateException("This method is no longer supported in the FTP Connector, use exists(URI uri) instead.");
+    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use exists(URI uri) instead.");
   }
 
   /**
@@ -138,7 +138,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    */
   @Override
   protected Path getBasePath(FileSystem fileSystem) {
-    throw new IllegalStateException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
+    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
   }
 
   /**
@@ -165,7 +165,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   @Override
   protected Path resolvePath(String filePath) {
-    throw new IllegalStateException("This method is no longer supported in the FTP Connector, use resolveUri(String filePath) instead.");
+    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use resolveUri(String filePath) instead.");
   }
 
   /**
@@ -356,7 +356,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   @Override
   protected void doMkDirs(Path directoryPath) {
-    throw new IllegalStateException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
+    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
   }
 
   /**

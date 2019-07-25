@@ -12,9 +12,7 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.lock.NullPathLock;
 import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
@@ -70,8 +68,8 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
-    URI path = createUri(attributes.getPath());
-    UriLock uriLock = lock ? fileSystem.lock(path) : new NullUriLock(path);
+    URI uri = createUri(attributes.getPath());
+    UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     InputStream payload = null;
     try {
@@ -82,7 +80,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
     } catch (Exception e) {
       uriLock.release();
       closeQuietly(payload);
-      throw exception(format("Could not fetch file '%s'. %s", path, e.getMessage()), e);
+      throw exception(format("Could not fetch file '%s'. %s", uri.getPath(), e.getMessage()), e);
     }
   }
 }
