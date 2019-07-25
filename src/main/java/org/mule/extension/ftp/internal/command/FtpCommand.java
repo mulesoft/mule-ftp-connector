@@ -29,7 +29,6 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
@@ -121,24 +120,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * {@inheritDoc}
    */
   @Override
-  protected boolean exists(Path path) {
-    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use exists(URI uri) instead.");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   protected boolean exists(URI uri) {
     return getBaseUri(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected Path getBasePath(FileSystem fileSystem) {
-    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
   }
 
   /**
@@ -161,11 +144,6 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
                                                 path.toString()));
     }
     LOGGER.debug("working directory changed to {}", path);
-  }
-
-  @Override
-  protected Path resolvePath(String filePath) {
-    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use resolveUri(String filePath) instead.");
   }
 
   /**
@@ -277,7 +255,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     URI targetUri = createUri(getBaseUri(fileSystem).getPath(), target);
     FileAttributes targetFile = getFile(targetUri.getPath());
     // This additional check has to be added because there are directories that exist that do not appear when listed.
-    boolean targetPathIsDirectory = getPathToDirectory(target).isPresent();
+    boolean targetPathIsDirectory = getUriToDirectory(target).isPresent();
     String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
     if (targetPathIsDirectory || targetFile != null) {
       if (targetPathIsDirectory || targetFile.isDirectory()) {
@@ -354,11 +332,6 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
   }
 
-  @Override
-  protected void doMkDirs(Path directoryPath) {
-    throw new UnsupportedOperationException("This method is no longer supported in the FTP Connector, use doMkDirs(URI directoryUri) instead.");
-  }
-
   /**
    * Creates the directory pointed by {@code directoryUri} also creating any missing parent directories
    *
@@ -426,7 +399,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @param directory directory you want to get the path from
    * @return an {@link Optional} with the path to the directory if it exists, or an empty one if the directory does not exist.
    */
-  protected Optional<URI> getPathToDirectory(String directory) {
+  protected Optional<URI> getUriToDirectory(String directory) {
     URI baseUri = createUri("/", fileSystem.getBasePath());
     URI uri = directory == null ? baseUri : createUri(baseUri.getPath(), directory);
     boolean couldChangeWorkingDir;

@@ -142,11 +142,11 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   }
 
   private boolean parentDirectoryExists(URI uri) {
-    return getPathToDirectory(trimLastFragment(uri).getPath()).isPresent();
+    return getUriToDirectory(trimLastFragment(uri).getPath()).isPresent();
   }
 
   private boolean pathIsDirectory(URI uri) {
-    return getPathToDirectory(uri.getPath()).isPresent();
+    return getUriToDirectory(uri.getPath()).isPresent();
   }
 
   private void closeSilently(Closeable closeable) {

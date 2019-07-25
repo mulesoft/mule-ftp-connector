@@ -28,7 +28,6 @@ import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -52,7 +51,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -241,12 +239,6 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       throw new MuleRuntimeException(createStaticMessage("Failed to complete pending command. Ftp reply code: "
           + client.getReplyCode()), e);
     }
-  }
-
-  @Override
-  @Deprecated
-  protected PathLock createLock(Path path) {
-    throw new UnsupportedOperationException("This method is deprecated in the FTP Connector. Use createLock(URI uri) instead.");
   }
 
   protected UriLock createLock(URI uri) {

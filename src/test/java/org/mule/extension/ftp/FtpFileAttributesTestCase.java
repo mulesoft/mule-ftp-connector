@@ -16,8 +16,7 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -36,7 +35,6 @@ public class FtpFileAttributesTestCase {
 
   private static final String EXPECTED_FILENAME = "hello.txt";
   private static final String EXPECTED_PATH = "/root/" + EXPECTED_FILENAME;
-  private static final Path EXPECTED_FILENAME_PATH = Paths.get(EXPECTED_FILENAME);
   private static final long EXPECTED_SIZE = 100L;
   private static final boolean IS_DIRECTORY = false;
   private static final boolean IS_SYM_LINK = false;
@@ -45,8 +43,7 @@ public class FtpFileAttributesTestCase {
   @Mock
   private FTPFile ftpFile;
 
-  @Mock
-  private Path path;
+  private URI uri = createUri(EXPECTED_PATH);
 
   private LocalDateTime expectedTimesTamp;
 
@@ -54,9 +51,6 @@ public class FtpFileAttributesTestCase {
   public void setUp() {
     Calendar currentDate = Calendar.getInstance();
     expectedTimesTamp = LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault());
-
-    when(path.toString()).thenReturn(EXPECTED_PATH);
-    when(path.getFileName()).thenReturn(EXPECTED_FILENAME_PATH);
 
     when(ftpFile.getTimestamp()).thenReturn(currentDate);
     when(ftpFile.getName()).thenReturn(EXPECTED_FILENAME);
@@ -95,7 +89,7 @@ public class FtpFileAttributesTestCase {
   }
 
   private FtpFileAttributes getFtpFileAttributes() {
-    return new FtpFileAttributes(createUri(path.toString()), ftpFile);
+    return new FtpFileAttributes(uri, ftpFile);
   }
 
 }

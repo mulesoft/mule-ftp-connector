@@ -34,7 +34,7 @@ public class OnNewFileCommand extends FtpCommand {
    * @return the resolved {@link URI} to listen on
    */
   public URI resolveRootUri(String directory) throws IOException {
-    Optional<URI> uri = getPathToDirectory(directory);
+    Optional<URI> uri = getUriToDirectory(directory);
     if (!uri.isPresent()) {
       throw new IllegalPathException(format("Path '%s' doesn't exist", directory));
     }
