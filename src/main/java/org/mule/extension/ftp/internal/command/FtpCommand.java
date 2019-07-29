@@ -51,6 +51,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
   protected static final String ROOT = "/";
+  protected static final String SEPARATOR = "/";
 
   protected final FTPClient client;
 
@@ -333,8 +334,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected void doMkDirs(URI directoryUri) {
     String cwd = getCurrentWorkingDirectory();
     Stack<URI> fragments = new Stack<>();
-    String[] subPaths = directoryUri.getPath().split("/");
-    URI subUri = createUri("/", directoryUri.getPath());
+    String[] subPaths = directoryUri.getPath().split(SEPARATOR);
+    URI subUri = createUri(SEPARATOR, directoryUri.getPath());
     try {
       for (int i = subPaths.length - 1; i > 0; i--) {
         if (tryChangeWorkingDirectory(subUri.getPath())) {
@@ -392,7 +393,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @return an {@link Optional} with the path to the directory if it exists, or an empty one if the directory does not exist.
    */
   protected Optional<URI> getUriToDirectory(String directory) {
-    URI baseUri = createUri("/", fileSystem.getBasePath());
+    URI baseUri = createUri(SEPARATOR, fileSystem.getBasePath());
     URI uri = directory == null ? baseUri : createUri(baseUri.getPath(), directory);
     boolean couldChangeWorkingDir;
     try {
