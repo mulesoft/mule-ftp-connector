@@ -121,15 +121,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    */
   @Override
   protected boolean exists(URI uri) {
-    return getBaseUri(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected URI getBaseUri(FileSystem fileSystem) {
-    return createUri(getCurrentWorkingDirectory());
+    return getBasePath(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
 
   /**
@@ -153,7 +145,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @return a relative {@link URI}
    */
   protected URI resolveUri(String filePath) {
-    URI uri = getBaseUri(fileSystem);
+    URI uri = getBasePath(fileSystem);
     if (filePath != null) {
       uri = createUri(uri.getPath(), filePath);
     }
@@ -199,7 +191,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @param overwrite whether to overwrite the target file if it already exists
    */
   protected void rename(String filePath, String newName, boolean overwrite) {
-    URI source = resolveExistingPathIntoUri(filePath);
+    URI source = resolveExistingPath(filePath);
     URI target = createUri(trimLastFragment(source).getPath(), newName);
 
     if (exists(target)) {
@@ -252,7 +244,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, FtpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
-    URI targetUri = createUri(getBaseUri(fileSystem).getPath(), target);
+    URI targetUri = createUri(getBasePath(fileSystem).getPath(), target);
     FileAttributes targetFile = getFile(targetUri.getPath());
     // This additional check has to be added because there are directories that exist that do not appear when listed.
     boolean targetPathIsDirectory = getUriToDirectory(target).isPresent();
@@ -410,6 +402,13 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
 
     return couldChangeWorkingDir ? Optional.of(uri) : Optional.empty();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected URI getBasePath(FileSystem fileSystem) {
+    return createUri(getCurrentWorkingDirectory());
   }
 
 }

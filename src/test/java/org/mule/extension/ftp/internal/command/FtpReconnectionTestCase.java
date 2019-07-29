@@ -74,7 +74,7 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
     }
 
     @Override
-    protected URI getBaseUri(FileSystem fileSystem) {
+    protected URI getBasePath(FileSystem fileSystem) {
       return createUri(getTempDirectory().toString());
     }
   }

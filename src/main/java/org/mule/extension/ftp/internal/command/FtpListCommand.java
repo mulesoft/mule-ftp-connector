@@ -73,7 +73,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                                                            boolean recursive,
                                                            Predicate<FtpFileAttributes> matcher,
                                                            Long timeBetweenSizeCheck) {
-    URI uri = resolvePathIntoUri(normalizePath(directoryPath));
+    URI uri = resolvePath(normalizePath(directoryPath));
 
     if (!tryChangeWorkingDirectory(uri.getPath())) {
 
