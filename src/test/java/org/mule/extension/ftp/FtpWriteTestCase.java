@@ -7,11 +7,13 @@
 package org.mule.extension.ftp;
 
 import static java.nio.charset.Charset.availableCharsets;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 import static org.junit.rules.ExpectedException.none;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
@@ -198,6 +200,17 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     String pathToExistingDirectory = createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath();
 
     doWrite(pathToExistingDirectory, HELLO_WORLD, OVERWRITE, false);
+  }
+
+  @Test
+  public void writeOnAPathWithColon() throws Exception {
+    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // removed when the test server always runs in an external Linux container.
+    assumeTrue(!IS_OS_WINDOWS);
+    final String filePath = "folder/fi:le.txt";
+
+    doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
+    toString(readPath(filePath).getPayload().getValue());
   }
 
   private void doWriteNotExistingFileWithCreatedParent(FileWriteMode mode) throws Exception {

@@ -222,7 +222,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
 
   protected void createDirectory(String directoryPath) {
-    final URI uri = createUri(fileSystem.getBasePath(), directoryPath);
+    URI uri = createUri(fileSystem.getBasePath(), directoryPath);
     FileAttributes targetFile = getFile(directoryPath);
 
     if (targetFile != null) {
