@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.AbstractFtpTestHarness;
@@ -22,7 +23,6 @@ import org.mule.test.infrastructure.process.rules.FtpServer;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -181,8 +181,8 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
     FTPFile file = ftpClient.get(path);
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
-    assertThat(Paths.get(fileAttributes.getPath()).toString(),
-               equalTo(Paths.get(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).toString()));
+    assertThat(createUri(fileAttributes.getPath()).getPath(),
+               equalTo(createUri(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).getPath()));
     assertThat(fileAttributes.getSize(), is(file.getSize()));
     assertTime(fileAttributes.getTimestamp(), file.getTimestamp());
     assertThat(fileAttributes.isDirectory(), is(false));

@@ -18,7 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
@@ -38,7 +38,7 @@ public class FtpInputStreamTestCase {
   public static final String STREAM_CONTENT = "My stream content";
 
   @Mock
-  private PathLock pathLock;
+  private UriLock uriLock;
 
   @Mock
   private FtpInputStream.FtpFileInputStreamSupplier streamSupplier;
@@ -54,11 +54,11 @@ public class FtpInputStreamTestCase {
 
   @Before
   public void setUp() throws Exception {
-    when(pathLock.isLocked()).thenReturn(true);
+    when(uriLock.isLocked()).thenReturn(true);
     doAnswer(invocation -> {
-      when(pathLock.isLocked()).thenReturn(false);
+      when(uriLock.isLocked()).thenReturn(false);
       return null;
-    }).when(pathLock).release();
+    }).when(uriLock).release();
 
     when(streamSupplier.getFtpFileSystem()).thenReturn(empty());
     when(streamSupplier.getConnectionHandler()).thenReturn(of(connectionHandler));
@@ -67,30 +67,30 @@ public class FtpInputStreamTestCase {
 
   @Test
   public void readLockReleasedOnContentConsumed() throws Exception {
-    FtpInputStream inputStream = new ClassicFtpInputStream(streamSupplier, pathLock);
+    FtpInputStream inputStream = new ClassicFtpInputStream(streamSupplier, uriLock);
 
-    verifyZeroInteractions(pathLock);
+    verifyZeroInteractions(uriLock);
     assertThat(inputStream.isLocked(), is(true));
-    verify(pathLock).isLocked();
+    verify(uriLock).isLocked();
 
     org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
 
-    verify(pathLock, times(1)).release();
+    verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
     verify(connectionHandler).release();
   }
 
   @Test
   public void readLockReleasedOnEarlyClose() throws Exception {
-    FtpInputStream inputStream = new ClassicFtpInputStream(streamSupplier, pathLock);
+    FtpInputStream inputStream = new ClassicFtpInputStream(streamSupplier, uriLock);
 
-    verifyZeroInteractions(pathLock);
+    verifyZeroInteractions(uriLock);
     assertThat(inputStream.isLocked(), is(true));
-    verify(pathLock).isLocked();
+    verify(uriLock).isLocked();
 
     inputStream.close();
 
-    verify(pathLock, times(1)).release();
+    verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
   }
 
@@ -99,7 +99,7 @@ public class FtpInputStreamTestCase {
     when(streamSupplier.get()).thenReturn(inputStream);
     when(inputStream.read()).thenReturn(5, 6, -1);
     when(streamSupplier.getFtpFileSystem()).thenReturn(of(ftpFileSystem));
-    FtpInputStream ftpInputStream = new ClassicFtpInputStream(streamSupplier, pathLock);
+    FtpInputStream ftpInputStream = new ClassicFtpInputStream(streamSupplier, uriLock);
 
     ftpInputStream.read();
     ftpInputStream.read();

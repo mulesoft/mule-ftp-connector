@@ -8,13 +8,15 @@ package org.mule.extension.ftp.internal.command;
 
 import static org.apache.commons.io.FileUtils.getTempDirectory;
 import static org.hamcrest.core.Is.isA;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
@@ -72,8 +74,8 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
     }
 
     @Override
-    protected Path getBasePath(FileSystem fileSystem) {
-      return getTempDirectory().toPath();
+    protected URI getBasePath(FileSystem fileSystem) {
+      return createUri(getTempDirectory().toString());
     }
   }
 }

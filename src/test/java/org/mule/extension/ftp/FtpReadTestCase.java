@@ -32,7 +32,6 @@ import org.mule.runtime.core.api.processor.Processor;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
 import org.junit.Rule;
@@ -161,7 +160,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   private Message readWithLock() throws Exception {
     Message message =
-        flowRunner("readWithLock").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
+        flowRunner("readWithLock").withVariable("readPath", "/files/hello.json").run().getMessage();
     return message;
   }
 }

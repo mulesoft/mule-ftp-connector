@@ -7,6 +7,8 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -19,8 +21,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -72,44 +73,44 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                                                            boolean recursive,
                                                            Predicate<FtpFileAttributes> matcher,
                                                            Long timeBetweenSizeCheck) {
-    Path path = resolvePath(normalizePath(directoryPath));
+    URI uri = resolvePath(normalizePath(directoryPath));
 
-    if (!tryChangeWorkingDirectory(path.toString())) {
+    if (!tryChangeWorkingDirectory(uri.getPath())) {
 
       FileAttributes directoryAttributes = getExistingFile(directoryPath);
 
       if (!directoryAttributes.isDirectory()) {
-        throw cannotListFileException(path);
+        throw cannotListFileException(uri);
       }
 
-      throw exception(format("Could not change working directory to '%s' while trying to list that directory", path));
+      throw exception(format("Could not change working directory to '%s' while trying to list that directory", uri.getPath()));
     }
 
     List<Result<InputStream, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
-      doList(config, path, accumulator, recursive, matcher, timeBetweenSizeCheck);
+      doList(config, uri, accumulator, recursive, matcher, timeBetweenSizeCheck);
 
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-        throw exception(format("Failed to list files on directory '%s'", path));
+        throw exception(format("Failed to list files on directory '%s'", uri.getPath()));
       }
 
-      changeWorkingDirectory(path);
+      changeWorkingDirectory(uri.getPath());
     } catch (Exception e) {
-      throw exception(format("Failed to list files on directory '%s'", path), e);
+      throw exception(format("Failed to list files on directory '%s'", uri.getPath()), e);
     }
 
     return accumulator;
   }
 
   private void doList(FileConnectorConfig config,
-                      Path path,
+                      URI uri,
                       List<Result<InputStream, FtpFileAttributes>> accumulator,
                       boolean recursive,
                       Predicate<FtpFileAttributes> matcher,
                       Long timeBetweenSizeCheck)
       throws IOException {
-    LOGGER.debug("Listing directory {}", path);
+    LOGGER.debug("Listing directory {}", uri.getPath());
 
     FTPListParseEngine engine = client.initiateListParsing();
     while (engine.hasNext()) {
@@ -119,8 +120,8 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       }
 
       for (FTPFile file : files) {
-        final Path filePath = path.resolve(file.getName());
-        FtpFileAttributes attributes = new FtpFileAttributes(filePath, file);
+        final URI fileUri = createUri(uri.getPath(), file.getName());
+        FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
 
         if (isVirtualDirectory(attributes.getName())) {
           continue;
@@ -132,15 +133,15 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           }
 
           if (recursive) {
-            Path recursionPath = path.resolve(normalizePath(attributes.getName()));
+            URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
             if (!client.changeWorkingDirectory(attributes.getName())) {
               throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
-                                     recursionPath));
+                                     recursionUri.getPath()));
             }
-            doList(config, recursionPath, accumulator, recursive, matcher, timeBetweenSizeCheck);
+            doList(config, recursionUri, accumulator, recursive, matcher, timeBetweenSizeCheck);
             if (!client.changeToParentDirectory()) {
               throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
-                                     recursionPath.getParent()));
+                                     trimLastFragment(recursionUri).getPath()));
             }
           }
         } else {

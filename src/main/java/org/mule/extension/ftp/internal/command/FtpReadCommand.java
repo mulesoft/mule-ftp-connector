@@ -7,12 +7,13 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.lock.NullPathLock;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.FtpConnector;
@@ -20,8 +21,8 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -55,7 +56,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
                                                      Long timeBetweenSizeCheck) {
     FtpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
-      throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
+      throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
     return read(config, attributes, lock, timeBetweenSizeCheck);
@@ -66,19 +67,19 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
    */
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
-    Path path = Paths.get(attributes.getPath());
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    URI uri = createUri(attributes.getPath());
+    UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     InputStream payload = null;
     try {
-      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
+      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, uriLock, timeBetweenSizeCheck);
       return Result.<InputStream, FtpFileAttributes>builder().output(payload)
           .mediaType(fileSystem.getFileMessageMediaType(attributes))
           .attributes(attributes).build();
     } catch (Exception e) {
-      pathLock.release();
+      uriLock.release();
       closeQuietly(payload);
-      throw exception(format("Could not fetch file '%s'. %s", path, e.getMessage()), e);
+      throw exception(format("Could not fetch file '%s'. %s", uri.getPath(), e.getMessage()), e);
     }
   }
 }

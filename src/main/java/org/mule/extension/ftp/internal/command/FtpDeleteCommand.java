@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -15,8 +16,7 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -40,35 +40,35 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
   public void delete(String filePath) {
     FileAttributes fileAttributes = getExistingFile(filePath);
     boolean isDirectory = fileAttributes.isDirectory();
-    Path path = Paths.get(fileAttributes.getPath());
+    URI uri = createUri(fileAttributes.getPath());
 
     if (isDirectory) {
-      LOGGER.debug("Preparing to delete directory '{}'", path);
-      deleteDirectory(path);
+      LOGGER.debug("Preparing to delete directory '{}'", uri.getPath());
+      deleteDirectory(uri);
     } else {
-      deleteFile(path);
+      deleteFile(uri);
     }
   }
 
-  private void deleteFile(Path path) {
-    fileSystem.verifyNotLocked(path);
+  private void deleteFile(URI uri) {
+    fileSystem.verifyNotLocked(uri);
     try {
-      if (!client.deleteFile(normalizePath(path))) {
-        throw exception("Could not delete file " + path);
+      if (!client.deleteFile(normalizePath(uri.getPath()))) {
+        throw exception("Could not delete file " + uri.getPath());
       }
     } catch (Exception e) {
-      throw exception("Found Exception while deleting directory " + path, e);
+      throw exception("Found Exception while deleting directory " + uri.getPath(), e);
     }
-    logDelete(path);
+    logDelete(uri);
   }
 
-  private void deleteDirectory(Path path) {
-    changeWorkingDirectory(path);
+  private void deleteDirectory(URI uri) {
+    changeWorkingDirectory(uri.getPath());
     FTPFile[] files;
     try {
       files = client.listFiles();
     } catch (IOException e) {
-      throw exception(format("Could not list contents of directory '%s' while trying to delete it", path), e);
+      throw exception(format("Could not list contents of directory '%s' while trying to delete it", uri.getPath()), e);
     }
 
     for (FTPFile file : files) {
@@ -76,32 +76,32 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
         continue;
       }
 
-      FileAttributes fileAttributes = new FtpFileAttributes(path.resolve(file.getName()), file);
+      FileAttributes fileAttributes = new FtpFileAttributes(createUri(uri.getPath(), file.getName()), file);
 
-      final Path filePath = Paths.get(fileAttributes.getPath());
+      final URI fileUri = createUri(fileAttributes.getPath());
       if (fileAttributes.isDirectory()) {
-        deleteDirectory(filePath);
+        deleteDirectory(fileUri);
       } else {
-        deleteFile(filePath);
+        deleteFile(fileUri);
       }
     }
 
     boolean removed;
     try {
       client.changeToParentDirectory();
-      removed = client.removeDirectory(path.toString());
+      removed = client.removeDirectory(uri.getPath());
     } catch (IOException e) {
-      throw exception("Found exception while trying to remove directory " + path, e);
+      throw exception("Found exception while trying to remove directory " + uri.getPath(), e);
     }
 
     if (!removed) {
-      throw exception("Could not remove directory " + path);
+      throw exception("Could not remove directory " + uri.getPath());
     }
 
-    logDelete(path);
+    logDelete(uri);
   }
 
-  private void logDelete(Path path) {
-    LOGGER.debug("Successfully deleted '{}'", path);
+  private void logDelete(URI uri) {
+    LOGGER.debug("Successfully deleted '{}'", uri.getPath());
   }
 }

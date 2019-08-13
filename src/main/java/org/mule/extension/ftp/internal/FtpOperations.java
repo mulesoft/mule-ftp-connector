@@ -30,7 +30,6 @@ import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
