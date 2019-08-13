@@ -9,6 +9,9 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
@@ -16,6 +19,7 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.command.FileCommand;
+import org.mule.extension.file.common.api.command.ExternalFileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
@@ -24,13 +28,13 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
@@ -43,10 +47,11 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0
  */
-public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
+public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
   protected static final String ROOT = "/";
+  protected static final String SEPARATOR = "/";
 
   protected final FTPClient client;
 
@@ -89,31 +94,23 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
   }
 
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
-    Path path = resolvePath(normalizePath(filePath));
-    return getFileFromAbsolutePath(path, requireExistence);
+    URI uri = resolveUri(normalizePath(filePath));
+    return getFileFromAbsoluteUri(uri, requireExistence);
   }
 
-  public FtpFileAttributes getFile(Path filePath) {
-    return getFile(filePath, false);
-  }
-
-  protected FtpFileAttributes getFile(Path path, boolean requireExistence) {
-    return getFileFromAbsolutePath(path, requireExistence);
-  }
-
-  protected FtpFileAttributes getFileFromAbsolutePath(Path path, boolean requireExistence) {
+  protected FtpFileAttributes getFileFromAbsoluteUri(URI uri, boolean requireExistence) {
     Optional<FTPFile> ftpFile;
     try {
-      ftpFile = getFileFromPath(path);
+      ftpFile = getFileFromPath(uri);
     } catch (Exception e) {
-      throw exception("Found exception trying to obtain path " + path, e);
+      throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
 
     if (ftpFile.isPresent()) {
-      return new FtpFileAttributes(path, ftpFile.get());
+      return new FtpFileAttributes(uri, ftpFile.get());
     } else {
       if (requireExistence) {
-        throw pathNotFoundException(path);
+        throw pathNotFoundException(uri);
       } else {
         return null;
       }
@@ -124,26 +121,8 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
    * {@inheritDoc}
    */
   @Override
-  protected boolean exists(Path path) {
-    return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(normalizePath(path)) != null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected Path getBasePath(FileSystem fileSystem) {
-    return Paths.get(getCurrentWorkingDirectory());
-  }
-
-  /**
-   * Changes the current working directory to the given {@code path}
-   *
-   * @param path the {@link Path} to which you wish to move
-   * @throws IllegalArgumentException if the CWD could not be changed
-   */
-  protected void changeWorkingDirectory(Path path) {
-    changeWorkingDirectory(normalizePath(path.toString()));
+  protected boolean exists(URI uri) {
+    return getBasePath(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
 
   /**
@@ -161,27 +140,17 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
   }
 
   /**
-   * Returns a {@link Path} relative to the {@code basePath} and the given {@code filePath}
+   * Returns a {@link URI} relative to the {@code baseUri} and the given {@code filePath}
    *
    * @param filePath the path to a file or directory
-   * @return a relative {@link Path}
+   * @return a relative {@link URI}
    */
-  @Override
-  protected Path resolvePath(String filePath) {
-    Path path = getBasePath(fileSystem);
+  protected URI resolveUri(String filePath) {
+    URI uri = getBasePath(fileSystem);
     if (filePath != null) {
-      path = path.resolve(filePath);
+      uri = createUri(uri.getPath(), filePath);
     }
-
-    return path;
-  }
-
-  protected Path resolvePathFromBasePath(String filePath) {
-    Path path = fileSystem.getBasePathObject();
-    if (filePath != null) {
-      path = path.resolve(filePath);
-    }
-    return path;
+    return uri;
   }
 
   /**
@@ -223,47 +192,49 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
    * @param overwrite whether to overwrite the target file if it already exists
    */
   protected void rename(String filePath, String newName, boolean overwrite) {
-    Path source = resolveExistingPath(filePath);
-    Path target = source.getParent().resolve(newName);
+    URI source = resolveExistingPath(filePath);
+    URI target = createUri(trimLastFragment(source).getPath(), newName);
 
     if (exists(target)) {
       if (!overwrite) {
-        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", source, target));
+        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", source.getPath(),
+                                                    target.getPath()));
       }
 
       try {
-        fileSystem.delete(target.toString());
+        fileSystem.delete(target.getPath());
       } catch (Exception e) {
-        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", target, source), e);
+        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", target.getPath(), source.getPath()),
+                        e);
       }
     }
 
     try {
-      boolean result = client.rename(normalizePath(source.toString()), normalizePath(target.toString()));
+      boolean result = client.rename(normalizePath(source.getPath()), normalizePath(target.getPath()));
       if (!result) {
         throw new MuleRuntimeException(createStaticMessage(format("Could not rename path '%s' to '%s'", filePath, newName)));
       }
       LOGGER.debug("{} renamed to {}", filePath, newName);
     } catch (Exception e) {
-      throw exception(format("Exception was found renaming '%s' to '%s'", source, newName), e);
+      throw exception(format("Exception was found renaming '%s' to '%s'", source.getPath(), newName), e);
     }
   }
 
 
   protected void createDirectory(String directoryPath) {
-    final Path path = Paths.get(fileSystem.getBasePath()).resolve(directoryPath);
+    URI uri = createUri(fileSystem.getBasePath(), directoryPath);
     FileAttributes targetFile = getFile(directoryPath);
 
     if (targetFile != null) {
-      throw new FileAlreadyExistsException(format("Directory '%s' already exists", path.toAbsolutePath()));
+      throw new FileAlreadyExistsException(format("Directory '%s' already exists", uri.getPath()));
     }
 
-    mkdirs(path);
+    mkdirs(normalizeUri(uri));
   }
 
   /**
    * Performs the base logic and delegates into
-   * {@link FtpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, Path, boolean)} to perform the actual
+   * {@link FtpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, URI, boolean)} to perform the actual
    * copying logic
    *  @param config the config that is parameterizing this operation
    * @param source the path to be copied
@@ -274,38 +245,33 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, FtpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
-    Path targetPath = resolvePath(target);
-    FileAttributes targetFile = getFile(targetPath.toString());
+    URI targetUri = createUri(getBasePath(fileSystem).getPath(), target);
+    FileAttributes targetFile = getFile(targetUri.getPath());
     // This additional check has to be added because there are directories that exist that do not appear when listed.
-    boolean targetPathIsDirectory = getPathToDirectory(target).isPresent();
-    String targetFileName = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
+    boolean targetPathIsDirectory = getUriToDirectory(target).isPresent();
+    String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
     if (targetPathIsDirectory || targetFile != null) {
       if (targetPathIsDirectory || targetFile.isDirectory()) {
         if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getName().equals(targetFile.getName())) && !overwrite) {
-          throw alreadyExistsException(targetPath);
+          throw alreadyExistsException(targetUri);
         } else {
-          Path sourcePath = resolvePath(targetFileName);
-          if (sourcePath.isAbsolute()) {
-            targetPath = targetPath.resolve(sourcePath.getName(sourcePath.getNameCount() - 1));
-          } else {
-            targetPath = targetPath.resolve(targetFileName);
-          }
+          targetUri = createUri(targetUri.getPath(), targetFileName);
         }
       } else if (!overwrite) {
-        throw alreadyExistsException(targetPath);
+        throw alreadyExistsException(targetUri);
       }
     } else {
       if (createParentDirectory) {
-        mkdirs(targetPath);
-        targetPath = targetPath.resolve(targetFileName);
+        mkdirs(targetUri);
+        targetUri = createUri(targetUri.getPath(), targetFileName);
       } else {
-        throw pathNotFoundException(targetPath.toAbsolutePath());
+        throw pathNotFoundException(targetUri);
       }
     }
 
     final String cwd = getCurrentWorkingDirectory();
-    delegate.doCopy(config, sourceFile, targetPath, overwrite);
-    LOGGER.debug("Copied '{}' to '{}'", sourceFile, targetPath);
+    delegate.doCopy(config, sourceFile, targetUri, overwrite);
+    LOGGER.debug("Copied '{}' to '{}'", sourceFile, targetUri.getPath());
     changeWorkingDirectory(cwd);
   }
 
@@ -320,8 +286,8 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
     }
   }
 
-  private Optional<FTPFile> getFileFromPath(Path path) throws IOException {
-    String filePath = normalizePath(path);
+  private Optional<FTPFile> getFileFromPath(URI uri) throws IOException {
+    String filePath = normalizeUri(uri).getPath();
     FTPFile file = null;
     // Check if MLST command is supported
     try {
@@ -337,20 +303,21 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
           file = files[0];
         } else {
           // List command result is a directory
-          return getDirectoryFromParent(path);
+          return getDirectoryFromParent(uri);
         }
       } else if (files.length == 0) {
         // List command result may be an empty directory
-        return getDirectoryFromParent(path);
+        return getDirectoryFromParent(uri);
       }
     }
     return Optional.ofNullable(file);
   }
 
-  private Optional<FTPFile> getDirectoryFromParent(Path path) throws IOException {
-    String filePath = normalizePath(path);
-    if (path.getParent() != null) {
-      FTPFile[] files = client.listDirectories(normalizePath(path.getParent().toString()));
+  private Optional<FTPFile> getDirectoryFromParent(URI uri) throws IOException {
+    String filePath = normalizePath(uri.getPath());
+    String fileParentPath = trimLastFragment(uri).getPath();
+    if (fileParentPath != null && !fileParentPath.isEmpty()) {
+      FTPFile[] files = client.listDirectories(normalizePath(fileParentPath));
       return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
     } else {
       // root directory
@@ -359,30 +326,30 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
   }
 
   /**
-   * Creates the directory pointed by {@code directoryPath} also creating any missing parent directories
-   *
-   * @param directoryPath the {@link Path} to the directory you want to create
+   * {@inheritDoc}
    */
   @Override
-  protected void doMkDirs(Path directoryPath) {
+  protected void doMkDirs(URI directoryUri) {
     String cwd = getCurrentWorkingDirectory();
-    Stack<Path> fragments = new Stack<>();
+    Stack<URI> fragments = new Stack<>();
+    String[] subPaths = directoryUri.getPath().split(SEPARATOR);
+    URI subUri = createUri(SEPARATOR, directoryUri.getPath());
     try {
-      for (int i = directoryPath.getNameCount(); i > 0; i--) {
-        Path subPath = Paths.get("/").resolve(directoryPath.subpath(0, i));
-        if (tryChangeWorkingDirectory(subPath.toString())) {
+      for (int i = subPaths.length - 1; i > 0; i--) {
+        if (tryChangeWorkingDirectory(subUri.getPath())) {
           break;
         }
-        fragments.push(subPath);
+        fragments.push(subUri);
+        subUri = trimLastFragment(subUri);
       }
 
       while (!fragments.isEmpty()) {
-        Path fragment = fragments.pop();
-        makeDirectory(fragment.toString());
-        changeWorkingDirectory(fragment);
+        URI fragment = fragments.pop();
+        makeDirectory(normalizeUri(fragment).getPath());
+        changeWorkingDirectory(fragment.getPath());
       }
     } catch (Exception e) {
-      throw exception("Found exception trying to recursively create directory " + directoryPath, e);
+      throw exception("Found exception trying to recursively create directory " + directoryUri.getPath(), e);
     } finally {
       changeWorkingDirectory(cwd);
     }
@@ -416,24 +383,31 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
 
   /**
    * Given a {@link String}path to a directory relative to the basePath, this method checks if the directory exists and returns an
-   * {@link Optional} with the {@link Path} to it, or an empty one if the directory does not exist. To check the existance of the
+   * {@link Optional} with the {@link URI} to it, or an empty one if the directory does not exist. To check the existance of the
    * directory it is tried to change the working directory to it. Note that if the check is successful the underlying
    * {@link FtpFileSystem} will have its working directory changed.
    *
    * @param directory directory you want to get the path from
    * @return an {@link Optional} with the path to the directory if it exists, or an empty one if the directory does not exist.
    */
-  protected Optional<Path> getPathToDirectory(String directory) {
-    Path basePath = fileSystem.getBasePathObject();
-    Path path = directory == null ? basePath : basePath.resolve(directory);
+  protected Optional<URI> getUriToDirectory(String directory) {
+    URI baseUri = createUri(SEPARATOR, fileSystem.getBasePath());
+    URI uri = directory == null ? baseUri : createUri(baseUri.getPath(), directory);
     boolean couldChangeWorkingDir;
     try {
-      couldChangeWorkingDir = fileSystem.getClient().changeWorkingDirectory(normalizePath(path));
+      couldChangeWorkingDir = fileSystem.getClient().changeWorkingDirectory(normalizePath(uri.getPath()));
     } catch (IOException e) {
       couldChangeWorkingDir = false;
     }
 
-    return couldChangeWorkingDir ? Optional.of(path) : Optional.empty();
+    return couldChangeWorkingDir ? Optional.of(uri) : Optional.empty();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected URI getBasePath(FileSystem fileSystem) {
+    return createUri(getCurrentWorkingDirectory());
   }
 
 }

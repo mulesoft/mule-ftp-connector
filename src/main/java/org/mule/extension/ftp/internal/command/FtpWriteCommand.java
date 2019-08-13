@@ -10,6 +10,8 @@ import static java.lang.String.format;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.file.common.api.FileAttributes;
@@ -17,14 +19,14 @@ import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.NullPathLock;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
+import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
@@ -63,13 +65,14 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
-    Path path = resolvePathFromBasePath(filePath);
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
-    String normalizedPath = normalizePath(path);
+    URI baseUri = createUri("/", fileSystem.getBasePath());
+    URI uri = createUri(baseUri.getPath(), filePath);
+    UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
+    String normalizedPath = normalizePath(uri.getPath());
     OutputStream outputStream = null;
     boolean outputStreamObtained = false;
     try {
-      if (mode != CREATE_NEW && canWriteToPathDirectly(path)) {
+      if (mode != CREATE_NEW && canWriteToPathDirectly(uri)) {
         try {
           outputStream = getOutputStream(normalizedPath, mode);
           if (FTPReply.isPositivePreliminary(client.getReplyCode())) {
@@ -85,7 +88,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
       }
 
       if (!outputStreamObtained) {
-        validatePath(path, createParentDirectory, mode);
+        validateUri(uri, createParentDirectory, mode);
       }
 
       try {
@@ -101,49 +104,49 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
         fileSystem.awaitCommandCompletion();
       }
     } finally {
-      pathLock.release();
+      uriLock.release();
     }
   }
 
-  private void validatePath(Path path, boolean createParentDirectory, FileWriteMode mode) {
-    FileAttributes file = getFile(path, false);
+  private void validateUri(URI uri, boolean createParentDirectory, FileWriteMode mode) {
+    FileAttributes file = getFile(uri.getPath(), false);
     if (file == null) {
-      if (pathIsDirectory(path)) {
-        throw pathIsADirectoryException(path);
+      if (pathIsDirectory(uri)) {
+        throw pathIsADirectoryException(uri);
       }
-      FileAttributes directory = getFile(path.getParent(), false);
+      FileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
       if (directory == null) {
-        assureParentFolderExists(path, createParentDirectory);
+        assureParentFolderExists(uri, createParentDirectory);
       }
     } else {
       if (mode == CREATE_NEW) {
         throw new FileAlreadyExistsException(format(
                                                     "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
                                                         + "Use a different write mode or point to a path which doesn't exist",
-                                                    path, mode));
+                                                    uri.getPath(), mode));
       } else if (mode == OVERWRITE) {
         if (file.isDirectory()) {
-          throw pathIsADirectoryException(path);
+          throw pathIsADirectoryException(uri);
         }
       }
     }
   }
 
-  private IllegalPathException pathIsADirectoryException(Path path) {
+  private IllegalPathException pathIsADirectoryException(URI uri) {
     return new IllegalPathException(String.format("Cannot write file to path '%s' because it is a directory",
-                                                  path));
+                                                  uri.getPath()));
   }
 
-  private boolean canWriteToPathDirectly(Path path) {
-    return parentDirectoryExists(path) && !pathIsDirectory(path);
+  private boolean canWriteToPathDirectly(URI uri) {
+    return parentDirectoryExists(uri) && !pathIsDirectory(uri);
   }
 
-  private boolean parentDirectoryExists(Path path) {
-    return getPathToDirectory(path.getParent().toString()).isPresent();
+  private boolean parentDirectoryExists(URI uri) {
+    return getUriToDirectory(trimLastFragment(uri).getPath()).isPresent();
   }
 
-  private boolean pathIsDirectory(Path path) {
-    return getPathToDirectory(path.toString()).isPresent();
+  private boolean pathIsDirectory(URI uri) {
+    return getUriToDirectory(uri.getPath()).isPresent();
   }
 
   private void closeSilently(Closeable closeable) {

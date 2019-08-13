@@ -7,6 +7,8 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.CopyCommand;
@@ -15,8 +17,7 @@ import org.mule.extension.ftp.internal.AbstractFtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -52,14 +53,16 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
     }
 
     @Override
-    protected void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
+    protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI targetUri, boolean overwrite,
                                  FtpFileSystem writerConnection) {
-      changeWorkingDirectory(sourcePath);
+      changeWorkingDirectory(sourceUri.getPath());
       FTPFile[] files;
       try {
         files = client.listFiles();
       } catch (IOException e) {
-        throw exception(format("Could not list contents of directory '%s' while trying to copy it to %s", sourcePath, target), e);
+        throw exception(format("Could not list contents of directory '%s' while trying to copy it to %s", sourceUri.getPath(),
+                               targetUri.getPath()),
+                        e);
       }
 
       for (FTPFile file : files) {
@@ -67,19 +70,19 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
           continue;
         }
 
-        FileAttributes fileAttributes = new FtpFileAttributes(sourcePath.resolve(file.getName()), file);
+        FileAttributes fileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
 
+        targetUri = createUri(targetUri.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          Path targetPath = target.resolve(fileAttributes.getName());
-          copyDirectory(config, Paths.get(fileAttributes.getPath()), targetPath, overwrite, writerConnection);
+          copyDirectory(config, createUri(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
         } else {
-          copyFile(config, fileAttributes, target.resolve(fileAttributes.getName()), overwrite, writerConnection);
+          copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
     }
 
     @Override
-    protected void copyFile(FileConnectorConfig config, FileAttributes source, Path target, boolean overwrite,
+    protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
                             FtpFileSystem writerConnection) {
       super.copyFile(config, source, target, overwrite, writerConnection);
       fileSystem.awaitCommandCompletion();

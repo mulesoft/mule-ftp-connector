@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
@@ -42,7 +41,7 @@ import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
-import java.nio.file.Path;
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -135,13 +134,13 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   @Summary("Time unit to be used in the wait time between size checks")
   private TimeUnit timeBetweenSizeCheckUnit;
 
-  private Path directoryPath;
+  private URI directoryUri;
   private Predicate<FtpFileAttributes> matcher;
 
   @Override
   protected void doStart() {
     matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
-    directoryPath = resolveRootPath();
+    directoryUri = resolveRootUri();
   }
 
   @Override
@@ -184,7 +183,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       if (e instanceof ConnectionException) {
         pollContext.onConnectionException((ConnectionException) e);
       }
-      LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
+      LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()),
                    e);
 
@@ -194,7 +193,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     try {
       List<Result<InputStream, FtpFileAttributes>> files =
           fileSystem
-              .list(config, directoryPath.toString(), recursive, matcher,
+              .list(config, directoryUri.getPath(), recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
 
       if (files.isEmpty()) {
@@ -221,7 +220,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       }
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
-                          directoryPath.toString(), e.getMessage()),
+                          directoryUri.getPath(), e.getMessage()),
                    e);
     } finally {
       if (fileSystem != null) {
@@ -300,11 +299,11 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     });
   }
 
-  private Path resolveRootPath() {
+  private URI resolveRootUri() {
     FtpFileSystem fileSystem = null;
     try {
       fileSystem = fileSystemProvider.connect();
-      return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
+      return new OnNewFileCommand(fileSystem).resolveRootUri(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
                                                                             format("Could not resolve path to directory '%s'. %s",
