@@ -127,6 +127,15 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private boolean passive = true;
 
   /**
+   *  Enable/disable verification that the remote host taking part of a data connection is the same as the host to which the control connection is attached.
+   */
+  @Parameter
+  @Optional(defaultValue = "true")
+  @Summary("Whether to verify if the remote host taking part of a data connection is the same as the host to which the control connection is attached or not")
+  @DisplayName("Enable Remote Verification")
+  private boolean remoteVerificationEnabled = true;
+
+  /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
    * @return a {@link FtpFileSystem}
@@ -147,6 +156,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     }
 
     try {
+      client.setRemoteVerificationEnabled(remoteVerificationEnabled);
       client.connect(connectionSettings.getHost(), connectionSettings.getPort());
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
         throw handleClientReplyCode(client.getReplyCode());
