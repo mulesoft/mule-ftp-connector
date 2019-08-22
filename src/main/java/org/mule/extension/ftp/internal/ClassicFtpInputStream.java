@@ -41,6 +41,25 @@ public class ClassicFtpInputStream extends FtpInputStream {
                                      lock);
   }
 
+  /**
+   * Using the given connection ,returns a new instance of this class.
+   * <p>
+   * Instances returned by this method <b>MUST</b> be closed or fully consumed.
+   *
+   * @param fileSystem            the {@link FtpFileSystem} to be used to connect to the FTP server
+   * @param attributes            a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param lock                  the {@link UriLock} to be used
+   * @param timeBetweenSizeCheck  the time to be waited between size checks if configured.
+   * @return a mew {@link FtpInputStream}
+   * @throws ConnectionException
+   */
+  public static FtpInputStream newInstance(FtpFileSystem fileSystem, FtpFileAttributes attributes, UriLock lock,
+                                           Long timeBetweenSizeCheck)
+      throws ConnectionException {
+    return new ClassicFtpInputStream(new FtpFileInputStreamSupplier(attributes, timeBetweenSizeCheck, fileSystem),
+                                     lock);
+  }
+
   protected ClassicFtpInputStream(FtpFileInputStreamSupplier ftpFileInputStreamSupplier, UriLock lock)
       throws ConnectionException {
     super(ftpFileInputStreamSupplier, lock);
