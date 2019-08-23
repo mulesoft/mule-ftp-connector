@@ -139,7 +139,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   protected void doStart() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    refreshMatcher();
     directoryUri = resolveRootUri();
   }
 
@@ -172,6 +172,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   public void poll(PollContext<InputStream, FtpFileAttributes> pollContext) {
+    refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
     }
@@ -227,6 +228,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         fileSystemProvider.disconnect(fileSystem);
       }
     }
+  }
+
+  private void refreshMatcher() {
+    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
   @Override
