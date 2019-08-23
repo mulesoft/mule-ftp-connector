@@ -86,15 +86,10 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently-or-too-old"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <logger level="WARN" message="1"/>
             <flow-ref name="check-no-file-is-listened"/>
-            <logger level="WARN" message="2"/>
             <flow-ref name="check-until-one-file-is-listened"/>
-            <logger level="WARN" message="3"/>
             <flow-ref name="check-until-no-file-is-listened"/>
-            <logger level="WARN" message="4"/>
             <flow-ref name="check-no-file-is-listened-over-time"/>
-            <logger level="WARN" message="5"/>
         </munit:execution>
     </munit:test>
 
