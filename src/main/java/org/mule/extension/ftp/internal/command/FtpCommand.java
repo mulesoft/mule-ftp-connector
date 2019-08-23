@@ -325,9 +325,12 @@ public abstract class FtpCommand extends FileCommand<FtpFileSystem> {
     FTPFile file = null;
     // Check if MLST command is supported
     try {
+      // This method also obtains directories.
       file = client.mlistFile(filePath);
     } catch (MalformedServerReplyException ex) {
-      LOGGER.warn(ex.getMessage());
+      LOGGER
+          .debug("Seems like the server does not support the new MLIST command, attempting to list with the old command. Server response was: "
+              + ex.getMessage());
     }
     if (file == null) {
       FTPFile[] files = client.listFiles(filePath);

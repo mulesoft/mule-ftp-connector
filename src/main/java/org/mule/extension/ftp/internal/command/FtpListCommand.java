@@ -111,9 +111,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throws IOException {
     LOGGER.debug("Listing directory {}", path);
 
-    FTPListParseEngine engine = client.initiateListParsing();
-    while (engine.hasNext()) {
-      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+    DirectoryListIterator iterator = new DirectoryListIterator();
+    while (iterator.hasNext()) {
+      FTPFile[] files = iterator.getNext(FTP_LIST_PAGE_SIZE);
       if (files == null || files.length == 0) {
         return;
       }
@@ -151,4 +151,39 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       }
     }
   }
+
+  private class DirectoryListIterator {
+
+    private FTPFile[] files;
+    private boolean hasNext = true;
+    FTPListParseEngine engine;
+
+    public DirectoryListIterator() throws IOException {
+      // Check if MLST command is supported
+      try {
+        files = client.mlistDir();
+      } catch (IOException ex) {
+        LOGGER
+            .debug("Seems like the server does not support the new MLIST command, attempting to list with the old command. Server response was: "
+                + ex.getMessage());
+        engine = client.initiateListParsing();
+      }
+    }
+
+    public FTPFile[] getNext(int pageSize) {
+      if (files != null) {
+        hasNext = false;
+        return files;
+      }
+      return engine.getNext(pageSize);
+    }
+
+    public boolean hasNext() {
+      if (files != null) {
+        return hasNext;
+      }
+      return engine.hasNext();
+    }
+  }
+
 }

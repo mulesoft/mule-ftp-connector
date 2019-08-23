@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
@@ -140,7 +139,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   protected void doStart() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    refreshMatcher();
     directoryPath = resolveRootPath();
   }
 
@@ -173,6 +172,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   public void poll(PollContext<InputStream, FtpFileAttributes> pollContext) {
+    refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
     }
@@ -228,6 +228,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         fileSystemProvider.disconnect(fileSystem);
       }
     }
+  }
+
+  private void refreshMatcher() {
+    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
   @Override
