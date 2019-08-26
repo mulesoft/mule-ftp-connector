@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static java.time.LocalDateTime.now;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 
