@@ -18,6 +18,7 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
@@ -59,7 +60,7 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
       throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
-    return read(config, attributes, lock, timeBetweenSizeCheck);
+    return read(config, attributes, lock, timeBetweenSizeCheck, true);
   }
 
   /**
@@ -68,12 +69,17 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
   @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
                                                      Long timeBetweenSizeCheck) {
+    return read(config, attributes, lock, timeBetweenSizeCheck, false);
+  }
+
+  private Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
+                                                      Long timeBetweenSizeCheck, boolean useCurrentConnection) {
     URI uri = createUri(attributes.getPath());
     UriLock uriLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     InputStream payload = null;
     try {
-      payload = ClassicFtpInputStream.newInstance((FtpConnector) config, attributes, uriLock, timeBetweenSizeCheck);
+      payload = getFileInputStream((FtpConnector) config, attributes, uriLock, timeBetweenSizeCheck, useCurrentConnection);
       return Result.<InputStream, FtpFileAttributes>builder().output(payload)
           .mediaType(fileSystem.getFileMessageMediaType(attributes))
           .attributes(attributes).build();
@@ -83,4 +89,15 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpF
       throw exception(format("Could not fetch file '%s'. %s", uri.getPath(), e.getMessage()), e);
     }
   }
+
+  private InputStream getFileInputStream(FtpConnector config, FtpFileAttributes attributes, UriLock uriLock,
+                                         Long timeBetweenSizeCheck, boolean useCurrentConnection)
+      throws ConnectionException {
+    if (useCurrentConnection) {
+      return ClassicFtpInputStream.newInstance(fileSystem, attributes, uriLock, timeBetweenSizeCheck);
+    } else {
+      return ClassicFtpInputStream.newInstance(config, attributes, uriLock, timeBetweenSizeCheck);
+    }
+  }
+
 }
