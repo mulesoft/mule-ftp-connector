@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
@@ -15,6 +16,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
@@ -29,7 +31,6 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
+  private static final int FTP_LIST_PAGE_SIZE = 25;
   protected static final String ROOT = "/";
   protected static final String SEPARATOR = "/";
 
@@ -101,7 +103,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected FtpFileAttributes getFileFromAbsoluteUri(URI uri, boolean requireExistence) {
     Optional<FTPFile> ftpFile;
     try {
-      ftpFile = getFileFromPath(uri);
+      ftpFile = doGetFileFromAbsoluteUri(uri);
     } catch (Exception e) {
       throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
@@ -286,8 +288,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
   }
 
-  private Optional<FTPFile> getFileFromPath(URI uri) throws IOException {
-    String filePath = normalizeUri(uri).getPath();
+  private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
+    String filePath = normalizeUri(absoluteUri).getPath();
     FTPFile file = null;
     // Check if MLST command is supported
     try {
@@ -296,33 +298,39 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       LOGGER.warn(ex.getMessage());
     }
     if (file == null) {
-      FTPFile[] files = client.listFiles(filePath);
-      if (files.length >= 1) {
-        if (filePath.endsWith(files[0].getName())) {
-          // List command result is the file from the path parameter
-          file = files[0];
-        } else {
-          // List command result is a directory
-          return getDirectoryFromParent(uri);
-        }
-      } else if (files.length == 0) {
-        // List command result may be an empty directory
-        return getDirectoryFromParent(uri);
-      }
+      return getFileFromParentDirectory(absoluteUri);
     }
     return Optional.ofNullable(file);
   }
 
-  private Optional<FTPFile> getDirectoryFromParent(URI uri) throws IOException {
-    String filePath = normalizePath(uri.getPath());
-    String fileParentPath = trimLastFragment(uri).getPath();
-    if (fileParentPath != null && !fileParentPath.isEmpty()) {
-      FTPFile[] files = client.listDirectories(normalizePath(fileParentPath));
-      return Arrays.stream(files).filter(dir -> filePath.endsWith(dir.getName())).findFirst();
+  private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
+    String filePath = normalizePath(absoluteUri.getPath());
+    String fileParentPath = getParentPath(absoluteUri);
+    if (fileParentPath != null) {
+      if (tryChangeWorkingDirectory(fileParentPath)) {
+        FTPListParseEngine engine = client.initiateListParsing();
+        while (engine.hasNext()) {
+          FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+          for (FTPFile file : files) {
+            if (FilenameUtils.getName(filePath).equals(file.getName())) {
+              return Optional.ofNullable(file);
+            }
+          }
+        }
+      }
+      return Optional.empty();
     } else {
       // root directory
       return Optional.ofNullable(createRootFile());
     }
+  }
+
+  private String getParentPath(URI absoluteUri) {
+    URI parentPath = trimLastFragment(absoluteUri);
+    if (parentPath == null || isBlank(parentPath.getPath())) {
+      return isNotBlank(normalizeUri(absoluteUri).getPath()) ? ROOT : null;
+    }
+    return parentPath.getPath();
   }
 
   /**
@@ -407,7 +415,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    return createUri(getCurrentWorkingDirectory());
+    return createUri(fileSystem.getBasePath());
   }
 
 }
