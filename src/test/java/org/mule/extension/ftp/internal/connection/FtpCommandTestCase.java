@@ -16,9 +16,7 @@ import org.mule.runtime.api.lock.LockFactory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
@@ -43,14 +41,7 @@ public class FtpCommandTestCase {
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
 
-    FTPClient mockClient = mock(FTPClient.class);
-
-    when(mockClient.mlistDir(anyString())).thenReturn(null);
-    when(mockClient.listFiles(anyString())).thenReturn(client.listFiles("/" + TEMP_DIRECTORY));
-    when(mockClient.listDirectories(anyString())).thenReturn(client.listDirectories("/" + WORKING_DIR));
-    when(mockClient.printWorkingDirectory()).thenReturn("/");
-
-    ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(mockClient, WORKING_DIR, mock(LockFactory.class)), mockClient);
+    ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
 
     assertThat(ftpWriteCommand.getFile(TEMP_DIRECTORY), is(notNullValue()));
   }
