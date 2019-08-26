@@ -6,10 +6,12 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.UriLock;
@@ -58,7 +60,7 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
       try {
         beforeConnectionRelease();
       } finally {
-        ftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
+        ftpFileInputStreamSupplier.releaseConnectionUsedForContentInputStream();
       }
     }
   }
@@ -75,66 +77,37 @@ public abstract class FtpInputStream extends AbstractFileInputStream {
    * @return {@link Optional} of the {@link FtpFileSystem} used to obtain the stream
    */
   protected Optional<FtpFileSystem> getFtpFileSystem() {
-    return ftpFileInputStreamSupplier.getFtpFileSystem();
+    try {
+      return ftpFileInputStreamSupplier.getConnectionUsedForContentInputStream();
+    } catch (ConnectionException e) {
+      return empty();
+    }
   }
 
-  protected static class FtpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
-
-    private static final Logger LOGGER = getLogger(AbstractFileInputStreamSupplier.class);
-
-    private ConnectionHandler<FtpFileSystem> connectionHandler;
-    private ConnectionManager connectionManager;
-    private FtpFileSystem ftpFileSystem;
-    private FtpConnector config;
+  protected static class FtpFileInputStreamSupplier extends AbstractConnectedFileInputStreamSupplier<FtpFileSystem> {
 
     FtpFileInputStreamSupplier(FtpFileAttributes attributes, ConnectionManager connectionManager,
                                Long timeBetweenSizeCheck, FtpConnector config) {
-      super(attributes, timeBetweenSizeCheck);
-      this.connectionManager = connectionManager;
-      this.config = config;
+      super(attributes, connectionManager, timeBetweenSizeCheck, config);
+    }
+
+    FtpFileInputStreamSupplier(FtpFileAttributes attributes, Long timeBetweenSizeCheck, FtpFileSystem fileSystem) {
+      super(attributes, timeBetweenSizeCheck, fileSystem);
     }
 
     @Override
-    protected FileAttributes getUpdatedAttributes() {
-      try {
-        ConnectionHandler<FtpFileSystem> connectionHandler = connectionManager.getConnection(config);
-        FtpFileSystem ftpFileSystem = connectionHandler.getConnection();
-        FtpFileAttributes updatedFtpFileAttributes = ftpFileSystem.getFileAttributes(attributes.getPath());
-        connectionHandler.release();
-        if (updatedFtpFileAttributes == null) {
-          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
-        }
-        return updatedFtpFileAttributes;
-      } catch (ConnectionException e) {
-        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
-                                       e);
-      }
+    protected FileAttributes getUpdatedAttributes(FtpFileSystem fileSystem) {
+      return fileSystem.getFileAttributes(attributes.getPath());
     }
 
     @Override
-    protected InputStream getContentInputStream() {
-      try {
-        connectionHandler = connectionManager.getConnection(config);
-        ftpFileSystem = connectionHandler.getConnection();
-        return ftpFileSystem.retrieveFileContent(attributes);
-      } catch (MuleRuntimeException e) {
-        if (e.getCause() instanceof FileNotFoundException) {
-          onFileDeleted(e);
-        }
-        throw e;
-      } catch (ConnectionException e) {
-        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
-                                       e);
-      }
+    protected InputStream getContentInputStream(FtpFileSystem fileSystem) {
+      return fileSystem.retrieveFileContent(attributes);
     }
 
-    public Optional<ConnectionHandler> getConnectionHandler() {
-      return ofNullable(connectionHandler);
+    @Override
+    protected boolean fileWasDeleted(MuleRuntimeException e) {
+      return e.getCause() instanceof FileNotFoundException;
     }
-
-    public Optional<FtpFileSystem> getFtpFileSystem() {
-      return ofNullable(ftpFileSystem);
-    }
-
   }
 }
