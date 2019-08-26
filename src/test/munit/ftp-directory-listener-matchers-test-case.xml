@@ -74,9 +74,8 @@
                 <ftp:write config-ref="config" path="#[payload ++ '.txt']">
                     <ftp:content>#[vars.fileContent]</ftp:content>
                 </ftp:write>
-                <logger level="DEBUG" message="#[%dw 2.0 import * from dw::Runtime output application/json
-                            ---
-                            'Waiting for 100 milliseconds to write next file' wait 100]"/>
+                <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
+                <munit-tools:sleep time="100"/>
             </foreach>
         </munit:execution>
         <munit:validation>
