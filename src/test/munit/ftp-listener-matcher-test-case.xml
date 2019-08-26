@@ -130,7 +130,7 @@
     <flow name="listen-filtering-updated-recently">
         <ftp:listener config-ref="config" directory=".">
             <scheduling-strategy>
-                <fixed-frequency frequency="500"/>
+                <fixed-frequency frequency="200"/>
             </scheduling-strategy>
             <ftp:matcher notUpdatedInTheLast="4" timeUnit="SECONDS"/>
         </ftp:listener>
@@ -142,7 +142,7 @@
     <flow name="listen-filtering-not-updated-recently">
         <ftp:listener config-ref="config" directory=".">
             <scheduling-strategy>
-                <fixed-frequency frequency="500"/>
+                <fixed-frequency frequency="200"/>
             </scheduling-strategy>
             <ftp:matcher updatedInTheLast="4" timeUnit="SECONDS"/>
         </ftp:listener>
@@ -154,7 +154,7 @@
     <flow name="listen-filtering-updated-recently-or-too-old">
         <ftp:listener config-ref="config" directory=".">
             <scheduling-strategy>
-                <fixed-frequency frequency="500"/>
+                <fixed-frequency frequency="200"/>
             </scheduling-strategy>
             <ftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
         </ftp:listener>
@@ -173,12 +173,9 @@
     </flow>
 
     <flow name="check-until-one-file-is-listened">
-        <logger level="WARN" message="#[now()]"/>
-        <until-successful maxRetries="30" millisBetweenRetries="200">
+        <until-successful maxRetries="20" millisBetweenRetries="500">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
-        <logger level="WARN" message="#[now()]"/>
-        <logger level="WARN" message="check-until-one-file-is-listened was successful"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: check-until-one-file-is-listened was unsuccessful!"/>
@@ -187,13 +184,9 @@
     </flow>
 
     <flow name="check-until-no-file-is-listened">
-        <logger level="WARN" message="#[now()]"/>
-        <until-successful maxRetries="30" millisBetweenRetries="200">
+        <until-successful maxRetries="30" millisBetweenRetries="500">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
-        <logger level="WARN" message="#[now()]"/>
-        <logger level="WARN" message="check-until-no-file-is-listened was successful"/>
-        <munit-tools:sleep time="10000"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: check-until-no-file-is-listened was unsuccessful!"/>
@@ -204,12 +197,8 @@
     <flow name="check-no-file-is-listened-over-time">
         <flow-ref name="reset-file-listed"/>
         <try>
-            <set-variable value="0" variableName="count"></set-variable>
-            <logger level="WARN" message="#[vars.count]"/>
-            <until-successful maxRetries="20" millisBetweenRetries="400">
-                <logger level="WARN" message="#[vars.count]"/>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
                 <flow-ref name="assert-file-was-listened"/>
-                <set-variable value="#[vars.count + 1]" variableName="count"></set-variable>
             </until-successful>
             <raise-error type="MULE:EXPRESSION" description="Failed test assertion!"/>
             <error-handler>
@@ -225,7 +214,7 @@
             <munit-tools:value>#[true]</munit-tools:value>
         </munit-tools:store>
         <try>
-            <until-successful maxRetries="20" millisBetweenRetries="400">
+            <until-successful maxRetries="10" millisBetweenRetries="1000">
                 <flow-ref name="assert-file-was-not-listened"/>
             </until-successful>
             <raise-error type="MULE:EXPRESSION" description="Failed test assertion!"/>
