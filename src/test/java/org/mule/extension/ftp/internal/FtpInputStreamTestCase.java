@@ -60,8 +60,7 @@ public class FtpInputStreamTestCase {
       return null;
     }).when(uriLock).release();
 
-    when(streamSupplier.getFtpFileSystem()).thenReturn(empty());
-    when(streamSupplier.getConnectionHandler()).thenReturn(of(connectionHandler));
+    when(streamSupplier.getConnectionUsedForContentInputStream()).thenReturn(empty());
     when(streamSupplier.get()).thenReturn(new ByteArrayInputStream(STREAM_CONTENT.getBytes(UTF_8)));
   }
 
@@ -77,7 +76,7 @@ public class FtpInputStreamTestCase {
 
     verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
-    verify(connectionHandler).release();
+    verify(streamSupplier).releaseConnectionUsedForContentInputStream();
   }
 
   @Test
@@ -98,7 +97,7 @@ public class FtpInputStreamTestCase {
   public void inputStreamClosesBeforeCompletePendingIsCalled() throws Exception {
     when(streamSupplier.get()).thenReturn(inputStream);
     when(inputStream.read()).thenReturn(5, 6, -1);
-    when(streamSupplier.getFtpFileSystem()).thenReturn(of(ftpFileSystem));
+    when(streamSupplier.getConnectionUsedForContentInputStream()).thenReturn(of(ftpFileSystem));
     FtpInputStream ftpInputStream = new ClassicFtpInputStream(streamSupplier, uriLock);
 
     ftpInputStream.read();
