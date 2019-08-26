@@ -66,11 +66,7 @@
         </munit:enable-flow-sources>
 
         <munit:behavior>
-<<<<<<< HEAD
             <set-variable variableName="amountOfFiles" value="#[100]"/>
-=======
-            <set-variable variableName="amountOfFiles" value="#[50]"/>
->>>>>>> tests need fixing
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
         <munit:execution>
@@ -78,14 +74,8 @@
                 <ftp:write config-ref="config" path="#[payload ++ '.txt']">
                     <ftp:content>#[vars.fileContent]</ftp:content>
                 </ftp:write>
-<<<<<<< HEAD
                 <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
                 <munit-tools:sleep time="100"/>
-=======
-                <logger level="DEBUG" message="#[%dw 2.0 import * from dw::Runtime output application/json
-                            ---
-                            'Waiting for 200 milliseconds to write next file' wait 200]"/>
->>>>>>> tests need fixing
             </foreach>
         </munit:execution>
         <munit:validation>
