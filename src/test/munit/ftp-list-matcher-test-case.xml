@@ -167,7 +167,7 @@
     </flow>
 
     <flow name="check-until-one-file-is-listed">
-        <until-successful maxRetries="50" millisBetweenRetries="1000">
+        <until-successful maxRetries="20" millisBetweenRetries="500">
             <flow-ref name="#[vars.listFlowName]"/>
             <flow-ref name="assert-file-was-listed"/>
         </until-successful>
@@ -179,7 +179,7 @@
     </flow>
 
     <flow name="check-until-no-file-is-listed">
-        <until-successful maxRetries="50" millisBetweenRetries="1000">
+        <until-successful maxRetries="20" millisBetweenRetries="1000">
             <flow-ref name="#[vars.listFlowName]"/>
             <flow-ref name="assert-file-was-not-listed"/>
         </until-successful>

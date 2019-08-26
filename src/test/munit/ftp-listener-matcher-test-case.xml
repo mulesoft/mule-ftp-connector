@@ -186,7 +186,7 @@
     </flow>
 
     <flow name="check-until-no-file-is-listened">
-        <until-successful maxRetries="50" millisBetweenRetries="1000">
+        <until-successful maxRetries="30" millisBetweenRetries="500">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
         <error-handler>

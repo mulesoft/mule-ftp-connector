@@ -8,10 +8,13 @@ package org.mule.extension.ftp.api;
 
 import static java.time.LocalDateTime.now;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static org.slf4j.LoggerFactory.getLogger;
 >>>>>>> tests need fixing
+=======
+>>>>>>> fixed race condition in test assertion
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -26,8 +29,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-
-import org.slf4j.Logger;
 
 /**
  * A set of criteria used to filter files stored in a FTP server. The file's properties are to be represented on
