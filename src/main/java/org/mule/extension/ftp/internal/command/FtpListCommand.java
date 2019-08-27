@@ -22,8 +22,11 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -112,9 +115,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
 
-    DirectoryListIterator iterator = new DirectoryListIterator();
+    Iterator<FTPFile[]> iterator = getIterator();
     while (iterator.hasNext()) {
-      FTPFile[] files = iterator.getNext(FTP_LIST_PAGE_SIZE);
+      FTPFile[] files = iterator.next();
       if (files == null || files.length == 0) {
         return;
       }
@@ -153,36 +156,53 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     }
   }
 
-  private class DirectoryListIterator {
-
-    private FTPFile[] files;
-    private boolean hasNext = true;
-    FTPListParseEngine engine;
-
-    public DirectoryListIterator() throws IOException {
-      // Check if MLST command is supported
-      try {
-        files = client.mlistDir();
-      } catch (IOException ex) {
-        LOGGER
-            .debug("Seems like the server does not support the new MLIST command, attempting to list with the old command. Server response was: "
-                + ex.getMessage());
-        engine = client.initiateListParsing();
-      }
+  private Iterator<FTPFile[]> getIterator() throws IOException {
+    // Check if MLST command is supported
+    try {
+      return new SingleItemIterator(client.mlistDir());
+    } catch (IOException ex) {
+      LOGGER
+          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Server message was: \n"
+              + ex.getMessage() + "\n Attempting again but with the LIST command.");
+      return new EngineIterator(client.initiateListParsing());
     }
+  }
 
-    public FTPFile[] getNext(int pageSize) {
-      if (files != null) {
-        hasNext = false;
-        return files;
-      }
-      return engine.getNext(pageSize);
+  private class SingleItemIterator<T> implements Iterator<T> {
+
+    private T item;
+    private boolean hasNext = true;
+
+    public SingleItemIterator(T item) {
+      this.item = item;
     }
 
     public boolean hasNext() {
-      if (files != null) {
-        return hasNext;
+      return hasNext;
+    }
+
+    public T next() {
+      if (!hasNext) {
+        throw new NoSuchElementException();
       }
+      hasNext = false;
+      return item;
+    }
+  }
+
+  private class EngineIterator implements Iterator<FTPFile[]> {
+
+    FTPListParseEngine engine;
+
+    public EngineIterator(FTPListParseEngine engine) {
+      this.engine = engine;
+    }
+
+    public FTPFile[] next() {
+      return engine.getNext(FTP_LIST_PAGE_SIZE);
+    }
+
+    public boolean hasNext() {
       return engine.hasNext();
     }
   }
