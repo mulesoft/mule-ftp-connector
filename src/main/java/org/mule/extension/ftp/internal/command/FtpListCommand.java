@@ -22,7 +22,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;

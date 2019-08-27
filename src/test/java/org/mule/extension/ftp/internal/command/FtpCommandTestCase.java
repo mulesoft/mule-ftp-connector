@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.connection;
+package org.mule.extension.ftp.internal.command;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -16,10 +16,13 @@ import sun.net.ftp.FtpClient;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
 import org.mule.extension.ftp.api.FtpFileMatcher;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.command.FtpListCommand;
 import org.mule.extension.ftp.internal.command.FtpReadCommand;
 import org.mule.extension.ftp.internal.command.FtpWriteCommand;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.lock.LockFactory;
+import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -38,6 +41,8 @@ import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class FtpCommandTestCase {
@@ -52,7 +57,7 @@ public class FtpCommandTestCase {
   private FtpReadCommand ftpReadCommand;
 
   @Test
-  public void writeFileOnEmptyNewFolderWithCreateParentFoldersOnFalse() throws Exception {
+  public void listRecentlyCreatedDirectory() throws Exception {
 
     testHarness.makeDir(TEMP_DIRECTORY);
 
@@ -62,14 +67,7 @@ public class FtpCommandTestCase {
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
 
-    FTPClient mockClient = mock(FTPClient.class);
-
-    when(mockClient.mlistDir(anyString())).thenReturn(null);
-    when(mockClient.listFiles(anyString())).thenReturn(client.listFiles("/" + TEMP_DIRECTORY));
-    when(mockClient.listDirectories(anyString())).thenReturn(client.listDirectories("/" + WORKING_DIR));
-    when(mockClient.printWorkingDirectory()).thenReturn("/");
-
-    ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(mockClient, WORKING_DIR, mock(LockFactory.class)), mockClient);
+    ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
 
     assertThat(ftpWriteCommand.getFile(TEMP_DIRECTORY), is(notNullValue()));
   }
@@ -96,6 +94,33 @@ public class FtpCommandTestCase {
     when(matcher.test(any())).thenReturn(false);
 
     ftpListCommand.list(mock(FileConnectorConfig.class), dirPath, false, matcher, 0L);
+    verify(client, times(1)).initiateListParsing();
+    verify(matcher, times(1)).test(any());
+  }
+
+  @Test
+  public void listDirectoryFromServerThatDoesNotSupportMListCommand() throws Exception {
+
+    testHarness.makeDir(TEMP_DIRECTORY);
+
+    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
+
+    FTPClient client = spy(FTPClient.class);
+    client.setDefaultTimeout(5000);
+    client.connect("localhost", testHarness.getServerPort());
+    client.login(FTP_USER, FTP_PASSWORD);
+    when(client.mlistDir()).thenThrow(new IOException());
+
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    List<Result<InputStream, FtpFileAttributes>> files =
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getAttributes().get().getName(), is("files"));
     verify(client, times(1)).initiateListParsing();
     verify(matcher, times(1)).test(any());
   }
