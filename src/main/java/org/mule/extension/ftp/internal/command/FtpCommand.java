@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
@@ -291,14 +290,14 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
     FTPFile file = null;
-    // Check if MLST command is supported
+    // Check if MLST command is supported.
     try {
       // This method also obtains directories.
       file = client.mlistFile(filePath);
-    } catch (MalformedServerReplyException ex) {
+    } catch (IOException ex) {
       LOGGER
-          .debug("Seems like the server does not support the new MLIST command, attempting to list with the old command. Server response was: "
-              + ex.getMessage());
+          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Server message was: \n"
+              + ex.getMessage() + "\n Attempting again but with the LIST command.");
     }
     if (file == null) {
       return getFileFromParentDirectory(absoluteUri);
