@@ -7,10 +7,8 @@
 package org.mule.extension.ftp.internal.connection;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.junit.ClassRule;
 import org.junit.Test;
-import sun.net.ftp.FtpClient;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
@@ -24,7 +22,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
