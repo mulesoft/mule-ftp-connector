@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.api;
 
 import static java.time.LocalDateTime.now;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -20,7 +21,10 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+
+import org.slf4j.Logger;
 
 /**
  * A set of criteria used to filter files stored in a FTP server. The file's properties are to be represented on
@@ -31,6 +35,9 @@ import java.util.function.Predicate;
 @Alias("matcher")
 @TypeDsl(allowTopLevelDefinition = true)
 public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttributes> {
+
+  private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
+  private static final Logger LOGGER = getLogger(FtpFileMatcher.class);
 
   /**
    * Files created before this date are rejected.
@@ -96,16 +103,35 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     LocalDateTime now = now();
 
     if (notUpdatedInTheLast != null) {
-      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> {
+        checkTimestampPrecision(attributes);
+        return attributes.getTimestamp() == null
+            || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
+      });
     }
 
     if (updatedInTheLast != null) {
-      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> {
+        checkTimestampPrecision(attributes);
+        return attributes.getTimestamp() == null
+            || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
+      });
     }
 
     return predicate;
+  }
+
+  private void checkTimestampPrecision(FtpFileAttributes attributes) {
+    if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
+        && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
+      LOGGER
+          .warn("The timestamp precision was set to SECONDS or higher, but it seems like the server does not support such precision.");
+    }
+  }
+
+  private boolean isSecondsOrLower(TimeUnit timeUnit) {
+    return timeUnit == TimeUnit.SECONDS || timeUnit == TimeUnit.MILLISECONDS || timeUnit == TimeUnit.MICROSECONDS
+        || timeUnit == TimeUnit.NANOSECONDS;
   }
 
   private LocalDateTime minusTime(LocalDateTime localDateTime, Long time, TimeUnit timeUnit) {

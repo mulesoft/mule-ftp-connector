@@ -95,7 +95,7 @@ public class FtpCommandTestCase {
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
-    when(client.mlistDir()).thenThrow(new IOException());
+    when(client.mlistDir()).thenReturn(null);
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
@@ -119,7 +119,7 @@ public class FtpCommandTestCase {
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
-    when(client.mlistDir()).thenThrow(new IOException());
+    when(client.mlistDir()).thenReturn(null);
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);

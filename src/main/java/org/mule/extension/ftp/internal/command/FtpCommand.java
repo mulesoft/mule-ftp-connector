@@ -16,6 +16,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -291,9 +292,16 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     String filePath = normalizeUri(absoluteUri).getPath();
     FTPFile file = null;
     // Check if MLST command is supported.
-    file = client.mlistFile(filePath); // This method also obtains directories.
+    try {
+      file = client.mlistFile(filePath); // This method also obtains directories.
+    } catch (MalformedServerReplyException e) {
+      LOGGER
+          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Server response was: "
+              + e.getMessage() + "Attempting again but with the LIST command.");
+    }
     if (file == null) {
-      LOGGER.debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Attempting again but with the LIST command.");
+      LOGGER
+          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Attempting again but with the LIST command.");
       return getFileFromParentDirectory(absoluteUri);
     }
     return Optional.ofNullable(file);
