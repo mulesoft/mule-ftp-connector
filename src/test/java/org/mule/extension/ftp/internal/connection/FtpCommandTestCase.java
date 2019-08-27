@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
 
 import java.io.IOException;
@@ -66,13 +65,15 @@ public class FtpCommandTestCase {
   public void testSimilarNames() throws Exception {
 
     testHarness.makeDir(TEMP_DIRECTORY);
-    testHarness.write(TEMP_DIRECTORY + "/file.txt", HELLO_WORLD);
+    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
+    String filePath = dirPath + "/NewFile.txt";
+    testHarness.write(filePath, "File Content.");
 
-    FTPClient client;
-    client = new FTPClient();
+    FTPClient client = spy(FTPClient.class);
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
+    when(client.mlistDir()).thenThrow(new IOException());
 
     ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
 
