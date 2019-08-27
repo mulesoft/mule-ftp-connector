@@ -10,6 +10,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.junit.ClassRule;
 import org.junit.Test;
+import sun.net.ftp.FtpClient;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
@@ -25,6 +26,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
@@ -81,35 +85,27 @@ public class FtpCommandTestCase {
   @Test
   public void readFileFromServerThatDoesNotSupportMListCommand() throws Exception {
 
-    String dirPath = "/" + TEMP_DIRECTORY;
-    String filePath = dirPath + "/NewFile.txt";
     testHarness.makeDir(TEMP_DIRECTORY);
+
+    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
+    String filePath = dirPath + "/NewFile.txt";
     testHarness.write(filePath, "File Content.");
 
-    FTPClient client;
-    client = new FTPClient();
+    FTPClient client = spy(FTPClient.class);
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
+    when(client.mlistDir()).thenThrow(new IOException());
 
-    FTPClient mockClient = mock(FTPClient.class);
-    FTPListParseEngine mockEngine = mock(FTPListParseEngine.class);
-    when(mockEngine.hasNext()).thenReturn(false);
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
 
-    when(mockClient.mlistDir(anyString())).thenThrow(new IOException());
-    when(mockClient.initiateListParsing(any())).thenReturn(mockEngine);
-    when(mockClient.changeWorkingDirectory(anyString())).thenReturn(client.changeWorkingDirectory(dirPath));
-    when(mockClient.mlistFile(anyString())).thenThrow(new IOException());
-    when(mockClient.listFiles(anyString())).thenReturn(client.listFiles(dirPath));
-    when(mockClient.listDirectories(anyString())).thenReturn(client.listDirectories("/" + WORKING_DIR));
-    when(mockClient.printWorkingDirectory()).thenReturn("/");
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(false);
 
-    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(mockClient, WORKING_DIR, mock(LockFactory.class)), mockClient);
-    ftpListCommand =
-        new FtpListCommand(new FtpFileSystem(mockClient, WORKING_DIR, mock(LockFactory.class)), mockClient, ftpReadCommand);
-
-    assertThat(ftpListCommand.list(mock(FileConnectorConfig.class), filePath, false, mock(Predicate.class), 0L),
-               is(notNullValue()));
+    ftpListCommand.list(mock(FileConnectorConfig.class), dirPath, false, matcher, 0L);
+    verify(client, times(1)).initiateListParsing();
+    verify(matcher, times(1)).test(any());
   }
 
 }
