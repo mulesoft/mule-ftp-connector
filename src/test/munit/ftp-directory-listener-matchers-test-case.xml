@@ -90,6 +90,7 @@
                                          is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
             </until-successful>
             <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="count" value="0"/>
             <foreach collection="#[1 to MunitTools::queueSize()]">
                 <munit-tools:dequeue/>
                 <logger level="ERROR" message="#[payload]"/>
