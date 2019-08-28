@@ -194,6 +194,8 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true-->
+        <munit-tools:sleep time="300"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>

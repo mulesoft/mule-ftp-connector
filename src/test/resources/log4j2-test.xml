@@ -12,14 +12,14 @@
         <AsyncLogger name="org.apache.cxf" level="WARN"/>
 
         <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
-        <AsyncLogger name="org.apache" level="WARN"/>
+        <AsyncLogger name="org.apache" level="ERROR"/>
 
         <!-- Reduce startup noise -->
         <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
 
         <!-- Mule classes -->
         <AsyncLogger name="org.mule" level="WARN"/>
-        <AsyncLogger name="com.mulesoft" level="WARN"/>
+        <AsyncLogger name="com.mulesoft" level="ERROR"/>
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="Console"/>

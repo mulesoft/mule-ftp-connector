@@ -59,6 +59,12 @@
         </java:invoke-static>
     </munit:after-suite>
 
+    <munit:before-test name="check-correct-dispose">
+        <munit-tools:assert-that expression="#[MunitTools::queueSize()]" is="#[MunitTools::equalTo(0)]"/>
+        <ftp:list config-ref="config" directoryPath="."/>
+        <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+    </munit:before-test>
+
     <munit:test name="listenerProcessesAllFiles">
 
         <munit:enable-flow-sources>
@@ -86,6 +92,10 @@
             <flow-ref name="wait-2-seconds"/>
             <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
                                      is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+            <foreach collection="#[1 to MunitTools::queueSize()]">
+                <munit-tools:dequeue/>
+                <logger level="ERROR" message="#[payload]"/>
+            </foreach>
         </munit:validation>
     </munit:test>
 
@@ -104,7 +114,7 @@
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
-        <set-payload value="attributes.fileName"/>
+        <set-payload value="#[attributes.fileName]"/>
         <munit-tools:queue/>
     </flow>
 
