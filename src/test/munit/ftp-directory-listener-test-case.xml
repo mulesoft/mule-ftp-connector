@@ -69,7 +69,7 @@
     <flow name="ftpListenerFlow" >
         <ftp:listener config-ref="config" directory="/" watermarkEnabled="true" autoDelete="true">
             <scheduling-strategy>
-                <fixed-frequency frequency="1000"/>
+                <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
         <set-payload value="attributes.fileName"/>

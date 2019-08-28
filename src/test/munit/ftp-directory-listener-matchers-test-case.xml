@@ -79,7 +79,7 @@
             </foreach>
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="100" millisBetweenRetries="500">
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
                 <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
                                          is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
             </until-successful>
@@ -101,7 +101,7 @@
     <flow name="fileListenerFlow">
         <ftp:listener config-ref="config" matcher="${matcherName}" watermarkEnabled="true">
             <scheduling-strategy>
-                <fixed-frequency frequency="1000"/>
+                <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
         <set-payload value="attributes.fileName"/>

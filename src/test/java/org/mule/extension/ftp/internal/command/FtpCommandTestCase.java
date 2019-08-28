@@ -128,7 +128,7 @@ public class FtpCommandTestCase {
     List<Result<InputStream, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is("files"));
+    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).initiateListParsing();
     verify(matcher, times(1)).test(any());
   }

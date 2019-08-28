@@ -115,7 +115,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
 
-    Iterator<FTPFile[]> iterator = getIterator();
+    Iterator<FTPFile[]> iterator = getFtpFileIterator();
     while (iterator.hasNext()) {
       FTPFile[] files = iterator.next();
       if (files == null || files.length == 0) {
@@ -156,21 +156,17 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     }
   }
 
-  private Iterator<FTPFile[]> getIterator() throws IOException {
-    // Check if MLST command is supported
+  private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
+    // Check if MLSD command is supported
     try {
       FTPFile[] files = client.mlistDir();
       if (files != null) {
         return new SingleItemIterator(files);
       }
-      LOGGER
-          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Attempting again but with the LIST command.");
     } catch (MalformedServerReplyException ex) {
-      LOGGER
-          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Server message was: \n"
-              + ex.getMessage() + "\n Attempting again but with the LIST command.");
+      LOGGER.debug(ex.getMessage());
     }
-    return new EngineIterator(client.initiateListParsing());
+    return new FtpListEngineIterator(client.initiateListParsing());
   }
 
   private class SingleItemIterator<T> implements Iterator<T> {
@@ -195,11 +191,11 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     }
   }
 
-  private class EngineIterator implements Iterator<FTPFile[]> {
+  private class FtpListEngineIterator implements Iterator<FTPFile[]> {
 
     FTPListParseEngine engine;
 
-    public EngineIterator(FTPListParseEngine engine) {
+    public FtpListEngineIterator(FTPListParseEngine engine) {
       this.engine = engine;
     }
 

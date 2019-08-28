@@ -295,13 +295,9 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     try {
       file = client.mlistFile(filePath); // This method also obtains directories.
     } catch (MalformedServerReplyException e) {
-      LOGGER
-          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Server response was: "
-              + e.getMessage() + "Attempting again but with the LIST command.");
+      LOGGER.debug(e.getMessage());
     }
     if (file == null) {
-      LOGGER
-          .debug("The FTP server does not seem to support the MLST command specified in the 'Extensions to FTP' RFC 3659. Attempting again but with the LIST command.");
       return getFileFromParentDirectory(absoluteUri);
     }
     return Optional.ofNullable(file);
