@@ -72,7 +72,7 @@
         </munit:enable-flow-sources>
 
         <munit:behavior>
-            <set-variable variableName="amountOfFiles" value="#[100]"/>
+            <set-variable variableName="amountOfFiles" value="#[20]"/>
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
         <munit:execution>
@@ -90,12 +90,13 @@
                                          is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
             </until-successful>
             <flow-ref name="wait-2-seconds"/>
-            <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
-                                     is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
             <foreach collection="#[1 to MunitTools::queueSize()]">
                 <munit-tools:dequeue/>
                 <logger level="ERROR" message="#[payload]"/>
+                <set-variable variableName="count" value="#[vars.count + 1]"/>
             </foreach>
+            <munit-tools:assert-that expression="#[vars.count]"
+                                     is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
         </munit:validation>
     </munit:test>
 
