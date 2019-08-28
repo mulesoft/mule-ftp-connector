@@ -127,7 +127,8 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
-          .debug(format("The timestamp precision was set to %s, but it seems like the server does not support such precision.", timeUnit));
+          .debug(format("The timestamp precision was set to %s, but it seems like the server does not support such precision.",
+                        timeUnit));
     }
   }
 
