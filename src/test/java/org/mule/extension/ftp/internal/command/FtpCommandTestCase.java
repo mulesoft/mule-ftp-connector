@@ -113,8 +113,6 @@ public class FtpCommandTestCase {
 
     testHarness.makeDir(TEMP_DIRECTORY);
 
-    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
-
     FTPClient client = spy(FTPClient.class);
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
