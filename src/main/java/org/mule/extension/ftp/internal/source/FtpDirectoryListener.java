@@ -42,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -265,7 +266,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         item.setId(attributes.getPath());
         if (watermarkEnabled) {
           if (attributes.getTimestamp() != null) {
-            item.setWatermark(attributes.getTimestamp());
+            item.setWatermark(attributes.getTimestamp().truncatedTo(ChronoUnit.MINUTES));
           } else {
             LOGGER.warn(format("Use of watermark for files processing is enabled, but file [%s] does not have the"
                 + " corresponding modification timestamp. Watermark ignored for this file.",

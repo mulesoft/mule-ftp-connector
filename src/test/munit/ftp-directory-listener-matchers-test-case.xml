@@ -72,7 +72,7 @@
         </munit:enable-flow-sources>
 
         <munit:behavior>
-            <set-variable variableName="amountOfFiles" value="#[20]"/>
+            <set-variable variableName="amountOfFiles" value="#[100]"/>
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
         <munit:execution>
@@ -116,7 +116,7 @@
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
-        <set-payload value="#[attributes.fileName ++ '         ' ++ attributes.timestamp]"/>
+        <set-payload value="#[attributes.fileName]"/>
         <munit-tools:queue/>
     </flow>
 

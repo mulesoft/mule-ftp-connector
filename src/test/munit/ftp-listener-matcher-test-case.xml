@@ -86,15 +86,10 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently-or-too-old"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <logger level="WARN" message="1"/>
             <flow-ref name="check-no-file-is-listened"/>
-            <logger level="WARN" message="2"/>
             <flow-ref name="check-until-one-file-is-listened"/>
-            <logger level="WARN" message="3"/>
             <flow-ref name="check-until-no-file-is-listened"/>
-            <logger level="WARN" message="4"/>
             <flow-ref name="check-no-file-is-listened-over-time"/>
-            <logger level="WARN" message="5"/>
         </munit:execution>
     </munit:test>
 
@@ -181,7 +176,7 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
-        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true-->
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
         <munit-tools:sleep time="300"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
@@ -194,7 +189,7 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
-        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true-->
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
         <munit-tools:sleep time="300"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
