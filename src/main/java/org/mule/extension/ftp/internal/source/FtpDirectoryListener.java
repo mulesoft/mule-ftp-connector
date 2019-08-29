@@ -266,6 +266,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         item.setId(attributes.getPath());
         if (watermarkEnabled) {
           if (attributes.getTimestamp() != null) {
+            // We are truncating this value to maintain watermark behaviour from previous versions.
             item.setWatermark(attributes.getTimestamp().truncatedTo(ChronoUnit.MINUTES));
           } else {
             LOGGER.warn(format("Use of watermark for files processing is enabled, but file [%s] does not have the"

@@ -12,7 +12,7 @@
         <AsyncLogger name="org.apache.cxf" level="WARN"/>
 
         <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
-        <AsyncLogger name="org.apache" level="ERROR"/>
+        <AsyncLogger name="org.apache" level="WARN"/>
 
         <!-- Reduce startup noise -->
         <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>

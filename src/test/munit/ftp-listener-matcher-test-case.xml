@@ -70,7 +70,7 @@
     </munit:test>
 
     <munit:test name="newFileIsListenedAndLaterFiltered"
-                description="New file is listed, but later filtered by the matcher">
+                description="New file is listed, but later filtered by the matcher" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="listen-filtering-not-updated-recently"/>
         </munit:enable-flow-sources>
@@ -105,13 +105,15 @@
             <foreach collection="#[1 to vars.numberOfModifications]">
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
+                <!--Wait for a polling cycle to avoid race conditions-->
+                <munit-tools:sleep time="300"/>
                 <flow-ref name="check-no-file-is-listened"/>
             </foreach>
         </munit:execution>
     </munit:test>
 
     <munit:test name="newFileBeingConstantlyUpdatedIsListened"
-                description="New file that is constantly being updated is listened">
+                description="New file that is constantly being updated is listened" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="listen-filtering-not-updated-recently"/>
         </munit:enable-flow-sources>
@@ -122,6 +124,8 @@
             <foreach collection="#[1 to vars.numberOfModifications]">
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
+                <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
+                <munit-tools:sleep time="300"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
         </munit:execution>
