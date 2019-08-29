@@ -19,7 +19,7 @@
 
         <!-- Mule classes -->
         <AsyncLogger name="org.mule" level="WARN"/>
-        <AsyncLogger name="com.mulesoft" level="ERROR"/>
+        <AsyncLogger name="com.mulesoft" level="WARN"/>
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="Console"/>

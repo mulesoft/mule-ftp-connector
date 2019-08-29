@@ -16,7 +16,7 @@
     </ftp:config>
 
     <flow name="wait-2-seconds">
-        <logger level="ERROR" message="Waiting for 2 seconds"/>
+        <logger level="DEBUG" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>
     </flow>
 

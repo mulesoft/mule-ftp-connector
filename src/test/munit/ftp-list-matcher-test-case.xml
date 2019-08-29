@@ -208,7 +208,6 @@
 
     <flow name="assert-file-was-listed">
         <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
-        <logger level="WARN" message="#[payload]"/>
     </flow>
 
     <flow name="assert-file-was-not-listed">

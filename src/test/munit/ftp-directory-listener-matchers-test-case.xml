@@ -93,7 +93,6 @@
             <set-variable variableName="count" value="0"/>
             <foreach collection="#[1 to MunitTools::queueSize()]">
                 <munit-tools:dequeue/>
-                <logger level="ERROR" message="#[payload]"/>
                 <set-variable variableName="count" value="#[vars.count + 1]"/>
             </foreach>
             <munit-tools:assert-that expression="#[vars.count]"
