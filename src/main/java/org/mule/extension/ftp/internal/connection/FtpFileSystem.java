@@ -8,7 +8,7 @@ package org.mule.extension.ftp.internal.connection;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
@@ -30,6 +30,7 @@ import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.file.common.api.util.UriUtils;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
@@ -67,15 +68,15 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
 
   private static String resolveBasePath(String basePath, FTPClient client) {
-    try {
-      if (isNotBlank(basePath)) {
-        client.changeWorkingDirectory(basePath);
+    if (isBlank(basePath)) {
+      try {
+        return client.printWorkingDirectory();
+      } catch (Exception e) {
+        throw new MuleRuntimeException(createStaticMessage("FTP working dir was not specified and failed to resolve a default one"),
+                                       e);
       }
-      return client.printWorkingDirectory();
-    } catch (Exception e) {
-      throw new MuleRuntimeException(createStaticMessage("FTP working dir was not specified and failed to resolve a default one"),
-                                     e);
     }
+    return UriUtils.createUri("", basePath).getPath();
   }
 
   private final FTPClient client;
