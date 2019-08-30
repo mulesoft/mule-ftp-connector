@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+      http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 
     <ftp:config name="config">
         <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/">
@@ -12,5 +14,20 @@
             </reconnection>
         </ftp:connection>
     </ftp:config>
+
+    <flow name="wait-2-seconds">
+        <logger level="DEBUG" message="Waiting for 2 seconds"/>
+        <munit-tools:sleep time="2000"/>
+    </flow>
+
+    <flow name="modify-file">
+        <set-payload value="Content to append"/>
+        <ftp:write config-ref="config" path="random.txt" mode="APPEND"/>
+    </flow>
+
+    <flow name="write-file">
+        <set-payload value="File Content"/>
+        <ftp:write config-ref="config" path="random.txt"/>
+    </flow>
 
 </mule>

@@ -95,7 +95,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    *
    * @param client a ready to use {@link FTPClient}
    */
-  FtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory) {
+  public FtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory) {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;

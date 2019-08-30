@@ -22,10 +22,13 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPListParseEngine;
@@ -112,9 +115,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
 
-    FTPListParseEngine engine = client.initiateListParsing();
-    while (engine.hasNext()) {
-      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+    Iterator<FTPFile[]> iterator = getFtpFileIterator();
+    while (iterator.hasNext()) {
+      FTPFile[] files = iterator.next();
       if (files == null || files.length == 0) {
         return;
       }
@@ -152,4 +155,57 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       }
     }
   }
+
+  private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
+    // Check if MLSD command is supported
+    try {
+      FTPFile[] files = client.mlistDir();
+      if (files != null) {
+        return new SingleItemIterator(files);
+      }
+    } catch (MalformedServerReplyException ex) {
+      LOGGER.debug(ex.getMessage());
+    }
+    return new FtpListEngineIterator(client.initiateListParsing());
+  }
+
+  private class SingleItemIterator<T> implements Iterator<T> {
+
+    private T item;
+    private boolean hasNext = true;
+
+    public SingleItemIterator(T item) {
+      this.item = item;
+    }
+
+    public boolean hasNext() {
+      return hasNext;
+    }
+
+    public T next() {
+      if (!hasNext) {
+        throw new NoSuchElementException();
+      }
+      hasNext = false;
+      return item;
+    }
+  }
+
+  private class FtpListEngineIterator implements Iterator<FTPFile[]> {
+
+    FTPListParseEngine engine;
+
+    public FtpListEngineIterator(FTPListParseEngine engine) {
+      this.engine = engine;
+    }
+
+    public FTPFile[] next() {
+      return engine.getNext(FTP_LIST_PAGE_SIZE);
+    }
+
+    public boolean hasNext() {
+      return engine.hasNext();
+    }
+  }
+
 }

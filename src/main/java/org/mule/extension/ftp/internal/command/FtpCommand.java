@@ -16,6 +16,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -36,7 +37,6 @@ import java.util.Optional;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
@@ -291,11 +291,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
     FTPFile file = null;
-    // Check if MLST command is supported
+    // Check if MLST command is supported.
     try {
-      file = client.mlistFile(filePath);
-    } catch (MalformedServerReplyException ex) {
-      LOGGER.warn(ex.getMessage());
+      file = client.mlistFile(filePath); // This method also obtains directories.
+    } catch (MalformedServerReplyException e) {
+      LOGGER.debug(e.getMessage());
     }
     if (file == null) {
       return getFileFromParentDirectory(absoluteUri);
