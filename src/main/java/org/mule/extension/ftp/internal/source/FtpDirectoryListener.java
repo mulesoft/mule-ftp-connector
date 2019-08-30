@@ -42,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -139,7 +140,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   protected void doStart() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    refreshMatcher();
     directoryUri = resolveRootUri();
   }
 
@@ -172,6 +173,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   public void poll(PollContext<InputStream, FtpFileAttributes> pollContext) {
+    refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
     }
@@ -229,6 +231,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     }
   }
 
+  private void refreshMatcher() {
+    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+  }
+
   @Override
   public void onRejectedItem(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
     closeQuietly(result.getOutput());
@@ -260,7 +266,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         item.setId(attributes.getPath());
         if (watermarkEnabled) {
           if (attributes.getTimestamp() != null) {
-            item.setWatermark(attributes.getTimestamp());
+            // We are truncating this value to maintain watermark behaviour from previous versions.
+            item.setWatermark(attributes.getTimestamp().truncatedTo(ChronoUnit.MINUTES));
           } else {
             LOGGER.warn(format("Use of watermark for files processing is enabled, but file [%s] does not have the"
                 + " corresponding modification timestamp. Watermark ignored for this file.",

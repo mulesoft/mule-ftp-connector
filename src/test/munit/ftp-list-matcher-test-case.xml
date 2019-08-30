@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-list-matcher-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startListMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearListMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:before-test name="create-file-for-list">
+        <flow-ref name="write-file"/>
+    </munit:before-test>
+
+    <munit:test name="listFilteringNewFiles" description="Newly added files are filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-updated-recently"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="listNewFiles" description="Newly added files are listed after some time">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-updated-recently"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listed"/>
+            <flow-ref name="check-until-one-file-is-listed"/>
+            <flow-ref name="check-file-is-always-listed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="listFilteringOldFiles" description="Old files are filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-not-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-not-updated-recently"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-until-no-file-is-listed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileIsListedAndLaterFiltered"
+                description="New file is listed, but later filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-not-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-not-updated-recently"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-one-file-is-listed"/>
+            <flow-ref name="check-until-no-file-is-listed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileFilteredThenListedThenFilteredAgain"
+                description="New file is filtered, but later listed, and finally filtered">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-updated-recently-or-too-old"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-updated-recently-or-too-old"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listed"/>
+            <flow-ref name="check-until-one-file-is-listed"/>
+            <flow-ref name="check-until-no-file-is-listed"/>
+            <flow-ref name="check-no-file-is-listed-over-time"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileBeingConstantlyUpdatedIsNotListed"
+                description="New file that is constantly being updated is not listed">
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-updated-recently"/>
+            <set-variable variableName="numberOfModifications" value="5"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.numberOfModifications]">
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="modify-file"/>
+                <flow-ref name="check-no-file-is-listed"/>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileBeingConstantlyUpdatedIsListed"
+                description="New file that is constantly being updated is listed">
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-not-updated-recently"/>
+            <set-variable variableName="numberOfModifications" value="5"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.numberOfModifications]">
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="modify-file"/>
+                <flow-ref name="check-one-file-is-listed"/>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <flow name="list-filtering-updated-recently">
+        <ftp:list config-ref="config" directoryPath=".">
+            <ftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
+        </ftp:list>
+    </flow>
+
+    <flow name="list-filtering-not-updated-recently">
+        <ftp:list config-ref="config" directoryPath=".">
+            <ftp:matcher updatedInTheLast="3" timeUnit="SECONDS"/>
+        </ftp:list>
+    </flow>
+
+    <flow name="list-filtering-updated-recently-or-too-old">
+        <ftp:list config-ref="config" directoryPath=".">
+            <ftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
+        </ftp:list>
+    </flow>
+
+    <flow name="check-one-file-is-listed">
+        <flow-ref name="#[vars.listFlowName]"/>
+        <flow-ref name="assert-file-was-listed"/>
+    </flow>
+
+    <flow name="check-no-file-is-listed">
+        <flow-ref name="#[vars.listFlowName]"/>
+        <flow-ref name="assert-file-was-not-listed"/>
+    </flow>
+
+    <flow name="check-until-one-file-is-listed">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
+            <flow-ref name="#[vars.listFlowName]"/>
+            <flow-ref name="assert-file-was-listed"/>
+        </until-successful>
+        <error-handler>
+            <on-error-propagate type="MULE:RETRY_EXHAUSTED">
+                <raise-error type="MULE:EXPRESSION" description="Test failure: the file was never listened."/>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+
+    <flow name="check-until-no-file-is-listed">
+        <until-successful maxRetries="20" millisBetweenRetries="1000">
+            <flow-ref name="#[vars.listFlowName]"/>
+            <flow-ref name="assert-file-was-not-listed"/>
+        </until-successful>
+        <error-handler>
+            <on-error-propagate type="MULE:RETRY_EXHAUSTED">
+                <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+
+    <flow name="check-no-file-is-listed-over-time">
+        <foreach collection="#[1 to 20]">
+            <flow-ref name="#[vars.listFlowName]"/>
+            <flow-ref name="assert-file-was-not-listed"/>
+            <munit-tools:sleep time="500"/>
+        </foreach>
+    </flow>
+
+    <flow name="check-file-is-always-listed">
+        <foreach collection="#[1 to 20]">
+            <flow-ref name="#[vars.listFlowName]"/>
+            <flow-ref name="assert-file-was-listed"/>
+            <munit-tools:sleep time="500"/>
+        </foreach>
+    </flow>
+
+    <flow name="assert-file-was-listed">
+        <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
+    </flow>
+
+    <flow name="assert-file-was-not-listed">
+        <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+    </flow>
+
+</mule>

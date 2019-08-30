@@ -4,13 +4,14 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.command;
+package org.mule.extension.ftp.internal.connection;
 
 import static org.apache.commons.io.FileUtils.getTempDirectory;
 import static org.hamcrest.core.Is.isA;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 
 import org.mule.extension.file.common.api.FileSystem;
+import org.mule.extension.ftp.internal.command.FtpCommand;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;

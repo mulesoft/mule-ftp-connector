@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-listener-matcher-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:before-test name="create-file-for-listener">
+        <flow-ref name="write-file"/>
+        <flow-ref name="reset-file-listed"/>
+    </munit:before-test>
+
+    <munit:test name="listenFilteringNewFiles" description="Newly added files are filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listened"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="listenNewFiles" description="Newly added files are listed after some time">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listened"/>
+            <flow-ref name="check-until-one-file-is-listened"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="listenFilteringOldFiles" description="Old files are filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-not-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="check-until-no-file-is-listened"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileIsListenedAndLaterFiltered"
+                description="New file is listed, but later filtered by the matcher" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-not-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="check-until-one-file-is-listened"/>
+            <flow-ref name="check-until-no-file-is-listened"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileFilteredThenListenedThenFilteredAgain"
+                description="New file is filtered, but later listed, and finally filtered">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently-or-too-old"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listened"/>
+            <flow-ref name="check-until-one-file-is-listened"/>
+            <flow-ref name="check-until-no-file-is-listened"/>
+            <flow-ref name="check-no-file-is-listened-over-time"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileBeingConstantlyUpdatedIsNotListened"
+                description="New file that is constantly being updated is not listened">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="numberOfModifications" value="5"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.numberOfModifications]">
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="modify-file"/>
+                <!--Wait for a polling cycle to avoid race conditions-->
+                <munit-tools:sleep time="300"/>
+                <flow-ref name="check-no-file-is-listened"/>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="newFileBeingConstantlyUpdatedIsListened"
+                description="New file that is constantly being updated is listened" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-not-updated-recently"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="numberOfModifications" value="5"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.numberOfModifications]">
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="modify-file"/>
+                <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
+                <munit-tools:sleep time="300"/>
+                <flow-ref name="check-one-file-is-listened"/>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <flow name="listen-filtering-updated-recently">
+        <ftp:listener config-ref="config" directory=".">
+            <scheduling-strategy>
+                <fixed-frequency frequency="200"/>
+            </scheduling-strategy>
+            <ftp:matcher notUpdatedInTheLast="4" timeUnit="SECONDS"/>
+        </ftp:listener>
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+
+    <flow name="listen-filtering-not-updated-recently">
+        <ftp:listener config-ref="config" directory=".">
+            <scheduling-strategy>
+                <fixed-frequency frequency="200"/>
+            </scheduling-strategy>
+            <ftp:matcher updatedInTheLast="4" timeUnit="SECONDS"/>
+        </ftp:listener>
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+
+    <flow name="listen-filtering-updated-recently-or-too-old">
+        <ftp:listener config-ref="config" directory=".">
+            <scheduling-strategy>
+                <fixed-frequency frequency="200"/>
+            </scheduling-strategy>
+            <ftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
+        </ftp:listener>
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+
+
+    <flow name="check-one-file-is-listened">
+        <flow-ref name="assert-file-was-listened"/>
+    </flow>
+
+    <flow name="check-no-file-is-listened">
+        <flow-ref name="assert-file-was-not-listened"/>
+    </flow>
+
+    <flow name="check-until-one-file-is-listened">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
+            <flow-ref name="assert-file-was-listened"/>
+        </until-successful>
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
+        <munit-tools:sleep time="300"/>
+        <error-handler>
+            <on-error-continue type="MULE:RETRY_EXHAUSTED">
+                <raise-error type="MULE:EXPRESSION" description="Test failure: the file was never listened."/>
+            </on-error-continue>
+        </error-handler>
+    </flow>
+
+    <flow name="check-until-no-file-is-listened">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
+            <flow-ref name="assert-file-was-not-listened"/>
+        </until-successful>
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
+        <munit-tools:sleep time="300"/>
+        <error-handler>
+            <on-error-continue type="MULE:RETRY_EXHAUSTED">
+                <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>
+            </on-error-continue>
+        </error-handler>
+    </flow>
+
+    <flow name="check-no-file-is-listened-over-time">
+        <flow-ref name="reset-file-listed"/>
+        <foreach collection="#[1 to 20]">
+            <munit-tools:retrieve key="isFileBeingListed"/>
+            <flow-ref name="reset-file-listed"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(false)]"/>
+            <munit-tools:sleep time="500"/>
+        </foreach>
+    </flow>
+
+    <flow name="check-file-is-always-listened">
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+        <foreach collection="#[1 to 20]">
+            <flow-ref name="assert-file-was-listened"/>
+            <munit-tools:sleep time="500"/>
+        </foreach>
+    </flow>
+
+    <flow name="assert-file-was-listened">
+        <munit-tools:retrieve key="isFileBeingListed"/>
+        <flow-ref name="reset-file-listed"/>
+        <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(true)]"/>
+    </flow>
+
+    <flow name="assert-file-was-not-listened">
+        <munit-tools:retrieve key="isFileBeingListed"/>
+        <flow-ref name="reset-file-listed"/>
+        <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(false)]"/>
+    </flow>
+
+    <flow name="reset-file-listed">
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[false]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+
+</mule>
