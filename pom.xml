@@ -24,7 +24,7 @@
         <commonsLangVersion>3.8.1</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
 
-        <muleFileCommonsVersion>1.3.0-SNAPSHOT</muleFileCommonsVersion>
+        <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
 
