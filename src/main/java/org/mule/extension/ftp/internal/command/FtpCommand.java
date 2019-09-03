@@ -278,7 +278,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     changeWorkingDirectory(cwd);
   }
 
-  private String getFileName(String path){
+  private String getFileName(String path) {
     // This path needs to be normalized first because if it ends in a separator the method will return an empty String.
     return FilenameUtils.getName(normalizeUri(createUri(path)).getPath());
   }

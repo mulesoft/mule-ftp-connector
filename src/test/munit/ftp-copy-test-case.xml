@@ -16,7 +16,7 @@
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <munit:before-suite name="startFtpTestServer-readTestCase">
+    <munit:before-suite name="startFtpTestServer-copyTestCase">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="startFtpServer(String)">
             <java:args>
@@ -27,7 +27,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearFtpTestServer-readTestCase">
+    <munit:after-suite name="clearFtpTestServer-copyTestCase">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="stopFtpServer()">
             <java:args>
