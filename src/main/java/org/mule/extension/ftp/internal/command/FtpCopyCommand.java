@@ -72,11 +72,11 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
 
         FileAttributes fileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
 
-        targetUri = createUri(targetUri.getPath(), fileAttributes.getName());
+        URI targetFileUri = createUri(targetUri.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          copyDirectory(config, createUri(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
+          copyDirectory(config, createUri(fileAttributes.getPath()), targetFileUri, overwrite, writerConnection);
         } else {
-          copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
+          copyFile(config, fileAttributes, targetFileUri, overwrite, writerConnection);
         }
       }
     }

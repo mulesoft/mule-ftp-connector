@@ -96,7 +96,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
-    URI uri = resolveUri(normalizePath(filePath));
+    // We need to normalize the filePath because it can have a trailing separator
+    URI uri = normalizeUri(resolveUri(normalizePath(filePath)));
     return getFileFromAbsoluteUri(uri, requireExistence);
   }
 
@@ -251,7 +252,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     FileAttributes targetFile = getFile(targetUri.getPath());
     // This additional check has to be added because there are directories that exist that do not appear when listed.
     boolean targetPathIsDirectory = getUriToDirectory(target).isPresent();
-    String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
+    String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
     if (targetPathIsDirectory || targetFile != null) {
       if (targetPathIsDirectory || targetFile.isDirectory()) {
         if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getName().equals(targetFile.getName())) && !overwrite) {
@@ -275,6 +276,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     delegate.doCopy(config, sourceFile, targetUri, overwrite);
     LOGGER.debug("Copied '{}' to '{}'", sourceFile, targetUri.getPath());
     changeWorkingDirectory(cwd);
+  }
+
+  private String getFileName(String path) {
+    // This path needs to be normalized first because if it ends in a separator the method will return an empty String.
+    return FilenameUtils.getName(normalizeUri(createUri(path)).getPath());
   }
 
   /**
@@ -341,7 +347,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     String cwd = getCurrentWorkingDirectory();
     Stack<URI> fragments = new Stack<>();
     String[] subPaths = directoryUri.getPath().split(SEPARATOR);
-    URI subUri = createUri(SEPARATOR, directoryUri.getPath());
+    // This uri needs to be normalized so that if it has a trailing separator it is erased.
+    URI subUri = normalizeUri(createUri(SEPARATOR, directoryUri.getPath()));
     try {
       for (int i = subPaths.length - 1; i > 0; i--) {
         if (tryChangeWorkingDirectory(subUri.getPath())) {

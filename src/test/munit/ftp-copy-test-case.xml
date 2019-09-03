@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-copy-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-copyTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-copyTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <ftp:config name="ftp-config">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/"/>
+    </ftp:config>
+
+    <munit:test name="ftp-copy-directories" description="Perform a copy operation that copies a whole directory">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <ftp:create-directory config-ref="ftp-config" directoryPath="copy-dir-test"/>
+            <ftp:create-directory config-ref="ftp-config" directoryPath="copy-dir-test/folder-to-copy"/>
+
+            <ftp:write config-ref="ftp-config" path="copy-dir-test/folder-to-copy/file1.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="ftp-config" path="copy-dir-test/folder-to-copy/file2.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="ftp-config" path="copy-dir-test/folder-to-copy/file3.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="ftp-config" sourcePath="copy-dir-test/folder-to-copy/"
+                      targetPath="copy-dir-test/folder-copied" overwrite="false"
+                      createParentDirectories="true"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:read config-ref="ftp-config" path="copy-dir-test/folder-copied/folder-to-copy/file1.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <ftp:read config-ref="ftp-config" path="copy-dir-test/folder-copied/folder-to-copy/file2.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <ftp:read config-ref="ftp-config" path="copy-dir-test/folder-copied/folder-to-copy/file3.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-copy-to-target-ending-in-separator" description="Perform copy operations of a file with a destination that ends in a separator">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <ftp:create-directory config-ref="ftp-config" directoryPath="copy-test"/>
+            <ftp:create-directory config-ref="ftp-config" directoryPath="copy-test/folder-input"/>
+
+            <ftp:write config-ref="ftp-config" path="copy-test/folder-input/hello-world.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="ftp-config" sourcePath="copy-test/folder-input/hello-world.txt"
+                      targetPath="copy-test/folder-output/" overwrite="false"
+                      createParentDirectories="true"/>
+            <set-payload value="Copy with FTP works fine!!"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:read config-ref="ftp-config" path="copy-test/folder-output/hello-world.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+</mule>
