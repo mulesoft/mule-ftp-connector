@@ -160,7 +160,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     // Check if MLSD command is supported
     try {
       FTPFile[] files = client.mlistDir();
-      if (files != null) {
+      if (files != null && FTPReply.isPositiveCompletion(client.getReplyCode())) {
         return new SingleItemIterator(files);
       }
     } catch (MalformedServerReplyException ex) {

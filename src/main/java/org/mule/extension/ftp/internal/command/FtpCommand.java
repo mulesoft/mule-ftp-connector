@@ -393,7 +393,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   private String enrichExceptionMessage(String message) {
-    return format("%s. Ftp reply code: %d", message, client.getReplyCode());
+    return format("%s. Ftp reply code: %d. Ftp reply string: %s", message, client.getReplyCode(), client.getReplyString());
   }
 
   /**
