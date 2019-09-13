@@ -158,15 +158,13 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
     // Check if MLSD command is supported
-    try {
-      FTPFile[] files = client.mlistDir();
-      if (files != null && FTPReply.isPositiveCompletion(client.getReplyCode())) {
-        return new SingleItemIterator(files);
-      }
-    } catch (MalformedServerReplyException ex) {
-      LOGGER.debug(ex.getMessage());
+    client.feat();
+    FTPFile[] files = client.mlistDir();
+    if (files != null && FTPReply.isPositiveCompletion(client.getReplyCode())) {
+      return new SingleItemIterator(files);
+    } else {
+      return new FtpListEngineIterator(client.initiateListParsing());
     }
-    return new FtpListEngineIterator(client.initiateListParsing());
   }
 
   private class SingleItemIterator<T> implements Iterator<T> {
