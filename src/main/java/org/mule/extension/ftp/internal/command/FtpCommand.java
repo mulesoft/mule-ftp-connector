@@ -296,18 +296,18 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
-    FTPFile file = null;
-    // Check if MLST command is supported.
-    try {
-      file = client.mlistFile(filePath); // This method also obtains directories.
-    } catch (MalformedServerReplyException e) {
-      LOGGER.debug(e.getMessage());
-      return getFileFromParentDirectory(absoluteUri);
+    FTPFile file;
+    if (fileSystem.supportsMLST()) {
+      try {
+        file = client.mlistFile(filePath); // This method also obtains directories.
+        return Optional.ofNullable(file);
+      } catch (MalformedServerReplyException e) {
+        LOGGER
+            .debug(format("Server answered the MLST command with a non-compliant response. %s. \n Falling back to the old LIST command.",
+                          e.getMessage()));
+      }
     }
-    if (file == null) {
-      return getFileFromParentDirectory(absoluteUri);
-    }
-    return Optional.ofNullable(file);
+    return getFileFromParentDirectory(absoluteUri);
   }
 
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {

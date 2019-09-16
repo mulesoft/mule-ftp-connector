@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
-import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPListParseEngine;
@@ -157,14 +156,16 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
-    // Check if MLSD command is supported
-    client.feat();
-    FTPFile[] files = client.mlistDir();
-    if (files != null && FTPReply.isPositiveCompletion(client.getReplyCode())) {
-      return new SingleItemIterator(files);
-    } else {
-      return new FtpListEngineIterator(client.initiateListParsing());
+    if (fileSystem.supportsMLSD()) {
+      FTPFile[] files = client.mlistDir();
+      if (FTPReply.isPositiveCompletion(client.getReplyCode())) {
+        return new SingleItemIterator(files);
+      }
+      LOGGER
+          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",
+                        client.getReplyCode(), client.getReplyString()));
     }
+    return new FtpListEngineIterator(client.initiateListParsing());
   }
 
   private class SingleItemIterator<T> implements Iterator<T> {
