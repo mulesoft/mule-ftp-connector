@@ -6,6 +6,7 @@
  */
 package org.mule.extension.ftp.internal.command;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -72,9 +74,9 @@ public class FtpCommandTestCase {
   }
 
   @Test
-  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommand()
+  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithMalformedServerReplyExceptionResponse()
       throws Exception {
-    when(client.features()).thenReturn(false); // To disable MLST support.
+    doThrow(new MalformedServerReplyException()).when(client).mlistFile(any());
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
@@ -102,6 +104,8 @@ public class FtpCommandTestCase {
   @Test
   public void getFileAttributesFromServerThatSupportsMLSTCommand()
       throws Exception {
+    // Although the server we use supports MLST by default, it has a bug and returns a non-complaint response to the
+    // command. See https://issues.apache.org/jira/browse/FTPSERVER-480. Therefore we must mock its behaviour.
     FTPFile ftpFile = new FTPFile();
     ftpFile.setName(fileName);
     doReturn(ftpFile).when(client).mlistFile(any());
@@ -113,24 +117,6 @@ public class FtpCommandTestCase {
     assertThat(file.getName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
     verify(client, times(0)).initiateListParsing();
-  }
-
-  @Test
-  public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithNullResponse() throws Exception {
-    doReturn(null).when(client).mlistDir();
-
-    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
-
-    Predicate matcher = spy(Predicate.class);
-    when(matcher.test(any())).thenReturn(true);
-
-    List<Result<InputStream, FtpFileAttributes>> files =
-        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
-    assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
-    verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing();
   }
 
   @Test
