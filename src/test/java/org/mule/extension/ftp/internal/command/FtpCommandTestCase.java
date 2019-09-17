@@ -6,11 +6,9 @@
  */
 package org.mule.extension.ftp.internal.command;
 
-import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -23,12 +21,9 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -38,9 +33,7 @@ import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -79,12 +72,12 @@ public class FtpCommandTestCase {
   }
 
   @Test
-  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithMalformedServerReplyExceptionResponse()
+  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommand()
       throws Exception {
-    doThrow(new MalformedServerReplyException()).when(client).mlistFile(any());
+    when(client.features()).thenReturn(false); // To disable MLST support.
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
 
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));

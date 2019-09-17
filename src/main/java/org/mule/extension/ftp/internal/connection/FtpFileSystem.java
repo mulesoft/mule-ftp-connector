@@ -42,6 +42,7 @@ import org.mule.extension.ftp.internal.command.FtpMoveCommand;
 import org.mule.extension.ftp.internal.command.FtpReadCommand;
 import org.mule.extension.ftp.internal.command.FtpRenameCommand;
 import org.mule.extension.ftp.internal.command.FtpWriteCommand;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lock.LockFactory;
@@ -56,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
+import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 
 /**
@@ -89,6 +91,8 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   private final RenameCommand renameCommand;
   private final WriteCommand writeCommand;
   private final LockFactory lockFactory;
+  private Boolean supportsMLSD = false;
+  private Boolean supportsMLST = false;
 
   /**
    * Creates a new instance
@@ -99,6 +103,14 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;
+
+    try {
+      if (client.features()) {
+        parseFEATResponse(client.getReplyStrings());
+      }
+    } catch (IOException e) {
+      LOGGER.debug("Failed to send FEAT command to the server.");
+    }
 
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
@@ -347,6 +359,27 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    */
   public FtpFileAttributes getFileAttributes(String filePath) {
     return ((FtpReadCommand) readCommand).getFile(filePath);
+  }
+
+  private void parseFEATResponse(String replyStrings[]) {
+    for (String replyString : replyStrings) {
+      if (replyString.contains("MLSD")) {
+        supportsMLSD = true;
+        continue;
+      }
+      if (replyString.contains("MLST")) {
+        supportsMLST = true;
+        continue;
+      }
+    }
+  }
+
+  public Boolean supportsMLSD() {
+    return supportsMLSD;
+  }
+
+  public Boolean supportsMLST() {
+    return supportsMLST;
   }
 
 }
