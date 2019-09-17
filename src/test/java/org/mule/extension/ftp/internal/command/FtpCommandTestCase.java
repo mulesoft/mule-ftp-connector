@@ -88,22 +88,43 @@ public class FtpCommandTestCase {
 
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing();
   }
 
   @Test
-  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithNullResponse() throws Exception {
+  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithNullResponse()
+      throws Exception {
     doReturn(null).when(client).mlistFile(any());
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
+    FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
 
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing();
+  }
+
+  @Test
+  public void getFileAttributesFromServerThatSupportsMLSTCommand()
+      throws Exception {
+    FTPFile ftpFile = new FTPFile();
+    ftpFile.setName(fileName);
+    doReturn(ftpFile).when(client).mlistFile(any());
+
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
+
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(0)).initiateListParsing();
   }
 
   @Test
   public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithNullResponse() throws Exception {
-    when(client.mlistDir()).thenReturn(null);
+    doReturn(null).when(client).mlistDir();
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
@@ -115,14 +136,14 @@ public class FtpCommandTestCase {
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
     verify(client, times(1)).initiateListParsing();
-    verify(matcher, times(1)).test(any());
   }
 
   @Test
   public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithNegativeCompletion() throws Exception {
-    when(client.mlistDir()).thenReturn(new FTPFile[0]);
-    when(client.getReplyCode()).thenReturn(522).thenCallRealMethod();
+    doReturn(new FTPFile[0]).when(client).mlistDir();
+    doReturn(522).doCallRealMethod().when(client).getReplyCode();
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
@@ -134,8 +155,24 @@ public class FtpCommandTestCase {
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
     verify(client, times(1)).initiateListParsing();
-    verify(matcher, times(1)).test(any());
+  }
+
+  @Test
+  public void listDirectoryFromServerThatSupportsMLSDCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    List<Result<InputStream, FtpFileAttributes>> files =
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
+    verify(client, times(0)).initiateListParsing();
   }
 
 }

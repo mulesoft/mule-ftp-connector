@@ -302,7 +302,6 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       file = client.mlistFile(filePath); // This method also obtains directories.
     } catch (MalformedServerReplyException e) {
       LOGGER.debug(e.getMessage());
-      return getFileFromParentDirectory(absoluteUri);
     }
     if (file == null) {
       return getFileFromParentDirectory(absoluteUri);
