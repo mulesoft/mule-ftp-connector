@@ -167,9 +167,11 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
                         e.getMessage()));
     }
-    LOGGER
-        .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",
-                      client.getReplyCode(), client.getReplyString()));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER
+          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",
+                        client.getReplyCode(), client.getReplyString()));
+    }
     return new FtpListEngineIterator(client.initiateListParsing());
   }
 
