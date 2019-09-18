@@ -89,8 +89,6 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   private final RenameCommand renameCommand;
   private final WriteCommand writeCommand;
   private final LockFactory lockFactory;
-  private Boolean supportsMLSD = false;
-  private Boolean supportsMLST = false;
 
   /**
    * Creates a new instance

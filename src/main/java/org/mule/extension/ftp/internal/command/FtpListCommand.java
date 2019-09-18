@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPListParseEngine;
@@ -156,9 +157,15 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
-    FTPFile[] files = client.mlistDir();
-    if (FTPReply.isPositiveCompletion(client.getReplyCode())) {
-      return new SingleItemIterator(files);
+    try {
+      FTPFile[] files = client.mlistDir();
+      if (FTPReply.isPositiveCompletion(client.getReplyCode())) {
+        return new SingleItemIterator(files);
+      }
+    } catch (MalformedServerReplyException e) {
+      LOGGER
+          .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
+                        e.getMessage()));
     }
     LOGGER
         .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",

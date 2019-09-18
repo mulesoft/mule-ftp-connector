@@ -139,6 +139,24 @@ public class FtpCommandTestCase {
   }
 
   @Test
+  public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithMalformedServerReplyException() throws Exception {
+    doThrow(new MalformedServerReplyException()).when(client).mlistDir();
+
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    List<Result<InputStream, FtpFileAttributes>> files =
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
+    verify(client, times(1)).initiateListParsing();
+  }
+
+  @Test
   public void listDirectoryFromServerThatSupportsMLSDCommand() throws Exception {
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
