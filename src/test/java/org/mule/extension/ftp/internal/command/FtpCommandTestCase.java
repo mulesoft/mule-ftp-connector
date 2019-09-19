@@ -6,7 +6,10 @@
  */
 package org.mule.extension.ftp.internal.command;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -19,9 +22,10 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -31,7 +35,6 @@ import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.Predicate;
@@ -46,78 +49,80 @@ public class FtpCommandTestCase {
   private FtpWriteCommand ftpWriteCommand;
   private FtpListCommand ftpListCommand;
   private FtpReadCommand ftpReadCommand;
+  private FTPClient client;
 
-  @Test
-  public void listRecentlyCreatedDirectory() throws Exception {
+  private static final String fileName = "NewFile.txt";
+  private static final String filePath = "/" + TEMP_DIRECTORY + "/" + fileName;
+  private static final String fullPath = "/" + WORKING_DIR + filePath;
+  private static final String fileContent = "File Content.";
 
+  @Before
+  public void setUp() throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
+    testHarness.write(fullPath, fileContent);
 
-    FTPClient client;
-    client = new FTPClient();
+    client = spy(FTPClient.class);
     client.setDefaultTimeout(5000);
     client.connect("localhost", testHarness.getServerPort());
     client.login(FTP_USER, FTP_PASSWORD);
+  }
 
+  @Test
+  public void listRecentlyCreatedDirectory() throws Exception {
     ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-
     assertThat(ftpWriteCommand.getFile(TEMP_DIRECTORY), is(notNullValue()));
   }
 
   @Test
-  public void testSimilarNames() throws Exception {
-
-    testHarness.makeDir(TEMP_DIRECTORY);
-    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
-    String filePath = dirPath + "/NewFile.txt";
-    testHarness.write(filePath, "File Content.");
-
-    FTPClient client = spy(FTPClient.class);
-    client.setDefaultTimeout(5000);
-    client.connect("localhost", testHarness.getServerPort());
-    client.login(FTP_USER, FTP_PASSWORD);
-    when(client.mlistDir()).thenThrow(new IOException());
-
-    ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-
-    assertThat(ftpWriteCommand.getFile(TEMP_DIRECTORY + "/1_file.txt"), is(nullValue()));
-  }
-
-  @Test
-  public void readFileFromServerThatDoesNotSupportMListCommand() throws Exception {
-
-    testHarness.makeDir(TEMP_DIRECTORY);
-
-    String dirPath = "/" + WORKING_DIR + "/" + TEMP_DIRECTORY;
-    String filePath = dirPath + "/NewFile.txt";
-    testHarness.write(filePath, "File Content.");
-
-    FTPClient client = spy(FTPClient.class);
-    client.setDefaultTimeout(5000);
-    client.connect("localhost", testHarness.getServerPort());
-    client.login(FTP_USER, FTP_PASSWORD);
-    when(client.mlistDir()).thenReturn(null);
+  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithMalformedServerReplyExceptionResponse()
+      throws Exception {
+    doThrow(new MalformedServerReplyException()).when(client).mlistFile(any());
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
 
-    Predicate matcher = spy(Predicate.class);
-    when(matcher.test(any())).thenReturn(false);
-
-    ftpListCommand.list(mock(FileConnectorConfig.class), dirPath, false, matcher, 0L);
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
     verify(client, times(1)).initiateListParsing();
-    verify(matcher, times(1)).test(any());
   }
 
   @Test
-  public void listDirectoryFromServerThatDoesNotSupportMListCommand() throws Exception {
+  public void getFileAttributesFromServerThatDoesNotSupportMLSTCommandWithNullResponse()
+      throws Exception {
+    doReturn(null).when(client).mlistFile(any());
 
-    testHarness.makeDir(TEMP_DIRECTORY);
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
 
-    FTPClient client = spy(FTPClient.class);
-    client.setDefaultTimeout(5000);
-    client.connect("localhost", testHarness.getServerPort());
-    client.login(FTP_USER, FTP_PASSWORD);
-    when(client.mlistDir()).thenReturn(null);
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing();
+  }
+
+  @Test
+  public void getFileAttributesFromServerThatSupportsMLSTCommand()
+      throws Exception {
+    // Although the server we use supports MLST by default, it has a bug and returns a non-complaint response to the
+    // command. See https://issues.apache.org/jira/browse/FTPSERVER-480. Therefore we must mock its behaviour.
+    FTPFile ftpFile = new FTPFile();
+    ftpFile.setName(fileName);
+    doReturn(ftpFile).when(client).mlistFile(any());
+
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
+
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(0)).initiateListParsing();
+  }
+
+  @Test
+  public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithNegativeCompletion() throws Exception {
+    doReturn(new FTPFile[0]).when(client).mlistDir();
+    doReturn(522).doCallRealMethod().when(client).getReplyCode();
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
     ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
@@ -129,8 +134,42 @@ public class FtpCommandTestCase {
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
     verify(client, times(1)).initiateListParsing();
-    verify(matcher, times(1)).test(any());
+  }
+
+  @Test
+  public void listDirectoryFromServerThatDoesNotSupportMLSDCommandWithMalformedServerReplyException() throws Exception {
+    doThrow(new MalformedServerReplyException()).when(client).mlistDir();
+
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    List<Result<InputStream, FtpFileAttributes>> files =
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
+    verify(client, times(1)).initiateListParsing();
+  }
+
+  @Test
+  public void listDirectoryFromServerThatSupportsMLSDCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    List<Result<InputStream, FtpFileAttributes>> files =
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    verify(client, times(1)).mlistDir();
+    verify(client, times(0)).initiateListParsing();
   }
 
 }
