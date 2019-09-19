@@ -157,14 +157,20 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
-    // Check if MLSD command is supported
     try {
       FTPFile[] files = client.mlistDir();
-      if (files != null) {
+      if (FTPReply.isPositiveCompletion(client.getReplyCode())) {
         return new SingleItemIterator(files);
       }
-    } catch (MalformedServerReplyException ex) {
-      LOGGER.debug(ex.getMessage());
+    } catch (MalformedServerReplyException e) {
+      LOGGER
+          .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
+                        e.getMessage()));
+    }
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER
+          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",
+                        client.getReplyCode(), client.getReplyString()));
     }
     return new FtpListEngineIterator(client.initiateListParsing());
   }
