@@ -9,8 +9,9 @@ package org.mule.extension.ftp;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
+
 import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
+import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -19,8 +20,9 @@ import org.mule.tck.junit4.rule.SystemProperty;
 
 import java.io.InputStream;
 
-import io.qameta.allure.Feature;
 import org.junit.Rule;
+
+import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
 public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTestCase {
@@ -75,7 +77,7 @@ public abstract class CommonFtpConnectorTestCase extends AbstractFtpConnectorTes
   }
 
   protected boolean isLocked(Message message) {
-    return ((AbstractFileInputStream) message.getPayload().getValue()).isLocked();
+    return ((AbstractNonFinalizableFileInputStream) message.getPayload().getValue()).isLocked();
   }
 
   protected String toString(Object value) {

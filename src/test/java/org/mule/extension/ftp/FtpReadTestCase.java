@@ -18,10 +18,11 @@ import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+
 import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
+import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -33,10 +34,11 @@ import org.mule.runtime.core.api.processor.Processor;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.qameta.allure.Feature;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
@@ -118,7 +120,7 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
     @Override
     public CoreEvent process(CoreEvent event) throws MuleException {
       try {
-        assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
+        assertThat(((AbstractNonFinalizableFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
         ((InputStream) event.getMessage().getPayload().getValue()).close();
       } catch (IOException e) {
         throw new MuleRuntimeException(e);
