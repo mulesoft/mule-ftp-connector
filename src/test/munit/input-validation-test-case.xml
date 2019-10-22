@@ -183,24 +183,24 @@
         </munit:validation>
     </munit:test>
 
-<!--    <munit:test name="working-dir-with-newline" description="Try to create dir with newline char">-->
-<!--        <munit:behavior>-->
-<!--            <set-variable variableName="workingDir" value="#['/dir&#10;name']" />-->
-<!--        </munit:behavior>-->
-<!--        <munit:execution>-->
-<!--            <try>-->
-<!--                <ftp:list config-ref="config-with-dynamic-input" directoryPath="." />-->
-<!--                <error-handler>-->
-<!--                    <on-error-continue type="FTP:CONNECTIVITY">-->
-<!--                        <set-variable variableName="error" value="#[error.description]"/>-->
-<!--                    </on-error-continue>-->
-<!--                </error-handler>-->
-<!--            </try>-->
-<!--        </munit:execution>-->
-<!--        <munit:validation>-->
-<!--            <munit-tools:assert-that expression="#[vars.error]" is="#[MunitTools::containsString('Path contains newline character:')]"/>-->
-<!--        </munit:validation>-->
-<!--    </munit:test>-->
+    <munit:test name="working-dir-with-newline" description="Try to create dir with newline char">
+        <munit:behavior>
+            <set-variable variableName="workingDir" value="#['/dir&#10;name']" />
+        </munit:behavior>
+        <munit:execution>
+            <try>
+                <ftp:create-directory config-ref="config-with-dynamic-input" directoryPath="new-dir" />
+                <error-handler>
+                    <on-error-continue type="FTP:CONNECTIVITY">
+                        <set-variable variableName="error" value="#[error.description]"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.error]" is="#[MunitTools::containsString('Path contains newline character:')]"/>
+        </munit:validation>
+    </munit:test>
 
 </mule>
 
