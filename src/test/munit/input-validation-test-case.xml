@@ -191,7 +191,7 @@
             <try>
                 <ftp:create-directory config-ref="config-with-dynamic-input" directoryPath="new-dir" />
                 <error-handler>
-                    <on-error-continue type="FTP:CONNECTIVITY">
+                    <on-error-continue>
                         <set-variable variableName="error" value="#[error.description]"/>
                     </on-error-continue>
                 </error-handler>
