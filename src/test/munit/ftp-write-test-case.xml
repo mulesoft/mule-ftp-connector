@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-write-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-writeTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-writeTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="ftp-write-on-invalid-working-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>
+                    #[%dw 2.0
+                    output application/java
+                    ---
+                    "asd"]
+                </ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-on-invalid-path-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="invalid/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>
+                    #[%dw 2.0
+                    output application/java
+                    ---
+                    "asd"]
+                </ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="fto-write-on-invalid-absolute-path-equals-to-working-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="/invalid/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>
+                    #[%dw 2.0
+                    output application/java
+                    ---
+                    "asd"]
+                </ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+</mule>
+
+
+
+
+
+
+
