@@ -125,7 +125,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    */
   @Override
   protected boolean exists(URI uri) {
-    return getBasePath(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
+    return ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
 
   /**
