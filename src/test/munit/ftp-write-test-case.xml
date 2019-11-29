@@ -42,12 +42,7 @@
         </munit:behavior>
         <munit:execution>
             <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
-                <ftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </ftp:content>
+                <ftp:content>test content</ftp:content>
             </ftp:write>
         </munit:execution>
     </munit:test>
@@ -58,28 +53,18 @@
         </munit:behavior>
         <munit:execution>
             <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
-                <ftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </ftp:content>
+                <ftp:content>test content</ftp:content>
             </ftp:write>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="fto-write-on-invalid-absolute-path-equals-to-working-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+    <munit:test name="ftp-write-on-invalid-absolute-path" expectedErrorType="FTP:ILLEGAL_PATH">
         <munit:behavior>
             <set-variable variableName="fileName" value="/invalid/filePath.txt"/>
         </munit:behavior>
         <munit:execution>
             <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
-                <ftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </ftp:content>
+                <ftp:content>test content</ftp:content>
             </ftp:write>
         </munit:execution>
     </munit:test>
