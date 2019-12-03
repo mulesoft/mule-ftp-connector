@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.ftp.FTPReply;
 
 /**
  * Utility class for normalizing FTP paths
@@ -24,6 +25,13 @@ public class FtpUtils {
   public static String normalizePath(String path) {
     path = path.length() > 2 && (path.charAt(1) == ':' || path.charAt(2) == ':') ? path.substring(path.indexOf(':') + 1) : path;
     return FilenameUtils.normalize(path, true);
+  }
+
+  public static String getReplyCodeErrorMessage(Integer replyCode) {
+    if (FTPReply.isPositiveCompletion(replyCode)) {
+      return "";
+    }
+    return String.format("FTP reply code is: %d", replyCode);
   }
 
 }

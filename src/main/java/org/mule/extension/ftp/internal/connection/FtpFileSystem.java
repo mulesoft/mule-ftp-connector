@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.internal.FtpUtils.getReplyCodeErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
@@ -168,13 +169,13 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   public void setTransferMode(FtpTransferMode mode) {
     try {
       if (!client.setFileType(mode.getCode())) {
-        throw new IOException(String.format("Failed to set %s transfer type. FTP reply code is: %s", mode.getDescription(),
-                                            client.getReplyCode()));
+        throw new IOException(String.format("Failed to set %s transfer type.", mode.getDescription())
+            .concat(getReplyCodeErrorMessage(client.getReplyCode())));
       }
     } catch (Exception e) {
-      throw new MuleRuntimeException(createStaticMessage(String.format(
-                                                                       "Found exception trying to change transfer mode to %s. FTP reply code is: %s",
-                                                                       mode.getClass(), client.getReplyCode())));
+      throw new MuleRuntimeException(createStaticMessage(String
+          .format("Found exception trying to change transfer mode to %s.", mode.getClass())
+          .concat(getReplyCodeErrorMessage(client.getReplyCode()))));
     }
   }
 
@@ -221,8 +222,9 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
 
       return inputStream;
     } catch (Exception e) {
-      throw new MuleRuntimeException(createStaticMessage(format("Exception was found trying to retrieve the contents of file '%s'. Ftp reply code: %d ",
-                                                                filePayload.getPath(), client.getReplyCode())),
+      throw new MuleRuntimeException(createStaticMessage(format("Exception was found trying to retrieve the contents of file '%s'.",
+                                                                filePayload.getPath())
+                                                                    .concat(getReplyCodeErrorMessage(client.getReplyCode()))),
                                      e);
     }
   }
@@ -237,8 +239,8 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
         throw new IllegalStateException("Pending command did not complete");
       }
     } catch (IOException e) {
-      throw new MuleRuntimeException(createStaticMessage("Failed to complete pending command. Ftp reply code: "
-          + client.getReplyCode()), e);
+      throw new MuleRuntimeException(createStaticMessage("Failed to complete pending command."
+          .concat(getReplyCodeErrorMessage(client.getReplyCode()))), e);
     }
   }
 
