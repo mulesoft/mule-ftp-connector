@@ -6,6 +6,8 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static java.lang.String.format;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -28,10 +30,7 @@ public class FtpUtils {
   }
 
   public static String getReplyCodeErrorMessage(Integer replyCode) {
-    if (FTPReply.isPositiveCompletion(replyCode)) {
-      return "";
-    }
-    return String.format("FTP reply code is: %d", replyCode);
+    return FTPReply.isPositiveCompletion(replyCode) ? "" : format("FTP reply code is: %d", replyCode);
   }
 
 }

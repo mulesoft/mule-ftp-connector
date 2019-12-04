@@ -169,13 +169,14 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   public void setTransferMode(FtpTransferMode mode) {
     try {
       if (!client.setFileType(mode.getCode())) {
-        throw new IOException(String.format("Failed to set %s transfer type.", mode.getDescription())
-            .concat(getReplyCodeErrorMessage(client.getReplyCode())));
+        throw new IOException(format("Failed to set %s transfer type. %s", mode.getDescription(),
+                                     getReplyCodeErrorMessage(client.getReplyCode())));
       }
     } catch (Exception e) {
-      throw new MuleRuntimeException(createStaticMessage(String
-          .format("Found exception trying to change transfer mode to %s.", mode.getClass())
-          .concat(getReplyCodeErrorMessage(client.getReplyCode()))));
+      throw new MuleRuntimeException(createStaticMessage(format("Found exception trying to change transfer mode to %s. %s",
+                                                                mode.getClass(),
+                                                                getReplyCodeErrorMessage(client.getReplyCode()))),
+                                     e);
     }
   }
 
@@ -216,15 +217,15 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     try {
       InputStream inputStream = client.retrieveFileStream(normalizePath(filePayload.getPath()));
       if (inputStream == null) {
-        throw new FileNotFoundException(String.format("Could not retrieve content of file '%s' because it doesn't exist",
-                                                      filePayload.getPath()));
+        throw new FileNotFoundException(format("Could not retrieve content of file '%s' because it doesn't exist",
+                                               filePayload.getPath()));
       }
 
       return inputStream;
     } catch (Exception e) {
-      throw new MuleRuntimeException(createStaticMessage(format("Exception was found trying to retrieve the contents of file '%s'.",
-                                                                filePayload.getPath())
-                                                                    .concat(getReplyCodeErrorMessage(client.getReplyCode()))),
+      throw new MuleRuntimeException(createStaticMessage(format("Exception was found trying to retrieve the contents of file '%s'. %s",
+                                                                filePayload.getPath(),
+                                                                getReplyCodeErrorMessage(client.getReplyCode()))),
                                      e);
     }
   }
@@ -239,8 +240,9 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
         throw new IllegalStateException("Pending command did not complete");
       }
     } catch (IOException e) {
-      throw new MuleRuntimeException(createStaticMessage("Failed to complete pending command."
-          .concat(getReplyCodeErrorMessage(client.getReplyCode()))), e);
+      throw new MuleRuntimeException(createStaticMessage(format("Failed to complete pending command. %s",
+                                                                getReplyCodeErrorMessage(client.getReplyCode()))),
+                                     e);
     }
   }
 
