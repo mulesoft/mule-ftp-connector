@@ -14,6 +14,8 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -27,7 +29,9 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -136,6 +140,23 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private boolean remoteVerificationEnabled = true;
 
   /**
+   * Set the control encoding to use in the command channel with the remote server. This is does NOT set the encoding for the content of the files transferred.
+   * <p>
+   * Known control encodings:
+   * <ul>
+   *     <li>ISO-8859-1</li>
+   *     <li>UTF-8</li>
+   * </ul>
+   */
+  @Parameter
+  @Optional(defaultValue = "ISO-8859-1")
+  @Placement(tab = ADVANCED_TAB, order = 3)
+  @OfValues(controlEncodingValueProvider.class)
+  @Summary("Set the control encoding (for example UTF-8) to use in the command channel with the remote server. This is does NOT set the encoding for the content of the files transferred.")
+  @DisplayName("Control Encoding")
+  private String controlEncoding;
+
+  /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
    * @return a {@link FtpFileSystem}
@@ -147,6 +168,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private FTPClient setupClient() throws ConnectionException {
     FTPClient client = createClient();
+    if (!"ISO-8859-1".equals(controlEncoding)) {
+      client.setControlEncoding(controlEncoding);
+    }
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
