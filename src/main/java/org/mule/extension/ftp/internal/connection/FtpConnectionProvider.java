@@ -33,6 +33,7 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -60,6 +61,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private LockFactory lockFactory;
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+
+  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean();
+  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean();
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default
@@ -146,6 +150,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   }
 
   private FTPClient setupClient() throws ConnectionException {
+    checkConnectionTimeoutPrecision();
+    checkResponseTimeoutPrecision();
+
     FTPClient client = createClient();
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
@@ -266,5 +273,23 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
+  }
+
+  private void checkConnectionTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getConnectionTimeoutUnit(), getConnectionTimeout())
+        && alreadyLoggedConnectionTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Connection timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private void checkResponseTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getResponseTimeoutUnit(), getResponseTimeout())
+        && alreadyLoggedResponseTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Response timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
+    return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
 }

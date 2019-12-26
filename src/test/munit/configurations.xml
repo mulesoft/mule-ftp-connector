@@ -23,6 +23,60 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-invalid-connection-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" connectionTimeoutUnit="NANOSECONDS" connectionTimeout="5">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-valid-connection-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" connectionTimeoutUnit="SECONDS" connectionTimeout="5">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-valid-zero-connection-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" connectionTimeoutUnit="NANOSECONDS" connectionTimeout="0">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-invalid-response-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" responseTimeoutUnit="NANOSECONDS" responseTimeout="5">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-valid-response-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" responseTimeoutUnit="SECONDS" responseTimeout="5">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-valid-zero-response-timeout">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" responseTimeoutUnit="NANOSECONDS" responseTimeout="0">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
     <flow name="wait-2-seconds">
         <logger level="DEBUG" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>

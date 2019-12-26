@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-connection-provider-timeout-config-test-case.xml" />
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="connectionTimeoutWarning" description="Warning is logged once because of an invalid connection timeout configuration">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="File content"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-valid-connection-timeout" path="input.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-valid-zero-connection-timeout" path="input2.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-invalid-connection-timeout" path="input3.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-invalid-connection-timeout" path="input4.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="responseTimeoutWarning" description="Warning is logged once because of an invalid response timeout configuration">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="File content"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-valid-response-timeout" path="input.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-valid-zero-response-timeout" path="input2.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-invalid-response-timeout" path="input3.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config-invalid-response-timeout" path="input4.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+</mule>
