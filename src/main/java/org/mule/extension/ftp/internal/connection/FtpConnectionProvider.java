@@ -62,8 +62,8 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
 
-  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean();
-  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean();
+  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
+  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default
