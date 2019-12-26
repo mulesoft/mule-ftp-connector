@@ -150,7 +150,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
    */
   @Parameter
   @Optional(defaultValue = "ISO-8859-1")
-  @Placement(tab = ADVANCED_TAB, order = 3)
+  @Placement(tab = ADVANCED_TAB)
   @OfValues(controlEncodingValueProvider.class)
   @Summary("Set the control encoding (for example UTF-8) to use in the command channel with the remote server. This is does NOT set the encoding for the content of the files transferred.")
   @DisplayName("Control Encoding")
