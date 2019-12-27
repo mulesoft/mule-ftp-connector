@@ -169,9 +169,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private FTPClient setupClient() throws ConnectionException {
     FTPClient client = createClient();
-    if (!DEFAULT_CONTROL_ENCODING.equals(controlEncoding)) {
-      client.setControlEncoding(controlEncoding);
-    }
+    client.setControlEncoding(controlEncoding);
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
