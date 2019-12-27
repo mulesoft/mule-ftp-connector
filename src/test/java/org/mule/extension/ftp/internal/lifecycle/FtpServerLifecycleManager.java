@@ -7,10 +7,17 @@
 package org.mule.extension.ftp.internal.lifecycle;
 
 import org.mule.runtime.core.api.util.FileUtils;
-import org.mule.test.infrastructure.process.rules.FtpServer;
 import org.mule.test.infrastructure.server.ftp.EmbeddedFtpServer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+
+import org.apache.commons.io.IOUtils;
 
 public class FtpServerLifecycleManager {
 
@@ -64,4 +71,16 @@ public class FtpServerLifecycleManager {
     FileUtils.deleteTree(baseDir);
   }
 
+  public static void createEncodedFileName() throws IOException {
+    FileInputStream fis = new FileInputStream("src/test/resources/ftp-utf8-filename.txt");
+    String filename = IOUtils.toString(fis, StandardCharsets.UTF_8);
+    File file = new File(FTP_SERVER_BASE_DIR, filename);
+    file.createNewFile();
+    Files.write(Paths.get(file.getAbsolutePath()), Collections.singletonList("Content for UTF-8 filename."),
+                StandardCharsets.ISO_8859_1);
+  }
+
+  public static void cleanServer() {
+    createFtpServerBaseDir();
+  }
 }
