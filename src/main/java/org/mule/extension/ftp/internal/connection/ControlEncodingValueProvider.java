@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * @since 1.5.0
  */
-public class controlEncodingValueProvider implements ValueProvider {
+public class ControlEncodingValueProvider implements ValueProvider {
 
   private static final Set<Value> controlEncodings = getValuesFor("ISO-8859-1", "UTF-8");
 

@@ -64,6 +64,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private LockFactory lockFactory;
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+  private static final String DEFAULT_CONTROL_ENCODING = "ISO-8859-1";
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default
@@ -140,7 +141,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private boolean remoteVerificationEnabled = true;
 
   /**
-   * Set the control encoding to use in the command channel with the remote server. This is does NOT set the encoding for the content of the files transferred.
+   * Set the control encoding to use in the control channel with the remote server. This does NOT set the encoding for the content of the files to be transferred.
    * <p>
    * Known control encodings:
    * <ul>
@@ -149,10 +150,10 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
    * </ul>
    */
   @Parameter
-  @Optional(defaultValue = "ISO-8859-1")
+  @Optional(defaultValue = DEFAULT_CONTROL_ENCODING)
   @Placement(tab = ADVANCED_TAB)
-  @OfValues(controlEncodingValueProvider.class)
-  @Summary("Set the control encoding (for example UTF-8) to use in the command channel with the remote server. This is does NOT set the encoding for the content of the files transferred.")
+  @OfValues(ControlEncodingValueProvider.class)
+  @Summary("Set the control encoding (for example UTF-8) to use in the control channel with the remote server. This does NOT set the encoding for the content of the files to be transferred.")
   @DisplayName("Control Encoding")
   private String controlEncoding;
 
@@ -168,7 +169,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private FTPClient setupClient() throws ConnectionException {
     FTPClient client = createClient();
-    if (!"ISO-8859-1".equals(controlEncoding)) {
+    if (!DEFAULT_CONTROL_ENCODING.equals(controlEncoding)) {
       client.setControlEncoding(controlEncoding);
     }
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
