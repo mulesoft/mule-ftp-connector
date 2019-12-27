@@ -68,7 +68,7 @@
     <munit:test name="ftp-read-with-encoding" description="Perform a read operation with control encoding set to UTF-8.">
         <munit:behavior>
             <flow-ref name="server-write-encoded-filename"/>
-            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.docx" encoding="UTF-8"/>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
         </munit:behavior>
         <munit:execution>
             <ftp:read config-ref="config-with-UTF8-control-encoding" path='#[vars.fileName]'/>
@@ -81,13 +81,20 @@
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo('Content for UTF-8 filename.\n')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
         </munit:validation>
     </munit:test>
 
     <munit:test name="ftp-read-with-wrong-encoding" expectedErrorType="FTP:ILLEGAL_PATH" description="Reading an UTF-8 encoded filename with default encoding in the FTP config (ISO-8859-1) fails to find the file.">
         <munit:behavior>
             <flow-ref name="server-write-encoded-filename"/>
-            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.docx" encoding="UTF-8"/>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
         </munit:behavior>
         <munit:execution>
             <ftp:read config-ref="config" path='[vars.fileName]'/>
