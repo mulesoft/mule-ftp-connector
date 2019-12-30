@@ -3,15 +3,31 @@
       xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
-      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
     <ftp:config name="config">
         <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/">
             <reconnection >
                 <reconnect frequency="1000" count="5" />
             </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-invalid-folder">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/invalid">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-with-UTF8-control-encoding">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}"
+                        workingDir="/" controlEncoding="UTF-8">
         </ftp:connection>
     </ftp:config>
 
@@ -28,6 +44,12 @@
     <flow name="write-file">
         <set-payload value="File Content"/>
         <ftp:write config-ref="config" path="random.txt"/>
+    </flow>
+
+    <flow name="server-write-encoded-filename">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="createEncodedFileName()">
+        </java:invoke-static>
     </flow>
 
 </mule>

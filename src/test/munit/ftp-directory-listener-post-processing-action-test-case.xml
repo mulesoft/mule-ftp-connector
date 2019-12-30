@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-directory-listener-post-processing-action-test-case.xml" />
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="renameTo" description="Verifies that files are renamed after processing">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToAndAutoDelete" description="Verifies that files are renamed after processing even if autoDelete is configured">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToAndAutoDeleteFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToAndAutoDeleteWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) are deleted">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToAndAutoDeleteFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) remain untouched">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[true]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <flow name="renameToFlow">
+        <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+            <ftp:matcher filenamePattern="*.txt" />
+        </ftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
+    </flow>
+
+    <flow name="renameToAndAutoDeleteFlow">
+        <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1" timeUnit="SECONDS"/>
+            </scheduling-strategy>
+            <ftp:matcher filenamePattern="*.txt" />
+        </ftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
+    </flow>
+
+    <flow name="file-exists">
+        <try>
+            <ftp:read config-ref="config" path="#[vars.fileExists]" />
+            <set-payload value="#[true]" />
+            <error-handler>
+                <on-error-continue enableNotifications="true" logException="true">
+                    <set-payload value="#[false]" />
+                </on-error-continue>
+            </error-handler>
+        </try>
+    </flow>
+
+</mule>

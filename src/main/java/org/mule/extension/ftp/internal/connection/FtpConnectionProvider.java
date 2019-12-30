@@ -14,6 +14,8 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -27,12 +29,15 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -60,6 +65,10 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private LockFactory lockFactory;
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+  private static final String DEFAULT_CONTROL_ENCODING = "ISO-8859-1";
+
+  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
+  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default
@@ -136,6 +145,23 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   private boolean remoteVerificationEnabled = true;
 
   /**
+   * Set the control encoding to use in the control channel with the remote server. This does NOT set the encoding for the content of the files to be transferred.
+   * <p>
+   * Known control encodings:
+   * <ul>
+   *     <li>ISO-8859-1</li>
+   *     <li>UTF-8</li>
+   * </ul>
+   */
+  @Parameter
+  @Optional(defaultValue = DEFAULT_CONTROL_ENCODING)
+  @Placement(tab = ADVANCED_TAB)
+  @OfValues(ControlEncodingValueProvider.class)
+  @Summary("Set the control encoding (for example UTF-8) to use in the control channel with the remote server. This does NOT set the encoding for the content of the files to be transferred.")
+  @DisplayName("Control Encoding")
+  private String controlEncoding;
+
+  /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
    * @return a {@link FtpFileSystem}
@@ -146,7 +172,11 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   }
 
   private FTPClient setupClient() throws ConnectionException {
+    checkConnectionTimeoutPrecision();
+    checkResponseTimeoutPrecision();
+
     FTPClient client = createClient();
+    client.setControlEncoding(controlEncoding);
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
@@ -266,5 +296,23 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
+  }
+
+  private void checkConnectionTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getConnectionTimeoutUnit(), getConnectionTimeout())
+        && alreadyLoggedConnectionTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Connection timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private void checkResponseTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getResponseTimeoutUnit(), getResponseTimeout())
+        && alreadyLoggedResponseTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Response timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
+    return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
 }

@@ -26,6 +26,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     new PostActionGroup(true, null, null, false).validateSelf();
     new PostActionGroup(false, "someDir", null, false).validateSelf();
     new PostActionGroup(false, "someDir", "thisone.txt", false).validateSelf();
+    new PostActionGroup(false, null, "thisone.txt", false).validateSelf();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -38,11 +39,5 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Description("verifies that autoDelete and renameTo cannot be set at the same time")
   public void deleteAndRename() {
     new PostActionGroup(true, null, "thisone.txt", true).validateSelf();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  @Description("verifies that renameTo cannot be set without moveToDirectory")
-  public void renameWithoutMove() {
-    new PostActionGroup(false, null, "thisone.txt", true).validateSelf();
   }
 }

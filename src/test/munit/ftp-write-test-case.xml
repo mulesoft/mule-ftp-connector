@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-write-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-writeTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-writeTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="ftp-write-on-invalid-working-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-on-invalid-path-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="invalid/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-on-invalid-absolute-path" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="/invalid/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-with-encoding">
+        <munit:behavior>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+            <ftp:write config-ref="config-with-UTF8-control-encoding" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:read config-ref="config-with-UTF8-control-encoding" path='#[vars.fileName]'/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    attributes.name must equalTo(vars.fileName)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-write-with-encoding-already-existing-file" expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+            <flow-ref name="server-write-encoded-filename"/>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config-with-UTF8-control-encoding" path='#[vars.fileName]' createParentDirectories="false" mode="CREATE_NEW">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-with-different-encoding-creates-new-file">
+        <munit:behavior>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+            <flow-ref name="server-write-encoded-filename"/>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false" mode="CREATE_NEW">
+                <ftp:content>Content for default filename encoding (ISO-8859-1).</ftp:content>
+            </ftp:write>
+        </munit:execution>
+        <munit:validation>
+            <ftp:list config-ref="config-with-UTF8-control-encoding" directoryPath="." />
+            <foreach>
+                <logger level="ERROR" message="#[output application/json --- attributes.name]"/>
+                <logger level="ERROR" message="#[output application/json --- payload]"/>
+            </foreach>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    sizeOf(payload) must equalTo(2)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+</mule>
