@@ -18,7 +18,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import org.apache.commons.net.ftp.FTPClient;
 import org.junit.Test;

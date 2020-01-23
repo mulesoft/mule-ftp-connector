@@ -253,8 +253,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private URL toURL(URI uri) {
     try {
-      return createUrl("ftp", client.getRemoteAddress().getHostAddress(), client.getRemotePort(),
-                       uri != null ? uri.getPath() : EMPTY);
+      return createUrl(client, uri);
     } catch (MalformedURLException e) {
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
     }
