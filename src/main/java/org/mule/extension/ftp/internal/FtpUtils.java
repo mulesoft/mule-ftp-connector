@@ -40,11 +40,7 @@ public class FtpUtils {
   }
 
   public static URL createUrl(FTPClient client, URI uri) throws MalformedURLException {
-    return createUrl("ftp", client.getRemoteAddress().getHostAddress(), client.getRemotePort(),
-                     uri != null ? uri.getPath() : EMPTY);
-  }
-
-  public static URL createUrl(String protocol, String host, int port, String path) throws MalformedURLException {
-    return new URL(protocol, host, port, path);
+    return new URL("ftp", client.getRemoteAddress().getHostAddress(), client.getRemotePort(),
+                   uri != null ? uri.getPath() : EMPTY);
   }
 }

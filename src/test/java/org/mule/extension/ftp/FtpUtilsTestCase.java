@@ -35,36 +35,19 @@ public class FtpUtilsTestCase {
 
   @Test
   public void validUrl() throws MalformedURLException {
-    URL url = createUrl(PROTOCOL, HOST, PORT, EMPTY);
+    when(address.getHostAddress()).thenReturn(HOST);
+    when(client.getRemoteAddress()).thenReturn(address);
+    when(client.getRemotePort()).thenReturn(PORT);
+    URL url = createUrl(client, null);
     assertUrl(url);
-  }
-
-  @Test(expected = MalformedURLException.class)
-  public void invalidProtocol() throws MalformedURLException {
-    createUrl("FOO", HOST, PORT, PATH);
   }
 
   @Test(expected = MalformedURLException.class)
   public void invalidPort() throws MalformedURLException {
-    createUrl(PROTOCOL, HOST, -2, PATH);
-  }
-
-  @Test
-  public void createValidUrlFromClient() throws MalformedURLException {
     when(address.getHostAddress()).thenReturn(HOST);
     when(client.getRemoteAddress()).thenReturn(address);
-    when(client.getRemotePort()).thenReturn(PORT);
-    URL url = createUrl(client, null);
-    assertUrl(url);
-  }
-
-  @Test
-  public void invalidUrlFromClient() throws MalformedURLException {
-    when(address.getHostAddress()).thenReturn(HOST);
-    when(client.getRemoteAddress()).thenReturn(address);
-    when(client.getRemotePort()).thenReturn(PORT);
-    URL url = createUrl(client, null);
-    assertUrl(url);
+    when(client.getRemotePort()).thenReturn(-2);
+    createUrl(client, null);
   }
 
   private void assertUrl(URL url) {
