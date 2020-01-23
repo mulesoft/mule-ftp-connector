@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.internal.FtpUtils.createUrl;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyCodeErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
@@ -252,9 +253,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private URL toURL(URI uri) {
     try {
-      return new URL("ftp", client.getRemoteAddress().toString(), client.getRemotePort(), uri != null ? uri.getPath() : EMPTY);
+      return createUrl("ftp", client.getRemoteAddress().getHostAddress(), client.getRemotePort(),
+                       uri != null ? uri.getPath() : EMPTY);
     } catch (MalformedURLException e) {
-      throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
+      throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
     }
   }
 

@@ -6,13 +6,19 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 import static java.lang.String.format;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
 /**
- * Utility class for normalizing FTP paths
+ * Utility class for FTP needs
  *
  * @since 1.0
  */
@@ -33,4 +39,12 @@ public class FtpUtils {
     return FTPReply.isPositiveCompletion(replyCode) ? "" : format("FTP reply code is: %d", replyCode);
   }
 
+  public static URL createUrl(FTPClient client, URI uri) throws MalformedURLException {
+    return createUrl("ftp", client.getRemoteAddress().getHostAddress(), client.getRemotePort(),
+                     uri != null ? uri.getPath() : EMPTY);
+  }
+
+  public static URL createUrl(String protocol, String host, int port, String path) throws MalformedURLException {
+    return new URL(protocol, host, port, path);
+  }
 }
