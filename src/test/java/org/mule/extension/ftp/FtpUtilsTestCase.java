@@ -46,8 +46,7 @@ public class FtpUtilsTestCase {
   }
 
   @Test(expected = MalformedURLException.class)
-  @Description("")
-  public void invalidProt() throws MalformedURLException {
+  public void invalidPort() throws MalformedURLException {
     createUrl(PROTOCOL, HOST, -2, PATH);
   }
 
