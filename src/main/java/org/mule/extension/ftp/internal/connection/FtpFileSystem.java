@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.connection;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
