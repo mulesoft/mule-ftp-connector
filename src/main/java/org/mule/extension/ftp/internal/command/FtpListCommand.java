@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -169,8 +170,8 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     }
     if (LOGGER.isDebugEnabled()) {
       LOGGER
-          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. Reply code: %s . Reply string: %s",
-                        client.getReplyCode(), client.getReplyString()));
+          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. %s",
+                        getReplyErrorMessage(client.getReplyCode(), client.getReplyString())));
     }
     return new FtpListEngineIterator(client.initiateListParsing());
   }
