@@ -35,6 +35,11 @@ public class FtpUtils {
     return FilenameUtils.normalize(path, true);
   }
 
+  public static String getReplyErrorMessage(Integer replyCode, String replyString) {
+    return FTPReply.isPositiveCompletion(replyCode) ? ""
+        : getReplyCodeErrorMessage(replyCode) + format(". FTP reply string is: %s", replyString);
+  }
+
   public static String getReplyCodeErrorMessage(Integer replyCode) {
     return FTPReply.isPositiveCompletion(replyCode) ? "" : format("FTP reply code is: %d", replyCode);
   }

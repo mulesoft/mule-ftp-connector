@@ -13,16 +13,15 @@ import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
-import org.apache.commons.net.MalformedServerReplyException;
-import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.command.FileCommand;
 import org.mule.extension.file.common.api.command.ExternalFileCommand;
+import org.mule.extension.file.common.api.command.FileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
@@ -37,9 +36,11 @@ import java.util.Optional;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -382,7 +383,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * {@inheritDoc} Same as the super method but adding the FTP rely code
+   * {@inheritDoc} Same as the super method but adding the FTP reply code
    */
   @Override
   public RuntimeException exception(String message, Exception cause) {
@@ -393,7 +394,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   private String enrichExceptionMessage(String message) {
-    return format("%s. Ftp reply code: %d. Ftp reply string: %s", message, client.getReplyCode(), client.getReplyString());
+    return format("%s. %s", message, getReplyErrorMessage(client.getReplyCode(), client.getReplyString()));
   }
 
   /**
