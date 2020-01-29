@@ -37,7 +37,7 @@ public class FtpUtils {
 
   public static String getReplyErrorMessage(Integer replyCode, String replyString) {
     return FTPReply.isPositiveCompletion(replyCode) ? ""
-        : getReplyCodeErrorMessage(replyCode) + format(". FTP reply string is: %s", replyString);
+        : format("FTP reply code is: %d. FTP reply string is: %s", replyCode, replyString);
   }
 
   public static String getReplyCodeErrorMessage(Integer replyCode) {
