@@ -180,6 +180,9 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     if (getConnectionTimeout() != null && getConnectionTimeoutUnit() != null) {
       client.setConnectTimeout(new Long(getConnectionTimeoutUnit().toMillis(getConnectionTimeout())).intValue());
     }
+    if (getResponseTimeout() != null && getResponseTimeoutUnit() != null) {
+      client.setDefaultTimeout(new Long(getResponseTimeoutUnit().toMillis(getResponseTimeout())).intValue());
+    }
 
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
