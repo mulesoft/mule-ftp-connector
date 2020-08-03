@@ -17,6 +17,16 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-response-timeout-exception">
+        <ftp:connection username="timeout" password="timeout" host="localhost" port="${ftp.server.port}" workingDir="/" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-response-timeout">
+        <ftp:connection username="timeout" password="timeout" host="localhost" port="${ftp.server.port}" workingDir="/" responseTimeoutUnit="SECONDS" responseTimeout="10">
+        </ftp:connection>
+    </ftp:config>
+
     <ftp:config name="config-invalid-folder">
         <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/invalid">
             <reconnection >

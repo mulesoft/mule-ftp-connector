@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:nav="http://www.mulesoft.org/schema/mule/nav"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/mtf  http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+		http://www.mulesoft.org/schema/mule/nav http://www.mulesoft.org/schema/mule/nav/current/mule-nav.xsd">
+    <munit:config name="ftp-response-timeout-test-case.xml" minMuleVersion="4.2.0"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-response-timeout-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-response-timeout-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="response-timeout-connectivity-test" description="Should throw CONNECTION_TIMEOUT when response timeout is 1 milisecond">
+        <munit:execution>
+            <try>
+                <mtf:test-connectivity config-ref="config-response-timeout-exception"/>
+                <error-handler>
+                    <on-error-continue enableNotifications="false" logException="false" type="FTP:CONNECTION_TIMEOUT">
+                        <set-payload value="#[error]"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-equals actual="#[Java::isCausedBy(payload.cause, 'java.net.SocketTimeoutException')]"
+                                       expected="#[true]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="response-timeout-connectivity-test-invalid-credentials" expectedErrorType="FTP:INVALID_CREDENTIALS" description="Should throw INVALID_LOGIN when response timeout is 30 seconds with invalid credentials">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="config-response-timeout"/>
+        </munit:execution>
+    </munit:test>
+</mule>
