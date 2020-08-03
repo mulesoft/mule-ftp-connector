@@ -147,7 +147,7 @@
     <flow name="renameToFlow">
         <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="200"/>
             </scheduling-strategy>
             <ftp:matcher filenamePattern="*.txt" />
         </ftp:listener>

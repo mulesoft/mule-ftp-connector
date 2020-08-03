@@ -35,6 +35,7 @@
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.0.0</munit.extensions.maven.plugin.version>
         <munit.version>2.2.4</munit.version>
+        <mtf.tools.version>1.0.0</mtf.tools.version>
         <mavenResources.version>3.0.2</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -166,6 +167,12 @@
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-tools</artifactId>
                         <version>${munit.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>mtf-tools</artifactId>
+                        <version>${mtf.tools.version}</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                 </dependencies>
