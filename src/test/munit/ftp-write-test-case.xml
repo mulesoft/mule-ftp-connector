@@ -47,6 +47,27 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="ftp-write-overwrite-mode-overwrite-file">
+        <munit:behavior>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config" path='#[vars.fileName]' mode="OVERWRITE" createParentDirectories="false">
+                <ftp:content>Hello World!</ftp:content>
+            </ftp:write>
+        </munit:execution>
+        <munit:validation>
+            <ftp:read config-ref="config" path='#[vars.fileName]' />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!')]" />
+        </munit:validation>
+    </munit:test>
+
     <munit:test name="ftp-write-on-invalid-path-directory" expectedErrorType="FTP:ILLEGAL_PATH">
         <munit:behavior>
             <set-variable variableName="fileName" value="invalid/filePath.txt"/>
