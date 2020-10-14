@@ -137,6 +137,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   private URI directoryUri;
   private Predicate<FtpFileAttributes> matcher;
+  private FtpFileSystem ftpFileSystemConnection;
 
   @Override
   protected void doStart() {
@@ -173,9 +174,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       return;
     }
 
-    FtpFileSystem fileSystem;
     try {
-      fileSystem = openConnection();
+      openConnection();
     } catch (Exception e) {
       if (e instanceof ConnectionException) {
         pollContext.onConnectionException((ConnectionException) e);
@@ -189,7 +189,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
     try {
       List<Result<InputStream, FtpFileAttributes>> files =
-          fileSystem
+          ftpFileSystemConnection
               .list(config, directoryUri.getPath(), recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
 
@@ -219,10 +219,6 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath(), e.getMessage()),
                    e);
-    } finally {
-      if (fileSystem != null) {
-        fileSystemProvider.disconnect(fileSystem);
-      }
     }
   }
 
@@ -236,15 +232,15 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   private FtpFileSystem openConnection() throws Exception {
-
-    FtpFileSystem fileSystem = fileSystemProvider.connect();
+    if (ftpFileSystemConnection == null)
+      ftpFileSystemConnection = fileSystemProvider.connect();
     try {
-      fileSystem.changeToBaseDir();
+      ftpFileSystemConnection.changeToBaseDir();
     } catch (Exception e) {
-      fileSystemProvider.disconnect(fileSystem);
+      fileSystemProvider.disconnect(ftpFileSystemConnection);
       throw e;
     }
-    return fileSystem;
+    return ftpFileSystemConnection;
   }
 
   private boolean processFile(Result<InputStream, FtpFileAttributes> file,
@@ -282,39 +278,26 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     return status != SOURCE_STOPPING;
   }
 
-  private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
+  synchronized private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
     ctx.<FtpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      FtpFileSystem fileSystem = null;
       try {
-        fileSystem = fileSystemProvider.connect();
-        fileSystem.changeToBaseDir();
-        postAction.apply(fileSystem, attrs, config);
-      } catch (ConnectionException e) {
+        postAction.apply(openConnection(), attrs, config);
+      } catch (Exception e) {
         LOGGER
             .error("An error occurred while retrieving a connection to apply the post processing action to the file {} , it was neither moved nor deleted.",
                    attrs.getPath());
-      } finally {
-        if (fileSystem != null) {
-          fileSystemProvider.disconnect(fileSystem);
-        }
       }
     });
   }
 
   private URI resolveRootUri() {
-    FtpFileSystem fileSystem = null;
     try {
-      fileSystem = fileSystemProvider.connect();
-      return new OnNewFileCommand(fileSystem).resolveRootUri(directory);
+      return new OnNewFileCommand(openConnection()).resolveRootUri(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
                                                                             format("Could not resolve path to directory '%s'. %s",
                                                                                    directory, e.getMessage())),
                                      e);
-    } finally {
-      if (fileSystem != null) {
-        fileSystemProvider.disconnect(fileSystem);
-      }
     }
   }
 }
