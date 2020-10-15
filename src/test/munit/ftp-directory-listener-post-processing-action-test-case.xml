@@ -16,7 +16,7 @@
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+    <munit:before-test name="startDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="startFtpServer(String)">
             <java:args>
@@ -25,16 +25,16 @@
                 }]
             </java:args>
         </java:invoke-static>
-    </munit:before-suite>
+    </munit:before-test>
 
-    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+    <munit:after-test name="clearDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="stopFtpServer()">
             <java:args>
                 #[{}]
             </java:args>
         </java:invoke-static>
-    </munit:after-suite>
+    </munit:after-test>
 
     <munit:test name="renameTo" description="Verifies that files are renamed after processing">
         <munit:enable-flow-sources>
