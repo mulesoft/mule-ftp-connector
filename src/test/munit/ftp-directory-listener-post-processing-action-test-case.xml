@@ -144,6 +144,45 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="moveTo" description="Verifies that the post processing action can move 10 files in one go without errors">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="moveToProcessed"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="iterator" value="0"/>
+            <set-variable variableName="fileCount" value="10"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="createFiles"/>
+            <ftp:list config-ref="config" directoryPath="/"/>
+            <set-variable variableName="fileCountInRootBeforeMove" value="#[sizeOf(payload)]"/>
+            <flow-ref name="wait-5-seconds"/>
+            <ftp:list config-ref="config" directoryPath="/"/>
+            <set-variable variableName="fileCountInRootAfterMove" value="#[sizeOf(payload)]"/>
+            <ftp:list config-ref="config" directoryPath="/processed"/>
+            <set-variable variableName="fileCountInProcessedAfterMove" value="#[sizeOf(payload)]"/>
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.fileCountInRootBeforeMove]" expected="#[10]"/>
+            <munit-tools:assert-equals actual="#[vars.fileCountInRootAfterMove]" expected="#[1]"/>
+            <munit-tools:assert-equals actual="#[vars.fileCountInProcessedAfterMove]" expected="#[10]" />
+        </munit:validation>
+    </munit:test>
+
+
+    <flow name="createFiles">
+        <logger level="WARN" message="#['Creating file:' ++ vars.iterator]"/>
+        <ftp:write config-ref="config" path='#["/file" ++ vars.iterator ++ ".txt"]'>
+            <ftp:content><![CDATA[content]]></ftp:content>
+        </ftp:write>
+        <set-variable value="#[vars.iterator + 1]" variableName="iterator" />
+        <choice>
+            <when expression="#[vars.iterator &lt; vars.fileCount]">
+                <flow-ref name="createFiles"/>
+            </when>
+        </choice>
+    </flow>
+
     <flow name="renameToFlow">
         <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false">
             <scheduling-strategy>
@@ -174,6 +213,15 @@
                 </on-error-continue>
             </error-handler>
         </try>
+    </flow>
+
+    <flow name="moveToProcessed">
+        <ftp:listener config-ref="config" directory="/" autoDelete="true" moveToDirectory="/processed" recursive="false">
+            <scheduling-strategy >
+                <fixed-frequency frequency="5" timeUnit="SECONDS" startDelay="5"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
     </flow>
 
 </mule>

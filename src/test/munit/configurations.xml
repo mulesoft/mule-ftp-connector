@@ -46,6 +46,11 @@
         <munit-tools:sleep time="2000"/>
     </flow>
 
+    <flow name="wait-5-seconds">
+        <logger level="DEBUG" message="Waiting for 5 seconds"/>
+        <munit-tools:sleep time="5000"/>
+    </flow>
+
     <flow name="modify-file">
         <set-payload value="Content to append"/>
         <ftp:write config-ref="config" path="random.txt" mode="APPEND"/>
