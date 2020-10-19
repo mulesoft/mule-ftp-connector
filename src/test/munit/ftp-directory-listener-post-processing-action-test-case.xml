@@ -150,7 +150,7 @@
         </munit:enable-flow-sources>
         <munit:behavior>
             <set-variable variableName="iterator" value="0"/>
-            <set-variable variableName="fileCount" value="10"/>
+            <set-variable variableName="fileCount" value="5"/>
         </munit:behavior>
         <munit:execution>
             <flow-ref name="createFiles"/>
@@ -171,7 +171,6 @@
 
 
     <flow name="createFiles">
-        <logger level="WARN" message="#['Creating file:' ++ vars.iterator]"/>
         <ftp:write config-ref="config" path='#["/file" ++ vars.iterator ++ ".txt"]'>
             <ftp:content><![CDATA[content]]></ftp:content>
         </ftp:write>
