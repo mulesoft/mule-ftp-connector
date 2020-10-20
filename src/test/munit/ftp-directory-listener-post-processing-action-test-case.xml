@@ -163,9 +163,9 @@
             <set-variable variableName="fileCountInProcessedAfterMove" value="#[sizeOf(payload)]"/>
         </munit:execution>
         <munit:validation >
-            <munit-tools:assert-equals actual="#[vars.fileCountInRootBeforeMove]" expected="#[vars.fileCount]"/>
+            <munit-tools:assert-equals actual="#[vars.fileCountInRootBeforeMove]" expected="#[5]"/>
             <munit-tools:assert-equals actual="#[vars.fileCountInRootAfterMove]" expected="#[1]"/>
-            <munit-tools:assert-equals actual="#[vars.fileCountInProcessedAfterMove]" expected="#[vars.fileCount]" />
+            <munit-tools:assert-equals actual="#[vars.fileCountInProcessedAfterMove]" expected="#[5]" />
         </munit:validation>
     </munit:test>
 
