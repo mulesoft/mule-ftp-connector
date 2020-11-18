@@ -22,7 +22,7 @@
         <mule.version>4.1.2</mule.version>
 
         <commonsNetVersion>3.6</commonsNetVersion>
-        <commonsIoVersion>2.8.0</commonsIoVersion>
+        <commonsIoVersion>20030203.000550</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
 
