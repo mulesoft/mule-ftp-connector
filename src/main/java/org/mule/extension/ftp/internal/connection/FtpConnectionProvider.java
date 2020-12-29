@@ -221,7 +221,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     FTPClient client = new FTPClient();
 
     if (LOGGER.isDebugEnabled()) {
-      setupWireLogging(client);
+      setupWireLogging(client,LOGGER);
     }
     return client;
   }
@@ -329,10 +329,10 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
 
-  protected void setupWireLogging(FTPClient client) {
+  protected void setupWireLogging(FTPClient client,Logger logger) {
     try {
       client
-          .addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new OutputStreamWriter(new LoggingOutputStream(LOGGER::debug),
+          .addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new OutputStreamWriter(new LoggingOutputStream(logger::debug),
                                                                                                       "UTF-8")),
                                                                true));
     } catch (UnsupportedEncodingException e) {
