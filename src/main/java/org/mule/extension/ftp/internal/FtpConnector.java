@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 @Operations({FtpOperations.class})
 @ConnectionProviders(FtpConnectionProvider.class)
 @PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.connection",
-    "org.mule.extension.ftp.internal.source", "org.apache.commons.net.ftp"},
+    "org.mule.extension.ftp.internal.source", "org.apache.commons.net.ftp", "org.apache.commons.net"},
     artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
 @ErrorTypes(FileError.class)
 @Sources(FtpDirectoryListener.class)
