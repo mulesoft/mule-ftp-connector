@@ -43,6 +43,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -221,7 +222,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     FTPClient client = new FTPClient();
 
     if (LOGGER.isDebugEnabled()) {
-      setupWireLogging(client,LOGGER);
+      setupWireLogging(client, LOGGER::debug);
     }
     return client;
   }
@@ -329,10 +330,10 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
 
-  protected void setupWireLogging(FTPClient client,Logger logger) {
+  protected void setupWireLogging(FTPClient client, Consumer<String> operation) {
     try {
       client
-          .addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new OutputStreamWriter(new LoggingOutputStream(logger::debug),
+          .addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new OutputStreamWriter(new LoggingOutputStream(operation),
                                                                                                       "UTF-8")),
                                                                true));
     } catch (UnsupportedEncodingException e) {
