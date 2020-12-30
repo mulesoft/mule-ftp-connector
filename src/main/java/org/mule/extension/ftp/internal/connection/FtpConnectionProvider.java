@@ -16,11 +16,13 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
+import org.apache.commons.net.PrintCommandListener;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.internal.TimeoutSettings;
+import org.mule.extension.ftp.internal.logging.LoggingOutputStream;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
@@ -33,11 +35,15 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.annotation.values.OfValues;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -213,7 +219,12 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   }
 
   protected FTPClient createClient() {
-    return new FTPClient();
+    FTPClient client = new FTPClient();
+
+    if (LOGGER.isDebugEnabled()) {
+      setupWireLogging(client, LOGGER::debug);
+    }
+    return client;
   }
 
   @Override
@@ -317,5 +328,17 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
     return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
+  }
+
+  protected void setupWireLogging(FTPClient client, Consumer<String> operation) {
+    try {
+      client
+          .addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new OutputStreamWriter(new LoggingOutputStream(operation),
+                                                                                                      "UTF-8")),
+                                                               true));
+    } catch (UnsupportedEncodingException e) {
+      LOGGER.error(e.getMessage(), e);
+    }
+
   }
 }
