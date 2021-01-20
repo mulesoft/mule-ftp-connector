@@ -26,12 +26,4 @@ COPY test1.xml /ftp/ftp/data/test7.xml
 COPY test2.xml /ftp/ftp/data/test8.xml
 COPY test3.xml /ftp/ftp/data/test9.xml
 
-#COPY test1.xml /ftp/ftp/data/test10.xml
-#COPY test2.xml /ftp/ftp/data/test11.xml
-#COPY test3.xml /ftp/ftp/data/test12.xml
-
-#COPY test1.xml /ftp/ftp/data/test13.xml
-#COPY test2.xml /ftp/ftp/data/test14.xml
-#COPY test3.xml /ftp/ftp/data/test15.xml
-
 ENTRYPOINT ["/bin/start_vsftpd.sh"]

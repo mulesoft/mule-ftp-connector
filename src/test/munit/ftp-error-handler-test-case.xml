@@ -24,7 +24,7 @@
             <reconnection>
                 <reconnect frequency="1000" count="5" />
             </reconnection>
-            <pooling-profile maxActive="5" maxIdle="3" maxWait="5000"/>
+            <pooling-profile maxActive="10" maxIdle="3" maxWait="5000"/>
         </ftp:connection>
     </ftp:config>
 
@@ -41,30 +41,28 @@
             <set-variable variableName="test1MD5" value="4c129c54532a1ae30303671a7eae4edb" />
             <set-variable variableName="test2MD5" value="b4dd265887fef0e1012db8e564bbdf30" />
             <set-variable variableName="test3MD5" value="7e206c4c0cb3213f02a9e823410173b0" />
-
         </munit:behavior>
         <munit:execution>
-            <set-variable variableName="totalExpectedResults" value="#[6]" />
+            <set-variable variableName="totalExpectedResults" value="#[9]" />
             <flow-ref name="get-results"/>
         </munit:execution>
         <munit:validation>
             <file:list directoryPath="." config-ref="tmp-dir"/>
 
             <foreach>
-                <logger level="ERROR" message="#[attributes]" />
-
                 <file:read path="#[attributes.path]" config-ref="tmp-dir"/>
 
                 <choice>
                     <when expression="#[attributes.size > 0]">
-                        <logger level="ERROR" message="#[payload]" />
+                        <logger level="ERROR" message="#[attributes]" />
+                        <logger level="DEBUG" message="#[payload]" />
                         <flow-ref name="calculateMD5" />
+                        <logger level="ERROR" message="#[payload]" />
 
                         <munit-tools:assert-that
                                 expression="#[payload]"
                                 is="#[MunitTools::anyOf([MunitTools::equalTo(vars.test1MD5),
                                     MunitTools::equalTo(vars.test2MD5), MunitTools::equalTo(vars.test3MD5)])]"/>
-
                     </when>
                  </choice>
             </foreach>
@@ -90,11 +88,8 @@
     </flow>
 
     <flow name="handle-error" maxConcurrency="1">
-        <logger level="ERROR" message="==============ASSERT ERROR HANDLER WRITE===================="/>
-
         <try>
             <file:write path="#[vars.fileName]" config-ref="tmp-dir" />
-            <logger level="ERROR" message="#['ERROR WRITING MD4 FOR FILE ' ++ vars.fileName ++ ' as:' ++ payload]"/>
 
             <error-handler>
                 <on-error-continue/>
@@ -111,12 +106,9 @@
         </ftp:listener>
 
         <try>
-            <!--logger level="ERROR" message="#[payload]"/-->
             <set-variable variableName="fileName" value="#[attributes.fileName]" />
 
             <flow-ref name="calculateMD5" />
-
-            <!--logger level="ERROR" message="#['MD5 FOR FILE ' ++ vars.fileName ++ ' is:' ++ payload]"/-->
 
             <munit-tools:queue queueName="SUCCESS_FILE_NAMES" />
         </try>
