@@ -221,7 +221,6 @@
                                 <image>
                                     <name>mule/vsftpd-ftp</name>
                                     <build>
-                                        <!--from>stilliard/pure-ftpd</from-->
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
                                     </build>
                                     <run>
@@ -243,10 +242,6 @@
                                         </ports>
                                         <env>
                                             <USERS>bob|1234</USERS>
-                                            <!--FTP_USER_NAME>bob</FTP_USER_NAME>
-                                            <FTP_USER_PASS>pass</FTP_USER_PASS>
-                                            <FTP_USER_HOME>/home/bob</FTP_USER_HOME>
-                                            <PUBLICHOST>localhost</PUBLICHOST-->
                                         </env>
                                         <log>
                                             <enabled>true</enabled>
