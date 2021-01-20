@@ -3,89 +3,34 @@
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
-      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-      xmlns:file="http://www.mulesoft.org/schema/mule/file"
       xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-		http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
-        http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+        http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
     <munit:config name="ftp-error-handler-test-case.xml"/>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <ftp:config name="ftpConfig">
-        <ftp:connection username="bob" password="pass" host="localhost" port="21">
-            <reconnection >
+    <ftp:config name="ftp-config">
+        <ftp:connection username="bob" password="1234" host="127.0.0.1" port="21">
+            <reconnection>
                 <reconnect frequency="1000" count="5" />
             </reconnection>
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="10" maxWait="5000"/>
+            <pooling-profile maxActive="5" maxIdle="3" maxWait="5000"/>
         </ftp:connection>
     </ftp:config>
 
-    <file:config name="fileConfig">
-        <file:connection workingDir="${workingDirectory}" />
+    <file:config name="tmp-dir">
+        <file:connection workingDir="${munit.temporary.directory}"/>
     </file:config>
-
-    <munit:before-suite name="before-suite" description="Executes a before suite">
-        <file:read path="book-info.xml" config-ref="fileConfig" target="fileContent"/>
-
-        <ftp:write config-ref="ftpConfig" path="/home/bob/book-info1.xml">
-            <ftp:content>#[vars.fileContent]</ftp:content>
-        </ftp:write>
-        <!--ftp:write config-ref="ftpConfig" path="/home/bob/book-info2.xml">
-            <ftp:content>#[vars.fileContent]</ftp:content>
-        </ftp:write>
-        <ftp:write config-ref="ftpConfig" path="/home/bob/book-info3.xml">
-            <ftp:content>#[vars.fileContent]</ftp:content>
-        </ftp:write>
-        <ftp:write config-ref="ftpConfig" path="/home/bob/book-info4.xml">
-            <ftp:content>#[vars.fileContent]</ftp:content>
-        </ftp:write>
-        <ftp:write config-ref="ftpConfig" path="/home/bob/book-info5.xml">
-            <ftp:content>#[vars.fileContent]</ftp:content>
-        </ftp:write-->
-    </munit:before-suite >
-
-
-
-    <!--If write fails the first time because path does not exist, then writing in error handler should succeed if path is correct-->
-    <!--munit:test name="write-after-write-error-does-not-fail-if-error-is-wrong-path" description="Ftp write fails because path does not exist, but then succeeds when path exists.">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="ftp-dir-listener" />
-        </munit:enable-flow-sources>
-        <munit:execution>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <try>
-                <ftp:write config-ref="ftpConfig" path="/some/random/path">
-                    <ftp:content>FILE</ftp:content>
-                </ftp:write>
-                <error-handler>
-                    <on-error-continue>
-                        <ftp:write config-ref="ftpConfig" path="/ftp/ftp/processed">
-                            <ftp:content>FILE</ftp:content>
-                        </ftp:write>
-                    </on-error-continue>
-                </error-handler>
-            </try>
-
-            <ftp:read config-ref="ftpConfig" path='/ftp/ftp/processed'/>
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                    payload must equalTo(vars.fileContent)
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-        </munit:validation>
-    </munit:test-->
-
 
     <!--If read fails because of some connectivity issue, then write stream buffer fails in error handler-->
     <munit:test name="write-after-read-error-fails" description="Ftp write fails because an error (e.g: some connectivity error) occurred while reading.">
@@ -93,80 +38,104 @@
             <munit:enable-flow-source value="ftp-dir-listener" />
         </munit:enable-flow-sources>
         <munit:behavior>
-            <file:read path="test1.xml" config-ref="fileConfig" target="fileContent"/>
+            <set-variable variableName="test1MD5" value="4c129c54532a1ae30303671a7eae4edb" />
+            <set-variable variableName="test2MD5" value="b4dd265887fef0e1012db8e564bbdf30" />
+            <set-variable variableName="test3MD5" value="7e206c4c0cb3213f02a9e823410173b0" />
+
         </munit:behavior>
         <munit:execution>
-            <munit-tools:dequeue/>
-            <!--set-variable value="#[payload]" variableName="fileContent1"/>
-
-            <munit-tools:dequeue/>
-            <set-variable value="#[payload]" variableName="fileContent2"/>
-
-            <munit-tools:dequeue/>
-            <set-variable value="#[payload]" variableName="fileContent3"/>
-
-            <munit-tools:dequeue/>
-            <set-variable value="#[payload]" variableName="fileContent4"/>
-
-            <munit-tools:dequeue/>
-            <set-variable value="#[payload]" variableName="fileContent5"/-->
+            <set-variable variableName="totalExpectedResults" value="#[6]" />
+            <flow-ref name="get-results"/>
         </munit:execution>
         <munit:validation>
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="#[payload]" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="Vs" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="#[%dw 2.0 output application/json --- vars.fileContent]" />
-            <logger level="ERROR" message="==========================================================================" />
-            <logger level="ERROR" message="==========================================================================" />
+            <file:list directoryPath="." config-ref="tmp-dir"/>
 
-            <munit-tools:assert-that  expression="#[vars.fileContent]"
-                                      is='#[MunitTools::equalTo(payload)]'/>
-            <!--munit-tools:assert-equals
-                    actual="#[vars.fileContent2]"
-                    expected="#[vars.fileContent]"/>
-            <munit-tools:assert-equals
-                    actual="#[vars.fileContent3]"
-                    expected="#[vars.fileContent]"/>
-            <munit-tools:assert-equals
-                    actual="#[vars.fileContent4]"
-                    expected="#[vars.fileContent]"/>
-            <munit-tools:assert-equals
-                    actual="#[vars.fileContent5]"
-                    expected="#[vars.fileContent]"/-->
+            <foreach>
+                <logger level="ERROR" message="#[attributes]" />
+
+                <file:read path="#[attributes.path]" config-ref="tmp-dir"/>
+
+                <choice>
+                    <when expression="#[attributes.size > 0]">
+                        <logger level="ERROR" message="#[payload]" />
+                        <flow-ref name="calculateMD5" />
+
+                        <munit-tools:assert-that
+                                expression="#[payload]"
+                                is="#[MunitTools::anyOf([MunitTools::equalTo(vars.test1MD5),
+                                    MunitTools::equalTo(vars.test2MD5), MunitTools::equalTo(vars.test3MD5)])]"/>
+
+                    </when>
+                 </choice>
+            </foreach>
         </munit:validation>
     </munit:test>
 
-    <flow name="ftp-dir-listener">
-        <ftp:listener config-ref="ftpConfig" directory="/home/bob" watermarkEnabled="true">
-            <scheduling-strategy>
-                <fixed-frequency frequency="200"/>
-            </scheduling-strategy>
-        </ftp:listener>
-        <try>
-            <!--munit-tools:queue>
-                <munit-tools:value>#[%dw 2.0 output application/xml  payload]</munit-tools:value>
-            </munit-tools:queue-->
+    <flow name="get-results">
+        <foreach collection="#[1 to vars.totalExpectedResults]">
+            <try>
+                <munit-tools:dequeue queueName="SUCCESS_FILE_NAMES"  timeout="10" timeoutUnit="SECONDS"/>
 
-            <munit-tools:queue>
-                <munit-tools:value>#[%dw 2.0
-                    output application/json
-                    ---
-                    payload]</munit-tools:value>
-            </munit-tools:queue>
+                <munit-tools:assert-that
+                        expression="#[payload]"
+                        is="#[MunitTools::anyOf([MunitTools::equalTo(vars.test1MD5),
+                                MunitTools::equalTo(vars.test2MD5), MunitTools::equalTo(vars.test3MD5)])]"/>
+
+
+                <error-handler>
+                    <on-error-continue/>
+                </error-handler>
+            </try>
+        </foreach>
+    </flow>
+
+    <flow name="handle-error" maxConcurrency="1">
+        <logger level="ERROR" message="==============ASSERT ERROR HANDLER WRITE===================="/>
+
+        <try>
+            <file:write path="#[vars.fileName]" config-ref="tmp-dir" />
+            <logger level="ERROR" message="#['ERROR WRITING MD4 FOR FILE ' ++ vars.fileName ++ ' as:' ++ payload]"/>
 
             <error-handler>
-                <on-error-continue>
-                    <ftp:write config-ref="ftpConfig" path="/home/bob/error.xml">
-                        <ftp:content>FILE</ftp:content>
-                    </ftp:write>
-                </on-error-continue>
+                <on-error-continue/>
             </error-handler>
         </try>
+
+    </flow>
+
+    <flow name="ftp-dir-listener">
+        <ftp:listener config-ref="ftp-config" directory="/ftp/ftp/data" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1000"/>
+            </scheduling-strategy>
+        </ftp:listener>
+
+        <try>
+            <!--logger level="ERROR" message="#[payload]"/-->
+            <set-variable variableName="fileName" value="#[attributes.fileName]" />
+
+            <flow-ref name="calculateMD5" />
+
+            <!--logger level="ERROR" message="#['MD5 FOR FILE ' ++ vars.fileName ++ ' is:' ++ payload]"/-->
+
+            <munit-tools:queue queueName="SUCCESS_FILE_NAMES" />
+        </try>
+
+        <error-handler>
+            <on-error-continue>
+                <flow-ref name="handle-error" />
+            </on-error-continue>
+        </error-handler>
+    </flow>
+
+    <flow name="calculateMD5">
+        <java:invoke-static class="org.mule.extension.ftp.internal.utils.MD5Calculator" method="calculateMD5(InputStream)" >
+            <java:args>
+                #[{
+                arg0: payload
+                }]
+            </java:args>
+        </java:invoke-static>
     </flow>
 
 </mule>
