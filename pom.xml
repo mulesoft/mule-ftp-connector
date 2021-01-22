@@ -25,6 +25,7 @@
         <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
+        <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
 
         <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -202,6 +203,25 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven.helper.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <configuration>
+                            <portNames>
+                                <portName>ftp.listener.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -226,7 +246,7 @@
                                     <run>
                                         <ports>
                                             <!--ftp command port-->
-                                            <port>21:21</port>
+                                            <port>${ftp.listener.port}:21</port>
                                             <!--ftp data ports-->
                                             <port>21000:21000</port>
                                             <port>21001:21001</port>
@@ -268,7 +288,6 @@
                                 <id>start</id>
                                 <phase>test-compile</phase>
                                 <goals>
-                                    <goal>stop</goal>
                                     <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
@@ -282,6 +301,7 @@
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
+                                    <goal>remove</goal>
                                 </goals>
                             </execution>
                         </executions>

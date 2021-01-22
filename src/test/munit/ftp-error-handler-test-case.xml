@@ -19,12 +19,12 @@
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <ftp:config name="ftp-config">
-        <ftp:connection username="bob" password="1234" host="127.0.0.1" port="21">
+    <ftp:config name="ftpConfigWithConnPool">
+        <ftp:connection username="bob" password="1234" host="127.0.0.1" port="${ftp.listener.port}">
             <reconnection>
                 <reconnect frequency="1000" count="5" />
             </reconnection>
-            <pooling-profile maxActive="10" maxIdle="3" maxWait="5000"/>
+            <pooling-profile maxActive="10" maxIdle="3" maxWait="5000"  exhaustedAction="WHEN_EXHAUSTED_WAIT"/>
         </ftp:connection>
     </ftp:config>
 
@@ -33,7 +33,7 @@
     </file:config>
 
     <!--If read fails because of some connectivity issue, then write stream buffer fails in error handler-->
-    <munit:test name="write-after-read-error-fails" description="Ftp write fails because an error (e.g: some connectivity error) occurred while reading.">
+    <munit:test name="write-after-read-error-fails" description="Ftp write fails because an error (e.g: some connectivity error) occurred while reading." >
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="ftp-dir-listener" />
         </munit:enable-flow-sources>
@@ -50,21 +50,21 @@
             <file:list directoryPath="." config-ref="tmp-dir"/>
 
             <foreach>
-                <file:read path="#[attributes.path]" config-ref="tmp-dir"/>
-
                 <choice>
                     <when expression="#[attributes.size > 0]">
+                        <file:read path="#[attributes.path]" config-ref="tmp-dir"/>
+
                         <logger level="ERROR" message="#[attributes]" />
                         <logger level="DEBUG" message="#[payload]" />
                         <flow-ref name="calculateMD5" />
                         <logger level="ERROR" message="#[payload]" />
 
                         <munit-tools:assert-that
-                                expression="#[payload]"
-                                is="#[MunitTools::anyOf([MunitTools::equalTo(vars.test1MD5),
+                                    expression="#[payload]"
+                                    is="#[MunitTools::anyOf([MunitTools::equalTo(vars.test1MD5),
                                     MunitTools::equalTo(vars.test2MD5), MunitTools::equalTo(vars.test3MD5)])]"/>
                     </when>
-                 </choice>
+                </choice>
             </foreach>
         </munit:validation>
     </munit:test>
@@ -72,7 +72,7 @@
     <flow name="get-results">
         <foreach collection="#[1 to vars.totalExpectedResults]">
             <try>
-                <munit-tools:dequeue queueName="SUCCESS_FILE_NAMES"  timeout="10" timeoutUnit="SECONDS"/>
+                <munit-tools:dequeue queueName="SUCCESS_FILE_NAMES"  timeout="5" timeoutUnit="SECONDS"/>
 
                 <munit-tools:assert-that
                         expression="#[payload]"
@@ -99,7 +99,7 @@
     </flow>
 
     <flow name="ftp-dir-listener">
-        <ftp:listener config-ref="ftp-config" directory="/ftp/ftp/data" watermarkEnabled="true">
+        <ftp:listener config-ref="ftpConfigWithConnPool" directory="/ftp/ftp/data" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
