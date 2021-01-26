@@ -215,7 +215,20 @@
                         <configuration>
                             <portNames>
                                 <portName>ftp.listener.port</portName>
+                                <portName>ftp.passivePort1</portName>
+                                <portName>ftp.passivePort2</portName>
+                                <portName>ftp.passivePort3</portName>
+                                <portName>ftp.passivePort4</portName>
+                                <portName>ftp.passivePort5</portName>
+                                <portName>ftp.passivePort6</portName>
+                                <portName>ftp.passivePort7</portName>
+                                <portName>ftp.passivePort8</portName>
+                                <portName>ftp.passivePort9</portName>
+                                <portName>ftp.passivePort10</portName>
                             </portNames>
+                            <minPortNumber>9000</minPortNumber>
+                            <maxPortNumber>10000</maxPortNumber>
+                            <randomPort>false</randomPort>
                         </configuration>
                     </execution>
                 </executions>
@@ -246,20 +259,23 @@
                                             <!--ftp command port-->
                                             <port>${ftp.listener.port}:21</port>
                                             <!--ftp data ports-->
-                                            <port>21000:21000</port>
-                                            <port>21001:21001</port>
-                                            <port>21002:21002</port>
-                                            <port>21003:21003</port>
-                                            <port>21004:21004</port>
-                                            <port>21005:21005</port>
-                                            <port>21006:21006</port>
-                                            <port>21007:21007</port>
-                                            <port>21008:21008</port>
-                                            <port>21009:21009</port>
-                                            <port>21010:21010</port>
+                                            <port>${ftp.passivePort1}:${ftp.passivePort1}</port>
+                                            <port>${ftp.passivePort2}:${ftp.passivePort2}</port>
+                                            <port>${ftp.passivePort3}:${ftp.passivePort3}</port>
+                                            <port>${ftp.passivePort4}:${ftp.passivePort4}</port>
+                                            <port>${ftp.passivePort5}:${ftp.passivePort5}</port>
+                                            <port>${ftp.passivePort6}:${ftp.passivePort6}</port>
+                                            <port>${ftp.passivePort7}:${ftp.passivePort7}</port>
+                                            <port>${ftp.passivePort8}:${ftp.passivePort8}</port>
+                                            <port>${ftp.passivePort9}:${ftp.passivePort9}</port>
+                                            <port>${ftp.passivePort10}:${ftp.passivePort10}</port>
                                         </ports>
                                         <env>
-                                            <USERS>bob|1234</USERS>
+                                            <FTP_USER>bob</FTP_USER>
+                                            <FTP_PASS>1234</FTP_PASS>
+                                            <PASV_ADDRESS>127.0.0.1</PASV_ADDRESS>
+                                            <PASV_MIN_PORT>${ftp.passivePort1}</PASV_MIN_PORT>
+                                            <PASV_MAX_PORT>${ftp.passivePort10}</PASV_MAX_PORT>
                                         </env>
                                         <log>
                                             <enabled>true</enabled>

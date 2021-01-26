@@ -99,7 +99,7 @@
     </flow>
 
     <flow name="ftp-dir-listener">
-        <ftp:listener config-ref="ftpConfigWithConnPool" directory="/ftp/ftp/data" watermarkEnabled="true">
+        <ftp:listener config-ref="ftpConfigWithConnPool" directory="/" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
