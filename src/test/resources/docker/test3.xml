@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<CISDocument>
+
+  <EventName>LoadSetToPlanned</EventName>
+
+  <ReasonCode>PLND</ReasonCode>
+
+  <ReasonCodeDescription>Planned</ReasonCodeDescription>
+
+  <SystemTimeZoneOffset>0.000000</SystemTimeZoneOffset>
+
+  <EventDateTime>2020-09-09T10:52:41</EventDateTime>
+
+  <EventReportedDateTime>2020-09-09T10:52:41</EventReportedDateTime>
+
+  <EventOccurredDateTime>2020-09-09T10:52:41</EventOccurredDateTime>
+
+  <EventOccurredTimeZoneOffset>0.000000</EventOccurredTimeZoneOffset>
+
+  <EventUser>*DFT</EventUser>
+
+  <SystemLoadID>4151464</SystemLoadID>
+
+  <DivisionCode>AC</DivisionCode>
+
+  <LogisticsGroup>A/W</LogisticsGroup>
+
+  <Carrier>
+    <CarrierCode>DARD</CarrierCode>
+    <CarrierName>Dart Dedicated Transit</CarrierName>
+    <POD>PODDLVNTFRQ</POD>
+    <SCAC>DARD</SCAC>
+    <CarrierBusinessHours>
+      <CarrierBusinessHoursTimeZoneOffset>-1.000000</CarrierBusinessHoursTimeZoneOffset>
+    </CarrierBusinessHours>
+    <CarrierExternalID1>DARD</CarrierExternalID1>
+    <CarrierExternalID2>X.12-4010</CarrierExternalID2>
+  </Carrier><Service>
+    <ServiceCode>TL</ServiceCode>
+    <ServiceExternalID1>SCL</ServiceExternalID1>
+    <ServiceExternalID2>SHL</ServiceExternalID2>
+  </Service><EquipmentTypeDetail>
+    <EquipmentType>53D</EquipmentType>
+  </EquipmentTypeDetail><TariffService>
+    <SystemTariffID>38202</SystemTariffID>
+    <AutoAcceptTender>bTRUE</AutoAcceptTender>
+  </TariffService><SuspendedReasonEnumVal>NOT SUSPEND</SuspendedReasonEnumVal>
+
+  <TrailerNumber>036021</TrailerNumber>
+
+  <AmountDetail>
+    <ChargeAmount>175.000000</ChargeAmount>
+  </AmountDetail><CurrencyType>USD</CurrencyType>
+
+  <TotalNumberOfStops>2</TotalNumberOfStops>
+
+  <TripID>0</TripID>
+
+  <SystemLoadStatus>LL_DPLANNED</SystemLoadStatus>
+
+  <PaymentTerm>PREPAID</PaymentTerm>
+
+  <LoadUOM>
+    <LoadVolumeUOM>FT</LoadVolumeUOM>
+    <LoadWeightUOM>LB</LoadWeightUOM>
+  </LoadUOM><LoadStopList>
+    <SystemStopID>11383296</SystemStopID>
+    <StopSequenceNumber>1</StopSequenceNumber>
+    <ShippingPointType>DC</ShippingPointType>
+    <ShippingLocationCode>5AND00001</ShippingLocationCode>
+    <ShippingPointAddress>
+      <ShippingPointStreet>8TH AVENUE N</ShippingPointStreet>
+      <ShippingPointCity>BAYPORT</ShippingPointCity>
+      <ShippingPointPostalCode>550031139</ShippingPointPostalCode>
+      <ShippingPointStateCode>MN</ShippingPointStateCode>
+      <ShippingPointCountryCode>USA</ShippingPointCountryCode>
+      <ShippingPointTimeZoneOffset>-1.000000</ShippingPointTimeZoneOffset>
+    </ShippingPointAddress>
+    <StopShippingLocation>
+      <StopShippingLocationName>Andersen Windows Inc.</StopShippingLocationName>
+      <StopShippingLocationAddress>
+        <StopShippingLocationStreet>8TH AVENUE N</StopShippingLocationStreet>
+        <StopShippingLocationCity>BAYPORT</StopShippingLocationCity>
+        <StopShippingLocationPostalCode>550031139</StopShippingLocationPostalCode>
+        <StopShippingLocationStateCode>MN</StopShippingLocationStateCode>
+        <StopShippingLocationCountryCode>USA</StopShippingLocationCountryCode>
+        <StopShippingLocationAddressTimeZoneOffset>-1.000000</StopShippingLocationAddressTimeZoneOffset>
+      </StopShippingLocationAddress>
+      <StopShippingLocationContact>
+        <StopShippingLocationContactPrimaryTelephoneNumber>(651) 264-2837</StopShippingLocationContactPrimaryTelephoneNumber>
+      </StopShippingLocationContact>
+      <StopShippingLocationTimeZoneOffset>-1.000000</StopShippingLocationTimeZoneOffset>
+    </StopShippingLocation>
+    <LoadingHours>0.250000</LoadingHours>
+    <UnLoadingHours>0.000000</UnLoadingHours>
+    <WaitingHours>0.000000</WaitingHours>
+    <ShipmentsPickedNumber>1</ShipmentsPickedNumber>
+    <PickedShipmentInfo>
+      <PickedWeight>1.000000</PickedWeight>
+      <PickedVolume>1.000000</PickedVolume>
+      <PickedSkids>0.000000</PickedSkids>
+      <PickedPieces>1.000000</PickedPieces>
+    </PickedShipmentInfo>
+    <ShipmentsDroppedNumber>0</ShipmentsDroppedNumber>
+    <DroppedShipmentInfo>
+      <DroppedWeight>0.000000</DroppedWeight>
+      <DroppedVolume>0.000000</DroppedVolume>
+      <DroppedSkids>0.000000</DroppedSkids>
+      <DroppedPieces>0.000000</DroppedPieces>
+    </DroppedShipmentInfo>
+    <ComputedArrivalDateTime>2020-09-09T10:52:00</ComputedArrivalDateTime>
+    <ComputedDepartureDateTime>2020-09-09T11:07:00</ComputedDepartureDateTime>
+    <PickShipmentLegDetails>
+      <PickSystemShipmentLegID>166480546</PickSystemShipmentLegID>
+      <PickSystemShipmentNumber>036021306509</PickSystemShipmentNumber>
+    </PickShipmentLegDetails>
+    <DriveTimeToStop>0.000000</DriveTimeToStop>
+    <DriveDistanceToStop>0.000000</DriveDistanceToStop>
+    <WeekendHolidayBreakHours>0.000000</WeekendHolidayBreakHours>
+    <WeekendHolidayBreakOrientation>0</WeekendHolidayBreakOrientation>
+  </LoadStopList>
+
+  <LoadStopList>
+    <SystemStopID>11383297</SystemStopID>
+    <StopSequenceNumber>2</StopSequenceNumber>
+    <ShippingPointType>DC</ShippingPointType>
+    <ShippingLocationCode>5AND00014</ShippingLocationCode>
+    <ShippingPointAddress>
+      <ShippingPointStreet>5929 PACKER DRIVE</ShippingPointStreet>
+      <ShippingPointCity>MENOMONIE</ShippingPointCity>
+      <ShippingPointPostalCode>547510000</ShippingPointPostalCode>
+      <ShippingPointStateCode>WI</ShippingPointStateCode>
+      <ShippingPointCountryCode>USA</ShippingPointCountryCode>
+      <ShippingPointTimeZoneOffset>-1.000000</ShippingPointTimeZoneOffset>
+    </ShippingPointAddress>
+    <StopShippingLocation>
+      <StopShippingLocationName>Andersen Windows, Inc.</StopShippingLocationName>
+      <StopShippingLocationAddress>
+        <StopShippingLocationStreet>5929 PACKER DRIVE</StopShippingLocationStreet>
+        <StopShippingLocationCity>MENOMONIE</StopShippingLocationCity>
+        <StopShippingLocationPostalCode>547510000</StopShippingLocationPostalCode>
+        <StopShippingLocationStateCode>WI</StopShippingLocationStateCode>
+        <StopShippingLocationCountryCode>USA</StopShippingLocationCountryCode>
+        <StopShippingLocationAddressTimeZoneOffset>-1.000000</StopShippingLocationAddressTimeZoneOffset>
+      </StopShippingLocationAddress>
+      <StopShippingLocationContact>
+        <StopShippingLocationContactPrimaryTelephoneNumber>651-264-7434</StopShippingLocationContactPrimaryTelephoneNumber>
+      </StopShippingLocationContact>
+      <StopShippingLocationTimeZoneOffset>-1.000000</StopShippingLocationTimeZoneOffset>
+    </StopShippingLocation>
+    <LoadingHours>0.000000</LoadingHours>
+    <UnLoadingHours>0.250000</UnLoadingHours>
+    <WaitingHours>0.000000</WaitingHours>
+    <ShipmentsPickedNumber>0</ShipmentsPickedNumber>
+    <PickedShipmentInfo>
+      <PickedWeight>0.000000</PickedWeight>
+      <PickedVolume>0.000000</PickedVolume>
+      <PickedSkids>0.000000</PickedSkids>
+      <PickedPieces>0.000000</PickedPieces>
+    </PickedShipmentInfo>
+    <ShipmentsDroppedNumber>1</ShipmentsDroppedNumber>
+    <DroppedShipmentInfo>
+      <DroppedWeight>1.000000</DroppedWeight>
+      <DroppedVolume>1.000000</DroppedVolume>
+      <DroppedSkids>0.000000</DroppedSkids>
+      <DroppedPieces>1.000000</DroppedPieces>
+    </DroppedShipmentInfo>
+    <ComputedArrivalDateTime>2020-09-09T11:57:00</ComputedArrivalDateTime>
+    <ComputedDepartureDateTime>2020-09-09T12:12:00</ComputedDepartureDateTime>
+    <DropShipmentLegDetails>
+      <DropSystemShipmentLegID>166480546</DropSystemShipmentLegID>
+      <DropSystemShipmentNumber>036021306509</DropSystemShipmentNumber>
+    </DropShipmentLegDetails>
+    <DriveTimeToStop>0.830000</DriveTimeToStop>
+    <DriveDistanceToStop>49.600000</DriveDistanceToStop>
+    <WeekendHolidayBreakHours>0.000000</WeekendHolidayBreakHours>
+    <WeekendHolidayBreakOrientation>0</WeekendHolidayBreakOrientation>
+  </LoadStopList>
+
+  <ShipmentLeg>
+    <ShipmentItinerarySeqNum>100</ShipmentItinerarySeqNum>
+    <Shipment>
+      <SystemShipmentID>13267029</SystemShipmentID>
+      <SystemShipmentNumber>036021306509</SystemShipmentNumber>
+      <ShipmentDescription>Cartage</ShipmentDescription>
+      <OriginTypeEnumVal>DC</OriginTypeEnumVal>
+      <OriginCode>5AND00001</OriginCode>
+      <OriginName>Andersen Windows Inc.</OriginName>
+      <OriginAddress>
+        <OriginStreet>8TH AVENUE N</OriginStreet>
+        <OriginCity>BAYPORT</OriginCity>
+        <OriginPostalCode>550031139</OriginPostalCode>
+        <OriginStateCode>MN</OriginStateCode>
+        <OriginCountryCode>USA</OriginCountryCode>
+        <OriginTimeZoneOffset>-1.000000</OriginTimeZoneOffset>
+      </OriginAddress>
+      <OriginShippingLocation>
+        <OriginShippingLocationName>Andersen Windows Inc.</OriginShippingLocationName>
+        <OriginShippingLocationContact>
+          <OriginShippingLocationContactPrimaryTelephoneNumber>(651) 264-2837</OriginShippingLocationContactPrimaryTelephoneNumber>
+        </OriginShippingLocationContact>
+        <OriginShippingLocationTimeZoneOffset>-1.000000</OriginShippingLocationTimeZoneOffset>
+      </OriginShippingLocation>
+      <DestinationTypeEnumVal>DC</DestinationTypeEnumVal>
+      <DestinationCode>5AND00014</DestinationCode>
+      <DestinationName>Andersen Windows, Inc.</DestinationName>
+      <DestinationAddress>
+        <DestinationStreet>5929 PACKER DRIVE</DestinationStreet>
+        <DestinationCity>MENOMONIE</DestinationCity>
+        <DestinationPostalCode>547510000</DestinationPostalCode>
+        <DestinationStateCode>WI</DestinationStateCode>
+        <DestinationCountryCode>USA</DestinationCountryCode>
+        <DestinationTimeZoneOffset>-1.000000</DestinationTimeZoneOffset>
+      </DestinationAddress>
+      <DestinationShippingLocation>
+        <DestinationShippingLocationName>Andersen Windows, Inc.</DestinationShippingLocationName>
+        <DestinationShippingLocationContact>
+          <DestinationShippingLocationContactPrimaryTelephoneNumber>651-264-7434</DestinationShippingLocationContactPrimaryTelephoneNumber>
+        </DestinationShippingLocationContact>
+        <DestinationShippingLocationTimeZoneOffset>-1.000000</DestinationShippingLocationTimeZoneOffset>
+      </DestinationShippingLocation>
+      <CustomerCode>AW</CustomerCode>
+      <BillToCustomerCode>AW</BillToCustomerCode>
+      <CSR>0</CSR>
+      <ShipmentInfo>
+        <Weight>1.000000</Weight>
+        <Volume>1.000000</Volume>
+        <Pieces>1.000000</Pieces>
+        <Skids>0.000000</Skids>
+      </ShipmentInfo>
+      <UOM>
+        <WeightUOM>LB</WeightUOM>
+        <VolumeUOM>FT</VolumeUOM>
+      </UOM>
+      <OnHold>bFALSE</OnHold>
+      <CommodityCode>MILL</CommodityCode>
+      <Customer>
+        <CurrentCustomerVersion>
+          <CustomerName>Andersen Windows Inc.</CustomerName>
+          <CustomerAddress>
+            <CustomerAddressStreet>100 4TH AVENUE NORTH</CustomerAddressStreet>
+            <CustomerAddressCity>BAYPORT</CustomerAddressCity>
+            <CustomerAddressPostalCode>550031234</CustomerAddressPostalCode>
+            <CustomerAddressStateCode>MN</CustomerAddressStateCode>
+            <CustomerAddressCountryCode>USA</CustomerAddressCountryCode>
+            <CustomerAddressTimeZoneOffset>-1.000000</CustomerAddressTimeZoneOffset>
+          </CustomerAddress>
+        </CurrentCustomerVersion>
+        <CustomerBusinessHours>
+          <CustomerBusinessHoursTimeZoneOffset>-1.000000</CustomerBusinessHoursTimeZoneOffset>
+        </CustomerBusinessHours>
+      </Customer>
+      <BillToCustomer>
+        <CurrentBillToCustomerVersion>
+          <BillToCustomerName>Andersen Windows Inc.</BillToCustomerName>
+          <BillToCustomerAddress>
+            <BillToCustomerAddressStreet>100 4TH AVENUE NORTH</BillToCustomerAddressStreet>
+            <BillToCustomerAddressCity>BAYPORT</BillToCustomerAddressCity>
+            <BillToCustomerAddressPostalCode>550031234</BillToCustomerAddressPostalCode>
+            <BillToCustomerAddressStateCode>MN</BillToCustomerAddressStateCode>
+            <BillToCustomerAddressCountryCode>USA</BillToCustomerAddressCountryCode>
+            <BillToCustomerAddressTimeZoneOffset>-1.000000</BillToCustomerAddressTimeZoneOffset>
+          </BillToCustomerAddress>
+        </CurrentBillToCustomerVersion>
+        <BillToCustomerBusinessHours>
+          <BillToCustomerBusinessHoursTimeZoneOffset>-1.000000</BillToCustomerBusinessHoursTimeZoneOffset>
+        </BillToCustomerBusinessHours>
+      </BillToCustomer>
+      <ShipmentReferenceNumberList>
+        <ShipmentReferenceNumberType>SHIPLISTID</ShipmentReferenceNumberType>
+        <ShipmentReferenceNumber>036021306509</ShipmentReferenceNumber>
+      </ShipmentReferenceNumberList>
+      <ShipmentReferenceNumberList>
+        <ShipmentReferenceNumberType>VERB</ShipmentReferenceNumberType>
+        <ShipmentReferenceNumber>Create</ShipmentReferenceNumber>
+      </ShipmentReferenceNumberList>
+      <ShipmentReferenceNumberList>
+        <ShipmentReferenceNumberType>SOURCESYSTEM</ShipmentReferenceNumberType>
+        <ShipmentReferenceNumber>MES Bayport</ShipmentReferenceNumber>
+      </ShipmentReferenceNumberList>
+      <ShipmentReferenceNumberList>
+        <ShipmentReferenceNumberType>SHIPATTR</ShipmentReferenceNumberType>
+        <ShipmentReferenceNumber>MES ASN</ShipmentReferenceNumber>
+      </ShipmentReferenceNumberList>
+      <ShipmentContainer>
+        <ContainerId>39155175</ContainerId>
+        <ContainerType>
+          <ContainerTypeCode>MillWork</ContainerTypeCode>
+        </ContainerType>
+        <ContainerDescription>MillWork</ContainerDescription>
+        <ContainerQuantity>1.000000</ContainerQuantity>
+        <ContainerLength>0.000000</ContainerLength>
+        <ContainerWidth>0.000000</ContainerWidth>
+        <ContainerHeight>0.000000</ContainerHeight>
+        <ContainerRatingUnitType>PIECES</ContainerRatingUnitType>
+        <ContainerShippingInfo>
+          <ContainerShippingInfoWeight>1.000000</ContainerShippingInfoWeight>
+          <ContainerShippingInfoVolume>1.000000</ContainerShippingInfoVolume>
+          <ContainerShippingInfoOrderValue>0.000000</ContainerShippingInfoOrderValue>
+        </ContainerShippingInfo>
+        <ContainerMarkedForLocationEnumVal>0</ContainerMarkedForLocationEnumVal>
+        <ContainerCommodityCodeDetail>
+          <ContainerCommodityCode>MILL</ContainerCommodityCode>
+          <ContainerCommodityCodeExternalID>MILL</ContainerCommodityCodeExternalID>
+        </ContainerCommodityCodeDetail>
+        <ContainerWeightByFreightClass>
+          <WeightByFreightClassFreightCode> 775</WeightByFreightClassFreightCode>
+        </ContainerWeightByFreightClass>
+        <StackingRuleEnumVal>0</StackingRuleEnumVal>
+        <CarrierPackagingTypeVal>0</CarrierPackagingTypeVal>
+        <SplitMethodEnumVal>NONE</SplitMethodEnumVal>
+        <SystemItemMasterID>0</SystemItemMasterID>
+        <ItemPackageLevelCode>0</ItemPackageLevelCode>
+        <ContentQuantity>0.000000</ContentQuantity>
+        <Is3DLoadingRequired>bFALSE</Is3DLoadingRequired>
+        <ItemType>0</ItemType>
+        <ContentLevel>0</ContentLevel>
+        <Priority>0</Priority>
+        <IsItemPackagingCommitted>bFALSE</IsItemPackagingCommitted>
+      </ShipmentContainer>
+      <PickupFromDateTime>2020-09-09T01:52:00</PickupFromDateTime>
+      <PickupToDateTime>2020-09-09T17:51:00</PickupToDateTime>
+      <DeliveryFromDateTime>2020-09-09T09:52:00</DeliveryFromDateTime>
+      <DeliveryToDateTime>2020-09-09T17:52:00</DeliveryToDateTime>
+    </Shipment>
+    <SystemPickUpStopID>11383296</SystemPickUpStopID>
+    <SystemDropStopID>11383297</SystemDropStopID>
+    <SystemShipmentLegID>166480546</SystemShipmentLegID>
+    <PickUpSequenceNumber>0</PickUpSequenceNumber>
+    <DropSequenceNumber>1</DropSequenceNumber>
+    <PickStopSequenceNumber>1</PickStopSequenceNumber>
+    <DropStopSequenceNumber>2</DropStopSequenceNumber>
+  </ShipmentLeg>
+
+  <SendTenderByEDI>bFALSE</SendTenderByEDI>
+
+  <LoadScheduleCompleted>bTRUE</LoadScheduleCompleted>
+
+  <RatingValid>bTRUE</RatingValid>
+
+  <LoadStartDateTime>2020-09-09T10:52:00</LoadStartDateTime>
+
+  <LoadEndDateTime>2020-09-09T12:12:00</LoadEndDateTime>
+
+  <TotalNumberOfShipments>1</TotalNumberOfShipments>
+
+  <LoadTotals>
+    <LoadWeight>1.000000</LoadWeight>
+    <LoadVolume>1.000000</LoadVolume>
+    <LoadSkids>0.000000</LoadSkids>
+    <LoadPieces>1.000000</LoadPieces>
+  </LoadTotals><TotalDriveTime>0.830000</TotalDriveTime>
+
+  <TotalDriveDistance>49.600000</TotalDriveDistance>
+
+  <LoadSequenceNumber>0</LoadSequenceNumber>
+
+  <LoadStartDateTimeTimeZoneOffset>-1.000000</LoadStartDateTimeTimeZoneOffset>
+
+  <LoadEndDateTimeTimeZoneOffset>-1.000000</LoadEndDateTimeTimeZoneOffset>
+
+</CISDocument>
