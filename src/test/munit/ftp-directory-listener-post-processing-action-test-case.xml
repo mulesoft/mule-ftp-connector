@@ -151,6 +151,7 @@
             <munit:enable-flow-source value="moveToProcessed"/>
         </munit:enable-flow-sources>
         <munit:behavior>
+            <set-variable value="#['Crowley + Aziraphale']" variableName="fileContent" />
             <set-variable variableName="fileCount" value="5"/>
         </munit:behavior>
         <munit:execution>
@@ -172,18 +173,21 @@
             </foreach>
 
             <ftp:list config-ref="config" directoryPath="/processed"/>
+            <set-variable variableName="filesProcessedAfterMove" value="#[payload]"/>
             <set-variable variableName="fileCountInProcessedAfterMove" value="#[sizeOf(payload)]"/>
         </munit:execution>
         <munit:validation >
             <munit-tools:assert-equals actual="#[vars.fileCountInRootAfterMove]" expected="#[0]"/>
             <munit-tools:assert-equals actual="#[vars.fileCountInProcessedAfterMove]" expected="#[5]" />
+
+            <foreach collection="#[vars.filesProcessedAfterMove]">
+                <munit-tools:assert-equals actual="#[payload]" expected="#[vars.fileContent]"/>
+            </foreach>
         </munit:validation>
     </munit:test>
 
 
     <flow name="createFiles" maxConcurrency="1">
-        <set-variable value="#['Crowley + Aziraphale']" variableName="fileContent" />
-
         <foreach collection="#[1 to vars.fileCount]" counterVariableName="iterator">
             <ftp:write config-ref="config" path='#["/file" ++ vars.iterator ++ ".txt"]'>
                 <ftp:content><![CDATA[vars.fileContent]]></ftp:content>
