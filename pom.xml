@@ -27,7 +27,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
 
-        <muleFileCommonsVersion>1.3.4</muleFileCommonsVersion>
+        <muleFileCommonsVersion>1.3.6</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
         <!-- Remove when a new parent version with MTF is available -->
