@@ -16,7 +16,7 @@
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+    <munit:before-test name="startDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="startFtpServer(String)">
             <java:args>
@@ -25,16 +25,18 @@
                 }]
             </java:args>
         </java:invoke-static>
-    </munit:before-suite>
 
-    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+        <ftp:create-directory config-ref="config" directoryPath="#['/processed']"/>
+    </munit:before-test>
+
+    <munit:after-test name="clearDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="stopFtpServer()">
             <java:args>
                 #[{}]
             </java:args>
         </java:invoke-static>
-    </munit:after-suite>
+    </munit:after-test>
 
     <munit:test name="renameTo" description="Verifies that files are renamed after processing">
         <munit:enable-flow-sources>
@@ -144,6 +146,55 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="moveTo" description="Verifies that the post processing action can move 10 files in one go without errors">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="moveToProcessed"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable value="#['Crowley and Aziraphale']" variableName="fileContent" />
+            <set-variable variableName="fileCount" value="5"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="createFiles"/>
+
+            <flow-ref name="wait-2-seconds"/>
+            <flow-ref name="wait-2-seconds"/>
+            <flow-ref name="wait-2-seconds"/>
+
+            <ftp:list config-ref="config" directoryPath="/"/>
+            <set-variable variableName="fileCountInRootAfterMove" value="#[0]"/>
+
+            <foreach>
+                <choice>
+                    <when expression="#[not attributes.directory]">
+                        <set-variable variableName="fileCountInRootAfterMove" value="#[vars.fileCountInRootAfterMove + 1]" />
+                    </when>
+                </choice>
+            </foreach>
+
+            <ftp:list config-ref="config" directoryPath="/processed"/>
+            <set-variable variableName="filesProcessedAfterMove" value="#[payload]"/>
+            <set-variable variableName="fileCountInProcessedAfterMove" value="#[sizeOf(payload)]"/>
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.fileCountInRootAfterMove]" expected="#[0]"/>
+            <munit-tools:assert-equals actual="#[vars.fileCountInProcessedAfterMove]" expected="#[5]" />
+
+            <foreach collection="#[vars.filesProcessedAfterMove]">
+                <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(vars.fileContent)]"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+
+    <flow name="createFiles" maxConcurrency="1">
+        <foreach collection="#[1 to vars.fileCount]" counterVariableName="iterator">
+            <ftp:write config-ref="config" path='#["/file" ++ vars.iterator ++ ".txt"]'>
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </foreach>
+    </flow>
+
     <flow name="renameToFlow">
         <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false">
             <scheduling-strategy>
@@ -174,6 +225,15 @@
                 </on-error-continue>
             </error-handler>
         </try>
+    </flow>
+
+    <flow name="moveToProcessed">
+        <ftp:listener config-ref="config" directory="/" autoDelete="true" moveToDirectory="/processed" recursive="false">
+            <scheduling-strategy >
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
     </flow>
 
 </mule>
