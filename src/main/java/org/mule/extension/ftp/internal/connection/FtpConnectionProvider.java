@@ -16,7 +16,6 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
-import org.apache.commons.net.PrintCommandListener;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
@@ -34,6 +33,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.annotation.values.OfValues;
+import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -47,6 +47,7 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
@@ -148,6 +149,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   @Optional(defaultValue = "true")
   @Summary("Whether to verify if the remote host taking part of a data connection is the same as the host to which the control connection is attached or not")
   @DisplayName("Enable Remote Verification")
+  @ExcludeFromConnectivitySchema
   private boolean remoteVerificationEnabled = true;
 
   /**
@@ -165,6 +167,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   @OfValues(ControlEncodingValueProvider.class)
   @Summary("Set the control encoding (for example UTF-8) to use in the control channel with the remote server. This does NOT set the encoding for the content of the files to be transferred.")
   @DisplayName("Control Encoding")
+  @ExcludeFromConnectivitySchema
   private String controlEncoding;
 
   /**
