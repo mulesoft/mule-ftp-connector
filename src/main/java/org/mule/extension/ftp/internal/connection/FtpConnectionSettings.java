@@ -10,6 +10,9 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.sdk.api.annotation.semantics.connectivity.Host;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
+import org.mule.sdk.api.annotation.semantics.security.Username;
 
 /**
  * Groups FTP connection parameters
@@ -23,6 +26,7 @@ public final class FtpConnectionSettings {
    */
   @Parameter
   @Placement(order = 1)
+  @Host
   private String host;
 
   /**
@@ -31,6 +35,7 @@ public final class FtpConnectionSettings {
   @Parameter
   @Optional(defaultValue = "21")
   @Placement(order = 2)
+  @Port
   private int port = 21;
 
   /**
@@ -39,6 +44,7 @@ public final class FtpConnectionSettings {
   @Parameter
   @Optional
   @Placement(order = 3)
+  @Username
   private String username;
 
   /**
