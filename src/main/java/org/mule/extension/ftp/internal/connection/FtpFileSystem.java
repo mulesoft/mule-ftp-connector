@@ -43,6 +43,7 @@ import org.mule.extension.ftp.internal.command.FtpMoveCommand;
 import org.mule.extension.ftp.internal.command.FtpReadCommand;
 import org.mule.extension.ftp.internal.command.FtpRenameCommand;
 import org.mule.extension.ftp.internal.command.FtpWriteCommand;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lock.LockFactory;
@@ -268,9 +269,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       try {
         client.changeWorkingDirectory(normalizePath(createUri("/", getBasePath()).getPath()));
       } catch (IOException e) {
+        ConnectionException ce = new ConnectionException(e, client);
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
-                                       e);
+                                       ce);
       }
     }
   }
