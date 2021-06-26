@@ -11,6 +11,7 @@ import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
+import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.ftp.api.FtpFileMatcher;
@@ -177,9 +178,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     try {
       openConnection();
     } catch (Exception e) {
-      if (e instanceof ConnectionException) {
-        pollContext.onConnectionException((ConnectionException) e);
-      }
+      extractConnectionException(e).ifPresent((connectionException) -> pollContext.onConnectionException(connectionException));
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()),
                    e);
