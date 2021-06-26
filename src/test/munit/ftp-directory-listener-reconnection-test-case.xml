@@ -85,7 +85,7 @@
         </munit:validation>
     </munit:test>
 
-    <flow name="ftpListenerFlow" >
+    <flow name="ftpListenerFlow-reconnection" >
         <ftp:listener config-ref="config" directory="/" watermarkEnabled="true" autoDelete="true">
             <reconnect-forever />
             <scheduling-strategy>
