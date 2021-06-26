@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-directory-listener-matchers-test-case.xml" minMuleVersion="4.3.0">
+    <munit:config name="ftp-directory-listener-matchers-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="process-new-files">
                 <munit:parameters>

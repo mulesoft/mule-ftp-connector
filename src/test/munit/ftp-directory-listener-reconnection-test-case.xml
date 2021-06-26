@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-directory-listener-reconnection-test-case.xml"/>
+    <munit:config name="ftp-directory-listener-reconnection-test-case.xml"  minMuleVersion="4.3.0"/>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
