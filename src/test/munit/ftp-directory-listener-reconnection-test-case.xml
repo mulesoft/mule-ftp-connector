@@ -39,7 +39,7 @@
     <munit:test name="ftpDirectoryListenerReconnectionTest">
 
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="ftpListenerFlow"/>
+            <munit:enable-flow-source value="ftpListenerFlow-reconnection"/>
         </munit:enable-flow-sources>
 
         <munit:behavior>
