@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-directory-listener-reconnection-test-case.xml"  minMuleVersion="4.3.0"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-reconnection">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-reconnection">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="ftpDirectoryListenerReconnectionTest">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="ftpListenerFlow-reconnection"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="amountOfFiles" value="#[100]"/>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+        </munit:behavior>
+        <munit:execution>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="stopFtpServer()">
+                <java:args>
+                    #[{}]
+                </java:args>
+            </java:invoke-static>
+            <logger message="#[%dw 2.0
+                            import * from dw::Runtime
+                            output application/json
+                            ---
+                            'Waiting for 2000 milliseconds' wait 2000]"/>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="startFtpServer(String)">
+                <java:args>
+                    #[{
+                    arg0: ${ftp.server.port},
+                    }]
+                </java:args>
+            </java:invoke-static>
+            <foreach collection="#[1 to vars.amountOfFiles]">
+                <ftp:write config-ref="config" path="#[payload ++ '.txt']">
+                    <ftp:content>#[vars.fileContent]</ftp:content>
+                </ftp:write>
+                <logger message="#[%dw 2.0
+                            import * from dw::Runtime
+                            output application/json
+                            ---
+                            'Waiting for 100 milliseconds' wait 100]"/>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="100" millisBetweenRetries="500">
+                <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                         is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="ftpListenerFlow-reconnection" >
+        <ftp:listener config-ref="config" directory="/" watermarkEnabled="true" autoDelete="true">
+            <reconnect-forever />
+            <scheduling-strategy>
+                <fixed-frequency frequency="1000"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <set-payload value="attributes.fileName"/>
+        <munit-tools:queue/>
+        <logger message="#[%dw 2.0
+                            import * from dw::Runtime
+                            output application/json
+                            ---
+                            'Waiting for 5 seconds' wait 5000]"/>
+    </flow>
+
+</mule>
