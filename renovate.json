@@ -13,6 +13,7 @@
   "ignoreDeps": [
     "org.mule.tests:mule-tests-runner",
     "org.mule.tests:mule-tests-infrastructure",
-    "org.mule.extensions:mule-core-modules-parent"
+    "org.mule.extensions:mule-core-modules-parent",
+    "org.mule.sdk:mule-sdk-api"
   ]
 }
