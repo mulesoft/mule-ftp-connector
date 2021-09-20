@@ -99,6 +99,9 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected FtpFileAttributes getFile(String filePath, boolean requireExistence) {
     // We need to normalize the filePath because it can have a trailing separator
     URI uri = normalizeUri(resolveUri(normalizePath(filePath)));
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Get file attributes for path {}", uri);
+    }
     return getFileFromAbsoluteUri(uri, requireExistence);
   }
 
@@ -111,7 +114,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
 
     if (ftpFile.isPresent()) {
-      return new FtpFileAttributes(uri, ftpFile.get());
+      FtpFileAttributes attributes = new FtpFileAttributes(uri, ftpFile.get());
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Obtained file attributes {}", attributes);
+      }
+      return attributes;
     } else {
       if (requireExistence) {
         throw pathNotFoundException(uri);

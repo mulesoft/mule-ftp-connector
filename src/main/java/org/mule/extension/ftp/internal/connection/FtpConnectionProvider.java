@@ -257,21 +257,28 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
    * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
    */
   protected ConnectionException handleClientReplyCode(int replyCode, Throwable cause) {
+    FTPConnectionException exception;
     switch (replyCode) {
       case 501:
       case 530:
-        return new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
+        exception = new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
                                           INVALID_CREDENTIALS);
+        break;
       case 421:
-        return new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
+        exception = new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
                                           SERVICE_NOT_AVAILABLE);
-    }
-    if (cause != null) {
-      return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
-                                        CONNECTIVITY);
+        break;
+      default:
+        exception = cause != null ?
+                new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
+                  CONNECTIVITY)
+                : new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
+
     }
 
-    return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
+    LOGGER.error(exception.getMessage(), exception);
+
+    return exception;
   }
 
   private String getErrorMessage(FtpConnectionSettings connectionSettings, String message) {

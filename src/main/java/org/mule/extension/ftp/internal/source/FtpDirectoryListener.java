@@ -247,6 +247,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     FtpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
 
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Processing file {}", attributes);
+    }
+
     PollItemStatus status = pollContext.accept(item -> {
       SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result<InputStream, FtpFileAttributes> result = null;
