@@ -262,17 +262,17 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
       case 501:
       case 530:
         exception = new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
-                                          INVALID_CREDENTIALS);
+                                               INVALID_CREDENTIALS);
         break;
       case 421:
         exception = new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
-                                          SERVICE_NOT_AVAILABLE);
+                                               SERVICE_NOT_AVAILABLE);
         break;
       default:
-        exception = cause != null ?
-                new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
-                  CONNECTIVITY)
-                : new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
+        exception = cause != null
+            ? new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
+                                         CONNECTIVITY)
+            : new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
 
     }
 
