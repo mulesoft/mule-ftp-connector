@@ -76,7 +76,7 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
       } else {
         copyFile(config, source, targetUri, overwrite, writerConnection);
         if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("Copied file {} to {}", path, targetUri);
+          LOGGER.trace("Copied file {} to {}", path, targetUri.getPath());
         }
       }
     } catch (ModuleException e) {

@@ -269,11 +269,13 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
                                                SERVICE_NOT_AVAILABLE);
         break;
       default:
-        exception = cause != null
-            ? new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
-                                         CONNECTIVITY)
-            : new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
-
+        if (cause != null) {
+          exception =
+              new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
+                                         CONNECTIVITY);
+        } else {
+          exception = new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
+        }
     }
 
     LOGGER.error(exception.getMessage(), exception);
