@@ -151,9 +151,8 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    */
   public ConnectionValidationResult validateConnection() {
     if (!isConnected()) {
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Connection validation failed.");
-      }
+      LOGGER.trace("Connection validation failed.");
+
       return failure("Connection is stale", new FTPConnectionException("Connection is stale", DISCONNECTED));
     }
 

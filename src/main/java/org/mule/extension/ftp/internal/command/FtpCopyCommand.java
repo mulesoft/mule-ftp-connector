@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
 
-  private final Logger LOGGER = LoggerFactory.getLogger(FtpCopyCommand.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpCopyCommand.class);
 
 
   /**
@@ -81,14 +81,12 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
 
         URI targetFileUri = createUri(targetUri.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Copy directory {} to {}", filePath, targetUri);
-          }
+          LOGGER.trace("Copy directory {} to {}", filePath, targetUri);
+
           copyDirectory(config, createUri(filePath), targetFileUri, overwrite, writerConnection);
         } else {
-          if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Copy file {} to {}", filePath, targetUri);
-          }
+          LOGGER.trace("Copy file {} to {}", filePath, targetUri);
+
           copyFile(config, fileAttributes, targetFileUri, overwrite, writerConnection);
         }
       }

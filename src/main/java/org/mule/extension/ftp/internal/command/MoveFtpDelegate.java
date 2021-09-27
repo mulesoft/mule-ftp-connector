@@ -21,7 +21,7 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
 
   private FtpCommand command;
   private FtpFileSystem fileSystem;
-  private final Logger LOGGER = LoggerFactory.getLogger(MoveFtpDelegate.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MoveFtpDelegate.class);
 
   public MoveFtpDelegate(FtpCommand command, FtpFileSystem fileSystem) {
     this.command = command;

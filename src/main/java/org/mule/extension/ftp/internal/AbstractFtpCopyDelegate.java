@@ -34,7 +34,7 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
 
   private final FtpCommand command;
   private final FtpFileSystem fileSystem;
-  private final Logger LOGGER = LoggerFactory.getLogger(AbstractFtpCopyDelegate.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFtpCopyDelegate.class);
 
   /**
    * Creates new instance

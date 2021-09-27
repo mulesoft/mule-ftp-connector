@@ -213,9 +213,15 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     } catch (UnknownHostException e) {
       throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
     } catch (Exception e) {
-      throw client.getReplyCode() != 0
-          ? handleClientReplyCode(client.getReplyCode(), e)
-          : new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
+      ConnectionException connectionException;
+      if (client.getReplyCode() != 0) {
+        connectionException = handleClientReplyCode(client.getReplyCode(), e);
+        LOGGER.error(connectionException.getMessage(), connectionException);
+        throw connectionException;
+      }
+      connectionException = new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
+      LOGGER.error(connectionException.getMessage(), connectionException);
+      throw connectionException;
     }
 
     return client;
@@ -257,30 +263,21 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
    * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
    */
   protected ConnectionException handleClientReplyCode(int replyCode, Throwable cause) {
-    FTPConnectionException exception;
     switch (replyCode) {
       case 501:
       case 530:
-        exception = new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
-                                               INVALID_CREDENTIALS);
-        break;
+        return new FTPConnectionException(getErrorMessage(replyCode, "User cannot log in"),
+                                          INVALID_CREDENTIALS);
       case 421:
-        exception = new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
-                                               SERVICE_NOT_AVAILABLE);
-        break;
-      default:
-        if (cause != null) {
-          exception =
-              new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
-                                         CONNECTIVITY);
-        } else {
-          exception = new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
-        }
+        return new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
+                                          SERVICE_NOT_AVAILABLE);
+    }
+    if (cause != null) {
+      return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,
+                                        CONNECTIVITY);
     }
 
-    LOGGER.error(exception.getMessage(), exception);
-
-    return exception;
+    return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)));
   }
 
   private String getErrorMessage(FtpConnectionSettings connectionSettings, String message) {
