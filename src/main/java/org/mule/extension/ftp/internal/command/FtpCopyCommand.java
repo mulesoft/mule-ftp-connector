@@ -21,6 +21,9 @@ import java.net.URI;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A {@link FtpCommand} which implements the {@link CopyCommand} contract
@@ -28,6 +31,9 @@ import org.apache.commons.net.ftp.FTPFile;
  * @since 1.0
  */
 public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpCopyCommand.class);
+
 
   /**
    * {@inheritDoc}
@@ -71,11 +77,16 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
         }
 
         FileAttributes fileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
+        String filePath = fileAttributes.getPath();
 
         URI targetFileUri = createUri(targetUri.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          copyDirectory(config, createUri(fileAttributes.getPath()), targetFileUri, overwrite, writerConnection);
+          LOGGER.trace("Copy directory {} to {}", filePath, targetUri);
+
+          copyDirectory(config, createUri(filePath), targetFileUri, overwrite, writerConnection);
         } else {
+          LOGGER.trace("Copy file {} to {}", filePath, targetUri);
+
           copyFile(config, fileAttributes, targetFileUri, overwrite, writerConnection);
         }
       }

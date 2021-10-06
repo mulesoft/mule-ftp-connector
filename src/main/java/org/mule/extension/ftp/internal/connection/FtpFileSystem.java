@@ -151,13 +151,16 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    */
   public ConnectionValidationResult validateConnection() {
     if (!isConnected()) {
+      LOGGER.trace("Connection validation failed.");
+
       return failure("Connection is stale", new FTPConnectionException("Connection is stale", DISCONNECTED));
     }
 
     try {
       changeToBaseDir();
     } catch (Exception e) {
-      failure("Configured workingDir is unavailable", e);
+      LOGGER.error("Error occurred while changing to base directory {}", getBasePath(), e);
+      return failure("Configured workingDir is unavailable", e);
     }
     return success();
   }
