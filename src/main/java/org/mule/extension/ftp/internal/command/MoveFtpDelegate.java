@@ -12,6 +12,8 @@ import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -19,6 +21,7 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
 
   private FtpCommand command;
   private FtpFileSystem fileSystem;
+  private static final Logger LOGGER = LoggerFactory.getLogger(MoveFtpDelegate.class);
 
   public MoveFtpDelegate(FtpCommand command, FtpFileSystem fileSystem) {
     this.command = command;
@@ -27,6 +30,7 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
 
   @Override
   public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+    String path = source.getPath();
     try {
       if (command.exists(targetUri)) {
         if (overwrite) {
@@ -36,11 +40,14 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
         }
       }
 
-      command.rename(source.getPath(), targetUri.getPath(), overwrite);
+      command.rename(path, targetUri.getPath(), overwrite);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Moved file {} to {}", path, targetUri.getPath());
+      }
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri.getPath()), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", path, targetUri.getPath()), e);
     }
   }
 }

@@ -213,9 +213,15 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     } catch (UnknownHostException e) {
       throw new FTPConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
     } catch (Exception e) {
-      throw client.getReplyCode() != 0
-          ? handleClientReplyCode(client.getReplyCode(), e)
-          : new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
+      ConnectionException connectionException;
+      if (client.getReplyCode() != 0) {
+        connectionException = handleClientReplyCode(client.getReplyCode(), e);
+        LOGGER.error(connectionException.getMessage(), connectionException);
+        throw connectionException;
+      }
+      connectionException = new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
+      LOGGER.error(connectionException.getMessage(), connectionException);
+      throw connectionException;
     }
 
     return client;
