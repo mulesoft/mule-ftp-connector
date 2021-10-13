@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.connection;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.net.ftp.FTPReply.isPositiveCompletion;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.createUrl;
@@ -92,6 +93,8 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   private final WriteCommand writeCommand;
   private final LockFactory lockFactory;
 
+  private String supportedServerFeatures = "";
+
   /**
    * Creates a new instance
    *
@@ -101,6 +104,15 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;
+
+    try {
+      this.client.features();
+      if (isPositiveCompletion(client.getReplyCode())) {
+        this.supportedServerFeatures = client.getReplyString();
+      }
+    } catch (IOException ioException) {
+      LOGGER.error(format("Unable to obtain supported features list from FTP server {}", ioException.getMessage()), ioException);
+    }
 
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
@@ -135,6 +147,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
         LOGGER.debug(e.getMessage(), e);
       }
     }
+  }
+
+  public boolean isFeatureSupported(String command) {
+    return this.supportedServerFeatures.contains(command);
   }
 
   /**
@@ -243,7 +259,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       if (!client.completePendingCommand()) {
         throw new IllegalStateException("Pending command did not complete");
       }
-    } catch (IOException e) {
+    } catch (IllegalStateException | IOException e) {
+      LOGGER.error(format("Failed to complete pending command. %s",
+                          getReplyCodeErrorMessage(client.getReplyCode())),
+                   e);
       throw new MuleRuntimeException(createStaticMessage(format("Failed to complete pending command. %s",
                                                                 getReplyCodeErrorMessage(client.getReplyCode()))),
                                      e);
@@ -258,6 +277,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     try {
       return createUrl(client, uri);
     } catch (MalformedURLException e) {
+      LOGGER.error(format("Could not get URL for FTP server %s", uri.getHost()), e);
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
     }
   }
@@ -272,6 +292,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       try {
         client.changeWorkingDirectory(normalizePath(createUri("/", getBasePath()).getPath()));
       } catch (IOException e) {
+        LOGGER.error(format("Failed to perform CWD to the base directory '%s'", basePath), e);
         ConnectionException ce = new ConnectionException(e, client);
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
