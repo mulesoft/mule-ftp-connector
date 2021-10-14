@@ -7,12 +7,12 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.apache.commons.net.ftp.FTPCmd.MLST;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.apache.commons.net.ftp.FTPCmd.MLSD;
 import static org.apache.commons.net.ftp.FTPReply.isPositiveCompletion;
 
 import org.mule.extension.file.common.api.FileAttributes;
@@ -159,7 +159,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
-    if (fileSystem.isFeatureSupported(MLSD.getCommand())) {
+    // Check for MLST feature in accordance with rfc-3659, which states that
+    // the presence of the MLST feature indicates that both MLST and MLSD are supported.
+    if (fileSystem.isFeatureSupported(MLST.getCommand())) {
       try {
         FTPFile[] files = client.mlistDir();
         if (isPositiveCompletion(client.getReplyCode())) {
