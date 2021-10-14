@@ -7,11 +7,13 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
+import static org.apache.commons.net.ftp.FTPCmd.MLST;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.apache.commons.net.ftp.FTPReply.isPositiveCompletion;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -33,7 +35,6 @@ import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPListParseEngine;
-import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 
 /**
@@ -95,7 +96,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     try {
       doList(config, uri, accumulator, recursive, matcher, timeBetweenSizeCheck);
 
-      if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
+      if (!isPositiveCompletion(client.getReplyCode())) {
         throw exception(format("Failed to list files on directory '%s'", uri.getPath()));
       }
 
@@ -158,20 +159,24 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
-    try {
-      FTPFile[] files = client.mlistDir();
-      if (FTPReply.isPositiveCompletion(client.getReplyCode())) {
-        return new SingleItemIterator(files);
+    // Check for MLST feature in accordance with rfc-3659, which states that
+    // the presence of the MLST feature indicates that both MLST and MLSD are supported.
+    if (fileSystem.isFeatureSupported(MLST.getCommand())) {
+      try {
+        FTPFile[] files = client.mlistDir();
+        if (isPositiveCompletion(client.getReplyCode())) {
+          return new SingleItemIterator(files);
+        }
+      } catch (MalformedServerReplyException e) {
+        LOGGER
+            .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
+                          e.getMessage()));
       }
-    } catch (MalformedServerReplyException e) {
-      LOGGER
-          .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
-                        e.getMessage()));
-    }
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER
-          .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. %s",
-                        getReplyErrorMessage(client.getReplyCode(), client.getReplyString())));
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER
+            .debug(format("Server answered the MLSD command with a negative completion code. Falling back to the old LIST command. %s",
+                          getReplyErrorMessage(client.getReplyCode(), client.getReplyString())));
+      }
     }
     return new FtpListEngineIterator(client.initiateListParsing());
   }
