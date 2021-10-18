@@ -74,6 +74,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       try {
         return client.printWorkingDirectory();
       } catch (Exception e) {
+        LOGGER.error("FTP working dir was not specified and failed to resolve a default one", e);
         throw new MuleRuntimeException(createStaticMessage("FTP working dir was not specified and failed to resolve a default one"),
                                        e);
       }
@@ -125,15 +126,24 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     } catch (FTPConnectionClosedException e) {
       // this is valid and expected if the server closes the connection prematurely as a result of the logout... ignore
     } catch (Exception e) {
-      LOGGER.warn("Exception found trying to logout from ftp at {} ", toURL(createUri("")));
+      LOGGER.error("Exception found trying to logout from ftp at {} ", toURL(createUri("")), e);
       LOGGER.debug(e.getMessage(), e);
     } finally {
       try {
         client.disconnect();
       } catch (Exception e) {
-        LOGGER.warn("Exception found trying to disconnect from ftp at {} ", toURL(createUri("")));
+        LOGGER.error("Exception found trying to disconnect from ftp at {} ", toURL(createUri("")), e);
         LOGGER.debug(e.getMessage(), e);
       }
+    }
+  }
+
+  public boolean isFeatureSupported(String command) {
+    try {
+      return client.hasFeature(command);
+    } catch (IOException exception) {
+      LOGGER.error(format("Unable to resolve if feature {} is supported.", command), exception);
+      return false;
     }
   }
 
@@ -177,6 +187,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
                                      getReplyCodeErrorMessage(client.getReplyCode())));
       }
     } catch (Exception e) {
+      LOGGER.error(format("Found exception trying to change transfer mode to %s. %s",
+                          mode.getClass(),
+                          getReplyCodeErrorMessage(client.getReplyCode())),
+                   e);
       throw new MuleRuntimeException(createStaticMessage(format("Found exception trying to change transfer mode to %s. %s",
                                                                 mode.getClass(),
                                                                 getReplyCodeErrorMessage(client.getReplyCode()))),
@@ -227,6 +241,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
 
       return inputStream;
     } catch (Exception e) {
+      LOGGER.error(format("Exception was found trying to retrieve the contents of file '%s'. %s",
+                          filePayload.getPath(),
+                          getReplyCodeErrorMessage(client.getReplyCode())),
+                   e);
       throw new MuleRuntimeException(createStaticMessage(format("Exception was found trying to retrieve the contents of file '%s'. %s",
                                                                 filePayload.getPath(),
                                                                 getReplyCodeErrorMessage(client.getReplyCode()))),
@@ -243,7 +261,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       if (!client.completePendingCommand()) {
         throw new IllegalStateException("Pending command did not complete");
       }
-    } catch (IOException e) {
+    } catch (IllegalStateException | IOException e) {
+      LOGGER.error(format("Failed to complete pending command. %s",
+                          getReplyCodeErrorMessage(client.getReplyCode())),
+                   e);
       throw new MuleRuntimeException(createStaticMessage(format("Failed to complete pending command. %s",
                                                                 getReplyCodeErrorMessage(client.getReplyCode()))),
                                      e);
@@ -258,6 +279,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     try {
       return createUrl(client, uri);
     } catch (MalformedURLException e) {
+      LOGGER.error(format("Could not get URL for FTP server %s", uri.getHost()), e);
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
     }
   }
@@ -272,6 +294,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       try {
         client.changeWorkingDirectory(normalizePath(createUri("/", getBasePath()).getPath()));
       } catch (IOException e) {
+        LOGGER.error(format("Failed to perform CWD to the base directory '%s'", basePath), e);
         ConnectionException ce = new ConnectionException(e, client);
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
                                                                   basePath)),
