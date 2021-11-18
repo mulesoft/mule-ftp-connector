@@ -16,10 +16,12 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
+import org.apache.commons.net.ftp.FTPHTTPClient;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
+import org.mule.extension.ftp.api.ftp.proxy.DefaultHttpProxyConfig;
 import org.mule.extension.ftp.internal.TimeoutSettings;
 import org.mule.extension.ftp.internal.logging.LoggingOutputStream;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -170,6 +172,15 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   @ExcludeFromConnectivitySchema
   private String controlEncoding;
 
+
+  @Parameter
+  @Optional
+  @Summary("Reusable configuration element for outbound connections through a proxy")
+  @Placement(tab = "Proxy")
+  private DefaultHttpProxyConfig proxyConfig;
+
+
+
   /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
@@ -228,7 +239,14 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   }
 
   protected FTPClient createClient() {
-    FTPClient client = new FTPClient();
+    FTPClient client;
+    if (proxyConfig == null) {
+      client = new FTPClient();
+    } else {
+      //TODO check for mode. Only Passive mode is supported when connecting through proxy
+      client =
+          new FTPHTTPClient(proxyConfig.getHost(), proxyConfig.getPort(), proxyConfig.getUsername(), proxyConfig.getPassword());
+    }
 
     if (LOGGER.isDebugEnabled()) {
       setupWireLogging(client, LOGGER::debug);
