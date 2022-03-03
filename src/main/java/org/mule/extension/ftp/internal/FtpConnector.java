@@ -10,16 +10,16 @@ import static org.mule.runtime.extension.api.annotation.param.display.Placement.
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.ftp.api.proxy.HttpTunnelProxy;
+import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
 import org.mule.extension.ftp.internal.source.FtpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.mule.runtime.extension.api.annotation.Extension;
-import org.mule.runtime.extension.api.annotation.Operations;
-import org.mule.runtime.extension.api.annotation.PrivilegedExport;
-import org.mule.runtime.extension.api.annotation.Sources;
+import org.mule.runtime.extension.api.annotation.*;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.runtime.extension.api.annotation.license.RequiresEnterpriseLicense;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -39,9 +39,12 @@ import java.util.concurrent.TimeUnit;
 @PrivilegedExport(packages = {"org.mule.extension.ftp.internal", "org.mule.extension.ftp.internal.connection",
     "org.mule.extension.ftp.internal.source", "org.apache.commons.net.ftp", "org.apache.commons.net"},
     artifacts = {"com.mulesoft.connectors:mule-ftps-connector"})
+
 @ErrorTypes(FileError.class)
 @Sources(FtpDirectoryListener.class)
 @Xml(prefix = "ftp")
+@RequiresEnterpriseLicense(allowEvaluationLicense = true)
+@SubTypeMapping(baseType = ProxySettings.class, subTypes = {HttpTunnelProxy.class})
 public class FtpConnector extends FileConnectorConfig {
 
   /**

@@ -16,10 +16,12 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
+import org.apache.commons.net.ftp.FTPHTTPClient;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
+import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.TimeoutSettings;
 import org.mule.extension.ftp.internal.logging.LoggingOutputStream;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -122,6 +124,11 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   @ParameterGroup(name = CONNECTION)
   private FtpConnectionSettings connectionSettings;
 
+  @Parameter
+  @Optional
+  @Summary("The Proxy settings")
+  protected ProxySettings proxy;
+
   /**
    * The transfer mode to be used. Currently {@code BINARY} and {@code ASCII} are supported.
    * <p>
@@ -195,6 +202,8 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
+      LOGGER.debug(format("Connecting to proxy host: '%s' at port: '%d'", proxy.getHost(),
+                          proxy.getPort()));
     }
 
     try {
@@ -228,7 +237,14 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   }
 
   protected FTPClient createClient() {
-    FTPClient client = new FTPClient();
+    FTPClient client;
+    if (proxy == null)
+      client = new FTPClient();
+    else {
+      client = new FTPHTTPClient(proxy.getHost(), proxy.getPort(), proxy.getUsername(),
+                                 proxy.getPassword());
+      client.setUseEPSVwithIPv4(true);
+    }
 
     if (LOGGER.isDebugEnabled()) {
       setupWireLogging(client, LOGGER::debug);
