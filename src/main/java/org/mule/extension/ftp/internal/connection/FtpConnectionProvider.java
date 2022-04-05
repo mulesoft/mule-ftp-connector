@@ -201,9 +201,12 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     }
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
-      LOGGER.debug(format("Connecting to proxy host: '%s' at port: '%d'", proxy.getHost(),
-                          proxy.getPort()));
+      LOGGER
+          .debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
+      if (proxy != null) {
+        LOGGER.debug(format("Connecting to proxy host: '%s' at port: '%d'", proxy.getHost(),
+                            proxy.getPort()));
+      }
     }
 
     try {
