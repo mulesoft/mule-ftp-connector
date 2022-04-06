@@ -12,6 +12,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.semantics.connectivity.ConfiguresProxy;
 import org.mule.sdk.api.annotation.semantics.connectivity.Host;
 import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 import org.mule.sdk.api.annotation.semantics.security.Username;
@@ -27,6 +28,7 @@ import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
  */
 
 @Summary("The FTP Proxy Settings")
+@ConfiguresProxy
 public class HttpTunnelProxy implements ProxySettings {
 
   /**
@@ -47,7 +49,7 @@ public class HttpTunnelProxy implements ProxySettings {
   @Expression(SUPPORTED)
   @Optional(defaultValue = "")
   @Port
-  private int port = 21;
+  private int port = 3128;
 
   /**
    * Username for the FTP Proxy Server. Required if the Proxy server is authenticated.
