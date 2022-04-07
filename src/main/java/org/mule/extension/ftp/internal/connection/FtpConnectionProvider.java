@@ -13,6 +13,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVI
 import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
@@ -24,10 +25,15 @@ import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.TimeoutSettings;
 import org.mule.extension.ftp.internal.logging.LoggingOutputStream;
+import org.mule.extension.ftp.internal.proxy.MuleFTPHTTPClient;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
+import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.lifecycle.Initialisable;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lock.LockFactory;
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
@@ -63,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @DisplayName("FTP Connection")
 @Summary("Connection to connect against an FTP server")
 public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> implements
-    PoolingConnectionProvider<FtpFileSystem> {
+    PoolingConnectionProvider<FtpFileSystem>, Initialisable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpConnectionProvider.class);
   private static final String FTP_ERROR_MESSAGE_MASK =
@@ -177,6 +183,13 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
   @ExcludeFromConnectivitySchema
   private String controlEncoding;
 
+  @Override
+  public void initialise() throws InitialisationException {
+    if (proxy != null) {
+      proxy.initialise();
+    }
+  }
+
   /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
@@ -244,9 +257,12 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     if (proxy == null)
       client = new FTPClient();
     else {
-      client = new FTPHTTPClient(proxy.getHost(), proxy.getPort(), proxy.getUsername(),
-                                 proxy.getPassword());
-      client.setUseEPSVwithIPv4(true);
+      try {
+        client = new MuleFTPHTTPClient(proxy);
+        client.setUseEPSVwithIPv4(true);
+      } catch (Exception e) {
+        throw new MuleRuntimeException(createStaticMessage("Could not create FTP client"), e);
+      }
     }
 
     if (LOGGER.isDebugEnabled()) {
@@ -369,4 +385,5 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
     }
 
   }
+
 }

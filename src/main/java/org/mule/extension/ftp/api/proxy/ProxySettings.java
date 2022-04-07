@@ -6,11 +6,10 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
-public interface ProxySettings {
+import org.mule.runtime.api.lifecycle.Initialisable;
+import org.mule.runtime.api.tls.TlsContextFactory;
 
-  default public Boolean getHttps() {
-    return false;
-  }
+public interface ProxySettings extends Initialisable {
 
   public String getHost();
 
@@ -19,4 +18,6 @@ public interface ProxySettings {
   public String getUsername();
 
   public String getPassword();
+
+  public TlsContextFactory getTlsContextFactory();
 }

@@ -6,6 +6,8 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
+import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -99,6 +101,11 @@ public class HttpTunnelProxy implements ProxySettings {
     return password;
   }
 
+  @Override
+  public TlsContextFactory getTlsContextFactory() {
+    return null;
+  }
+
   public void setPassword(String password) {
     this.password = password;
   }
@@ -117,5 +124,10 @@ public class HttpTunnelProxy implements ProxySettings {
   @Override
   public int hashCode() {
     return Objects.hash(host, port, username, password);
+  }
+
+  @Override
+  public void initialise() throws InitialisationException {
+
   }
 }
