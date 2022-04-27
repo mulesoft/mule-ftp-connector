@@ -41,6 +41,46 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-proxy">
+        <ftp:connection host="ftp" username="guest" password="guest" >
+            <reconnection >
+                <reconnect />
+            </reconnection>
+            <pooling-profile maxActive="-1" maxIdle="-1" />
+            <ftp:proxy >
+                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-with-UTF8-control-encoding">
+        <ftp:connection host="ftp" username="guest" password="guest"
+                        workingDir="/" controlEncoding="UTF-8">
+            <ftp:proxy >
+                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-response-timeout-exception">
+        <ftp:connection host="ftp" username="timeout" password="timeout" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
+            <ftp:proxy >
+                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-auth">
+        <ftp:connection host="ftpauth" username="guest" password="guest" >
+            <reconnection >
+                <reconnect />
+            </reconnection>
+            <ftp:proxy >
+                <ftp:http-tunnel-proxy host="localhost" port="3130" username="foo" password="bar"/>
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
     <flow name="wait-2-seconds">
         <logger level="DEBUG" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>
@@ -53,13 +93,19 @@
 
     <flow name="modify-file">
         <set-payload value="Content to append"/>
-        <ftp:write config-ref="config" path="random.txt" mode="APPEND"/>
+        <ftp:write config-ref="${config}" path="random.txt" mode="APPEND"/>
     </flow>
 
     <flow name="write-file">
         <set-payload value="File Content"/>
-        <ftp:write config-ref="config" path="random.txt"/>
+        <ftp:write config-ref="${config}" path="random.txt"/>
     </flow>
+
+    <flow name="delete-file">
+        <set-payload value="File Content"/>
+        <ftp:delete config-ref="${config}" path="random.txt"/>
+    </flow>
+
 
     <flow name="server-write-encoded-filename">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"

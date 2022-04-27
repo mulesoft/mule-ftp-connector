@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  squidauth:
+    image: "robhaswell/squid-authenticated"
+    container_name: "squidauth"
+    ports:
+      - "3130:3128"
+    environment:
+      SQUID_USERNAME: "foo"
+      SQUID_PASSWORD: "bar"
+    volumes:
+      - ./squid-auth.conf:/etc/squid3/squid.conf
+
+  ftpauth:
+    image: "fauria/vsftpd"
+    container_name: "ftpauth"
+    ports:
+      - "25:21"
+      - "30010-30019:30000-30009"
+    environment:
+      PUBLICHOST: localhost
+      FTP_USER_HOME: /home/guest
+      FTP_USER: guest
+      FTP_PASS: guest

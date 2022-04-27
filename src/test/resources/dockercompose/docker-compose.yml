@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  squid:
+    image: "lucacri/squid-ext-conf"
+    container_name: "squid"
+    ports:
+      - "3128:3128"
+      - "3129:3129"
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf
+
+  ftp:
+    image: "fauria/vsftpd"
+    container_name: "ftp"
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      PUBLICHOST: localhost
+      FTP_USER_HOME: /home/guest
+      FTP_USER: guest
+      FTP_PASS: guest

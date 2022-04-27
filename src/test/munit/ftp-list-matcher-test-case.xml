@@ -12,7 +12,25 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-list-matcher-test-case.xml"/>
+    <munit:config name="ftp-list-matcher-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="config-proxy">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-proxy"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="proxy-auth">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-proxy-auth"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
@@ -34,10 +52,18 @@
                 #[{}]
             </java:args>
         </java:invoke-static>
+
     </munit:after-suite>
 
     <munit:before-test name="create-file-for-list">
+        <try>
+            <flow-ref name="delete-file"/>
+            <error-handler >
+                <on-error-continue/>
+            </error-handler>
+        </try>
         <flow-ref name="write-file"/>
+
     </munit:before-test>
 
     <munit:test name="listFilteringNewFiles" description="Newly added files are filtered by the matcher">
@@ -139,19 +165,19 @@
     </munit:test>
 
     <flow name="list-filtering-updated-recently">
-        <ftp:list config-ref="config" directoryPath=".">
+        <ftp:list config-ref="${config}" directoryPath=".">
             <ftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
         </ftp:list>
     </flow>
 
     <flow name="list-filtering-not-updated-recently">
-        <ftp:list config-ref="config" directoryPath=".">
+        <ftp:list config-ref="${config}" directoryPath=".">
             <ftp:matcher updatedInTheLast="3" timeUnit="SECONDS"/>
         </ftp:list>
     </flow>
 
     <flow name="list-filtering-updated-recently-or-too-old">
-        <ftp:list config-ref="config" directoryPath=".">
+        <ftp:list config-ref="${config}" directoryPath=".">
             <ftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
         </ftp:list>
     </flow>

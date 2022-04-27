@@ -12,11 +12,11 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-copy-test-case.xml">
+    <munit:config name="ftp-proxy-auth-read-write-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="config">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="ftp-config"/>
+                    <munit:parameter propertyName="config" value="config"/>
                 </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="proxy">
@@ -35,7 +35,7 @@
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
-    <munit:before-suite name="startFtpTestServer-copyTestCase">
+    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="startFtpServer(String)">
             <java:args>
@@ -46,7 +46,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearFtpTestServer-copyTestCase">
+    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="stopFtpServer()">
             <java:args>
@@ -55,50 +55,18 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <ftp:config name="ftp-config">
-        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/"/>
-    </ftp:config>
-
-    <munit:test name="ftp-copy-directories" description="Perform a copy operation that copies a whole directory">
+    <munit:test name="ftp-read" description="Perform a read operation with a proxy">
         <munit:behavior>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-
-            <ftp:create-directory config-ref="${config}" directoryPath="copy-dir-test"/>
-            <ftp:create-directory config-ref="${config}" directoryPath="copy-dir-test/folder-to-copy"/>
-
-            <ftp:write config-ref="${config}" path="copy-dir-test/folder-to-copy/file1.txt">
-                <ftp:content>#[vars.fileContent]</ftp:content>
-            </ftp:write>
-            <ftp:write config-ref="${config}" path="copy-dir-test/folder-to-copy/file2.txt">
-                <ftp:content>#[vars.fileContent]</ftp:content>
-            </ftp:write>
-            <ftp:write config-ref="${config}" path="copy-dir-test/folder-to-copy/file3.txt">
+            <set-variable variableName="fileName" value="file.txt"/>
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
         </munit:behavior>
         <munit:execution>
-            <ftp:copy config-ref="${config}" sourcePath="copy-dir-test/folder-to-copy/"
-                      targetPath="copy-dir-test/folder-copied" overwrite="false"
-                      createParentDirectories="true"/>
+            <ftp:read config-ref="${config}" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
-            <ftp:read config-ref="${config}" path="copy-dir-test/folder-copied/folder-to-copy/file1.txt"/>
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                    payload must equalTo(vars.fileContent)
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-            <ftp:read config-ref="${config}" path="copy-dir-test/folder-copied/folder-to-copy/file2.txt"/>
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                    payload must equalTo(vars.fileContent)
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-            <ftp:read config-ref="${config}" path="copy-dir-test/folder-copied/folder-to-copy/file3.txt"/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
@@ -109,33 +77,49 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="ftp-copy-to-target-ending-in-separator" description="Perform copy operations of a file with a destination that ends in a separator">
+    <munit:test name="ftp-write-overwrite-mode-overwrite-file">
         <munit:behavior>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-
-            <ftp:create-directory config-ref="${config}" directoryPath="copy-test"/>
-            <ftp:create-directory config-ref="${config}" directoryPath="copy-test/folder-input"/>
-
-            <ftp:write config-ref="${config}" path="copy-test/folder-input/hello-world.txt">
-                <ftp:content>#[vars.fileContent]</ftp:content>
-            </ftp:write>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+            <set-variable variableName="fileName" value="filePath.txt"/>
         </munit:behavior>
         <munit:execution>
-            <ftp:copy config-ref="${config}" sourcePath="copy-test/folder-input/hello-world.txt"
-                      targetPath="copy-test/folder-output/" overwrite="false"
-                      createParentDirectories="true"/>
-            <set-payload value="Copy with FTP works fine!!"/>
+            <ftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="${config}" path='#[vars.fileName]' mode="OVERWRITE" createParentDirectories="false">
+                <ftp:content>Hello World!</ftp:content>
+            </ftp:write>
         </munit:execution>
         <munit:validation>
-            <ftp:read config-ref="${config}" path="copy-test/folder-output/hello-world.txt"/>
+            <ftp:read config-ref="${config}" path='#[vars.fileName]' />
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload must equalTo(vars.fileContent)
+                                    payload must equalTo('Hello World!')
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
         </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-write-on-invalid-path-directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="invalid/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:execution>
     </munit:test>
 
 </mule>
+
+
+
+
+
+
+
