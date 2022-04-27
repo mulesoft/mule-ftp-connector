@@ -8,13 +8,10 @@
 package org.mule.extension.ftp.internal.proxy;
 
 import org.apache.commons.net.ftp.FTPHTTPClient;
-import org.apache.commons.net.util.SSLContextUtils;
-import org.apache.commons.net.util.TrustManagerUtils;
 import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.net.SocketException;
 

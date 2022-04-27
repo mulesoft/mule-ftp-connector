@@ -6,6 +6,8 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
+import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
+
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.Expression;
@@ -20,8 +22,6 @@ import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 import org.mule.sdk.api.annotation.semantics.security.Username;
 
 import java.util.Objects;
-
-import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
 
 /**
  * Groups FTP Proxy connection parameters

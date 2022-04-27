@@ -240,6 +240,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
     <profiles>
@@ -323,6 +324,35 @@
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.dkanejs.maven.plugins</groupId>
+                        <artifactId>docker-compose-maven-plugin</artifactId>
+                        <version>4.0.0</version>
+                        <configuration>
+                            <composeFiles>
+                                <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose-auth.yml</composeFile>
+                                <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
+
+                            </composeFiles>
+                            <detachedMode>true</detachedMode>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>docker-compose-up</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>up</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>docker-compose-down</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>down</goal>
                                 </goals>
                             </execution>
                         </executions>
