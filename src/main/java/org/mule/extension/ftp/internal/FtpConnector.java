@@ -11,6 +11,7 @@ import static org.mule.runtime.extension.api.annotation.param.display.Placement.
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.proxy.HttpTunnelProxy;
+import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
 import org.mule.extension.ftp.internal.source.FtpDirectoryListener;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 @ErrorTypes(FileError.class)
 @Sources(FtpDirectoryListener.class)
 @Xml(prefix = "ftp")
-@SubTypeMapping(baseType = ProxySettings.class, subTypes = {HttpTunnelProxy.class})
+@SubTypeMapping(baseType = ProxySettings.class, subTypes = {HttpTunnelProxy.class, HttpsTunnelProxy.class})
 public class FtpConnector extends FileConnectorConfig {
 
   /**

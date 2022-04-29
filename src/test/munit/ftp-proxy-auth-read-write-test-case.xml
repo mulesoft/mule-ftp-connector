@@ -29,6 +29,11 @@
                     <munit:parameter propertyName="config" value="config-proxy-auth"/>
                 </munit:parameters>
             </munit:parameterization>
+            <munit:parameterization name="proxy-https">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-proxy-https"/>
+                </munit:parameters>
+            </munit:parameterization>
 
         </munit:parameterizations>
     </munit:config>

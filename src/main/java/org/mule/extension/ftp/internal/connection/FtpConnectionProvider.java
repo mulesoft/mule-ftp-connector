@@ -14,6 +14,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
@@ -183,9 +184,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   @Override
   public void initialise() throws InitialisationException {
-    if (proxy != null) {
-      proxy.initialise();
-    }
+    initialiseIfNeeded(proxy);
   }
 
   /**

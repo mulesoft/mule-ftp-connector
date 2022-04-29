@@ -4,10 +4,12 @@
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
       http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/tls">
 
     <ftp:config name="config">
         <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/">
@@ -43,12 +45,20 @@
 
     <ftp:config name="config-proxy">
         <ftp:connection host="ftp" username="guest" password="guest" >
-            <reconnection >
-                <reconnect />
-            </reconnection>
-            <pooling-profile maxActive="-1" maxIdle="-1" />
-            <ftp:proxy >
+            <ftp:proxy>
                 <ftp:http-tunnel-proxy host="localhost" port="3128" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-https">
+        <ftp:connection host="ftp" username="guest" password="guest" >
+            <ftp:proxy>
+                <ftp:https-tunnel-proxy host="localhost" port="3129">
+                    <tls:context >
+                        <tls:trust-store path="dockercompose/truststorehttps" password="changeit"/>
+                    </tls:context>
+                </ftp:https-tunnel-proxy>
             </ftp:proxy>
         </ftp:connection>
     </ftp:config>
@@ -56,7 +66,7 @@
     <ftp:config name="config-proxy-with-UTF8-control-encoding">
         <ftp:connection host="ftp" username="guest" password="guest"
                         workingDir="/" controlEncoding="UTF-8">
-            <ftp:proxy >
+            <ftp:proxy>
                 <ftp:http-tunnel-proxy host="localhost" port="3128" />
             </ftp:proxy>
         </ftp:connection>
@@ -64,7 +74,7 @@
 
     <ftp:config name="config-proxy-response-timeout-exception">
         <ftp:connection host="ftp" username="timeout" password="timeout" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
-            <ftp:proxy >
+            <ftp:proxy>
                 <ftp:http-tunnel-proxy host="localhost" port="3128" />
             </ftp:proxy>
         </ftp:connection>
@@ -72,9 +82,6 @@
 
     <ftp:config name="config-proxy-auth">
         <ftp:connection host="ftpauth" username="guest" password="guest" >
-            <reconnection >
-                <reconnect />
-            </reconnection>
             <ftp:proxy >
                 <ftp:http-tunnel-proxy host="localhost" port="3130" username="foo" password="bar"/>
             </ftp:proxy>

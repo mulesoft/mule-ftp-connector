@@ -6,10 +6,9 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
-import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.tls.TlsContextFactory;
 
-public interface ProxySettings extends Initialisable {
+public interface ProxySettings {
 
   public String getHost();
 

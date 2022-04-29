@@ -8,6 +8,7 @@ package org.mule.extension.ftp.api.proxy;
 
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 
+import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.api.tls.TlsContextFactoryBuilder;
@@ -25,7 +26,7 @@ import org.mule.sdk.api.annotation.semantics.connectivity.ConfiguresProxy;
 
 @Summary("The FTP Proxy Settings")
 @ConfiguresProxy
-public class HttpsTunnelProxy extends HttpTunnelProxy {
+public class HttpsTunnelProxy extends Proxy implements ProxySettings, Initialisable {
 
   private TlsContextFactoryBuilder tlsContextFactoryBuilder = TlsContextFactory.builder();
 
