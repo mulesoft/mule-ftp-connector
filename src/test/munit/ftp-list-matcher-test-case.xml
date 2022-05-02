@@ -52,10 +52,10 @@
 
     <munit:before-test name="create-file-for-list">
         <try>
-            <flow-ref name="delete-file"/>
-            <error-handler >
-                <on-error-continue/>
-            </error-handler>
+            <ftp:list config-ref="${config}" directoryPath="/" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
         </try>
         <flow-ref name="write-file"/>
 

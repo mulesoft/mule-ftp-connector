@@ -108,12 +108,6 @@
         <ftp:write config-ref="${config}" path="random.txt"/>
     </flow>
 
-    <flow name="delete-file">
-        <set-payload value="File Content"/>
-        <ftp:delete config-ref="${config}" path="random.txt"/>
-    </flow>
-
-
     <flow name="server-write-encoded-filename">
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="createEncodedFileName()">

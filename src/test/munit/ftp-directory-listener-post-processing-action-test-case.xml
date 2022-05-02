@@ -45,6 +45,19 @@
                 <on-error-continue/>
             </error-handler>
         </try>
+        <try>
+            <ftp:list config-ref="${config}" directoryPath="/" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <ftp:list config-ref="${config}" directoryPath="/processed" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <error-handler >
+                <on-error-continue/>
+            </error-handler>
+        </try>
     </munit:before-test>
 
     <munit:after-test name="clearDirectoryListenerMatcherTestServer">
