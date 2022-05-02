@@ -22,5 +22,5 @@ services:
       FTP_USER_HOME: /home/guest
       FTP_USER_NAME: guest
       FTP_USER_PASS: guest
-      FTP_MAX_CLIENTS: 50
-      FTP_MAX_CONNECTIONS: 50
+      FTP_MAX_CLIENTS: 500
+      FTP_MAX_CONNECTIONS: 500
