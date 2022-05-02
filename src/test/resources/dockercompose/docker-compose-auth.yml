@@ -12,7 +12,7 @@ services:
       - ./squid-auth.conf:/etc/squid3/squid.conf
 
   ftpauth:
-    image: "fauria/vsftpd"
+    image: "stilliard/pure-ftpd"
     container_name: "ftpauth"
     ports:
       - "25:21"
@@ -20,5 +20,7 @@ services:
     environment:
       PUBLICHOST: localhost
       FTP_USER_HOME: /home/guest
-      FTP_USER: guest
-      FTP_PASS: guest
+      FTP_USER_NAME: guest
+      FTP_USER_PASS: guest
+      FTP_MAX_CLIENTS: 50
+      FTP_MAX_CONNECTIONS: 50
