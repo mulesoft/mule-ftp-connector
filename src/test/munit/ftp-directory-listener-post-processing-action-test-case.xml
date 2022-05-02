@@ -24,11 +24,6 @@
                     <munit:parameter propertyName="config" value="config-proxy-auth"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="proxy">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-proxy"/>
-                </munit:parameters>
-            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 

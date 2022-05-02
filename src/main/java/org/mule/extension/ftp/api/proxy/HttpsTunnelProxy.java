@@ -26,7 +26,7 @@ import org.mule.sdk.api.annotation.semantics.connectivity.ConfiguresProxy;
 
 @Summary("The FTP Proxy Settings")
 @ConfiguresProxy
-public class HttpsTunnelProxy extends Proxy implements ProxySettings, Initialisable {
+public class HttpsTunnelProxy extends HttpTunnelProxy implements ProxySettings, Initialisable {
 
   private TlsContextFactoryBuilder tlsContextFactoryBuilder = TlsContextFactory.builder();
 
@@ -35,6 +35,7 @@ public class HttpsTunnelProxy extends Proxy implements ProxySettings, Initialisa
   @DisplayName("TLS Configuration")
   private TlsContextFactory tlsContextFactory;
 
+  @Override
   public TlsContextFactory getTlsContextFactory() {
     return tlsContextFactory;
   }
