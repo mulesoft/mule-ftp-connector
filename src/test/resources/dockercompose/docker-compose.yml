@@ -2,19 +2,18 @@ version: "3.3"
 services:
   squid:
     image: "lucacri/squid-ext-conf"
-    container_name: "squid"
+    container_name: squid${squidPort}
     ports:
-      - "3128:3128"
-      - "3129:3129"
+      - "${squidPort}:3128"
+      - "${squidPortHttps}:3129"
     volumes:
       - ./squid.conf:/etc/squid/squid.conf
       - ./myCA.pem:/etc/squid/certs/key.pem
   ftp:
     image: "stilliard/pure-ftpd"
-    container_name: "ftp"
+    container_name: ftp${ftpProxy}
     ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
+      - "${ftpProxy}:21"
     environment:
       PUBLICHOST: localhost
       FTP_USER_HOME: /home/guest

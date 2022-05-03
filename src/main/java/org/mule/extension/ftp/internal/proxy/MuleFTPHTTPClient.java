@@ -7,13 +7,13 @@
 
 package org.mule.extension.ftp.internal.proxy;
 
-import org.apache.commons.net.ftp.FTPHTTPClient;
 import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.SocketException;
+import org.apache.commons.net.ftp.FTPHTTPClient;
 
 public class MuleFTPHTTPClient extends FTPHTTPClient {
 

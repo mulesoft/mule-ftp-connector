@@ -24,7 +24,7 @@ import org.mule.sdk.api.annotation.semantics.connectivity.ConfiguresProxy;
  * @since 1.0
  */
 
-@Summary("The FTP Proxy Settings")
+@Summary("Enables you to set HTTPS tunnel proxy.")
 @ConfiguresProxy
 public class HttpsTunnelProxy extends HttpTunnelProxy implements ProxySettings, Initialisable {
 

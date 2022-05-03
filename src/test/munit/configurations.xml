@@ -44,17 +44,18 @@
     </ftp:config>
 
     <ftp:config name="config-proxy">
-        <ftp:connection host="ftp" username="guest" password="guest" >
+
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest" >
             <ftp:proxy>
-                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
             </ftp:proxy>
         </ftp:connection>
     </ftp:config>
 
     <ftp:config name="config-proxy-https">
-        <ftp:connection host="ftp" username="guest" password="guest" >
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest" >
             <ftp:proxy>
-                <ftp:https-tunnel-proxy host="localhost" port="3129">
+                <ftp:https-tunnel-proxy host="localhost" port="${squid.port.https}">
                     <tls:context >
                         <tls:trust-store path="dockercompose/truststorehttps" password="changeit"/>
                     </tls:context>
@@ -64,26 +65,26 @@
     </ftp:config>
 
     <ftp:config name="config-proxy-with-UTF8-control-encoding">
-        <ftp:connection host="ftp" username="guest" password="guest"
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest"
                         workingDir="/" controlEncoding="UTF-8">
             <ftp:proxy>
-                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
             </ftp:proxy>
         </ftp:connection>
     </ftp:config>
 
     <ftp:config name="config-proxy-response-timeout-exception">
-        <ftp:connection host="ftp" username="timeout" password="timeout" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
+        <ftp:connection host="ftp${ftp.proxy}" username="timeout" password="timeout" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
             <ftp:proxy>
-                <ftp:http-tunnel-proxy host="localhost" port="3128" />
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
             </ftp:proxy>
         </ftp:connection>
     </ftp:config>
 
     <ftp:config name="config-proxy-auth">
-        <ftp:connection host="ftpauth" username="guest" password="guest" >
+        <ftp:connection host="ftpauth${ftp.proxy.auth}" username="guest" password="guest" >
             <ftp:proxy >
-                <ftp:http-tunnel-proxy host="localhost" port="3130" username="foo" password="bar"/>
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.auth}" username="foo" password="bar"/>
             </ftp:proxy>
         </ftp:connection>
     </ftp:config>

@@ -232,6 +232,11 @@
                                 <portName>ftp.passivePort8</portName>
                                 <portName>ftp.passivePort9</portName>
                                 <portName>ftp.passivePort10</portName>
+                                <portName>squid.port.http</portName>
+                                <portName>squid.port.https</portName>
+                                <portName>squid.port.auth</portName>
+                                <portName>ftp.proxy</portName>
+                                <portName>ftp.proxy.auth</portName>
                             </portNames>
                             <minPortNumber>9000</minPortNumber>
                             <maxPortNumber>10000</maxPortNumber>
@@ -328,6 +333,7 @@
                             </execution>
                         </executions>
                     </plugin>
+
                     <plugin>
                         <groupId>com.dkanejs.maven.plugins</groupId>
                         <artifactId>docker-compose-maven-plugin</artifactId>
@@ -338,6 +344,13 @@
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
 
                             </composeFiles>
+                            <envVars>
+                                <squidPort>${squid.port.http}</squidPort>
+                                <squidPortHttps>${squid.port.https}</squidPortHttps>
+                                <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                                <ftpProxy>${ftp.proxy}</ftpProxy>
+                                <ftpProxyAuth>${ftp.proxy.auth}</ftpProxyAuth>
+                            </envVars>
                             <detachedMode>true</detachedMode>
                         </configuration>
                         <executions>

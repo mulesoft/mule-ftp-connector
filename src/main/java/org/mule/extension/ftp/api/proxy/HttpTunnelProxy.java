@@ -6,6 +6,8 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
+import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
+
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -20,15 +22,13 @@ import org.mule.sdk.api.annotation.semantics.security.Username;
 
 import java.util.Objects;
 
-import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
-
 /**
  * Groups FTP Proxy connection parameters
  *
  * @since 1.0
  */
 
-@Summary("The FTP Proxy Settings")
+@Summary("Enables you to set HTTP tunnel proxy.")
 @ConfiguresProxy
 public class HttpTunnelProxy implements ProxySettings {
 

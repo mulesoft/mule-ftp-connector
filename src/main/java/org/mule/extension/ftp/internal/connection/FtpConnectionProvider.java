@@ -131,7 +131,7 @@ public class FtpConnectionProvider extends FileSystemProvider<FtpFileSystem> imp
 
   @Parameter
   @Optional
-  @Summary("The Proxy settings")
+  @Summary("Enables you to set HTTP or HTTPS tunnel proxy.")
   protected ProxySettings proxy;
 
   /**
