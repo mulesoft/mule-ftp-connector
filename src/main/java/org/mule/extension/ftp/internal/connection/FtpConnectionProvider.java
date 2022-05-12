@@ -6,7 +6,10 @@
  */
 package org.mule.extension.ftp.internal.connection;
 
-import org.apache.commons.net.ftp.FTPClient;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
+import static java.lang.String.format;
+
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.proxy.MuleFTPHTTPClient;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -15,12 +18,10 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+
+import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.String.format;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 
 /**
  * Connects to an FTP server
