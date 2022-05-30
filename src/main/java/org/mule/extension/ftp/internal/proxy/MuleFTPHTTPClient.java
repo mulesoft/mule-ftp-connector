@@ -15,6 +15,11 @@ import java.io.IOException;
 import java.net.SocketException;
 import org.apache.commons.net.ftp.FTPHTTPClient;
 
+/**
+ * Extends the org.apache.commons.net.ftp.FTPHTTPClient for added functionality for HTTPs
+ *
+ * @since 1.6.0
+ */
 public class MuleFTPHTTPClient extends FTPHTTPClient {
 
   protected ProxySettings proxy;
@@ -23,14 +28,13 @@ public class MuleFTPHTTPClient extends FTPHTTPClient {
   public MuleFTPHTTPClient(ProxySettings proxy) throws Exception {
     super(proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
     this.proxy = proxy;
-    if (proxy.getTlsContextFactory() != null) {
-      this.context = proxy.getTlsContextFactory().createSslContext();
+    if (proxy instanceof HttpsTunnelProxy && ((HttpsTunnelProxy) proxy).getTlsContextFactory() != null) {
+      this.context = ((HttpsTunnelProxy) proxy).getTlsContextFactory().createSslContext();
     }
   }
 
   @Override
   public void connect(String host, int port) throws SocketException, IOException {
-
     if (proxy instanceof HttpsTunnelProxy) {
       setSocketFactory(context.getSocketFactory());
     }

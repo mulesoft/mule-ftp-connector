@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Connects to an FTP server
  *
- * @since 1.0
+ * @since 1.6.0
  */
 @DisplayName("FTP Connection")
 @Summary("Connection to connect against an FTP server")

@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Groups FTP Proxy connection parameters
  *
- * @since 1.0
+ * @since 1.6.0
  */
 
 @Summary("Enables you to set HTTP tunnel proxy.")
@@ -77,17 +77,9 @@ public class HttpTunnelProxy implements ProxySettings {
     return host;
   }
 
-  public void setHost(String host) {
-    this.host = host;
-  }
-
   @Override
   public int getPort() {
     return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
   }
 
   @Override
@@ -95,22 +87,9 @@ public class HttpTunnelProxy implements ProxySettings {
     return username;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
   @Override
   public String getPassword() {
     return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  @Override
-  public TlsContextFactory getTlsContextFactory() {
-    return null;
   }
 
   @Override

@@ -6,17 +6,20 @@
  */
 package org.mule.extension.ftp.api.proxy;
 
-import org.mule.runtime.api.tls.TlsContextFactory;
+/**
+ * Groups FTP Proxy connection parameters
+ *
+ * @since 1.6.0
+ */
 
 public interface ProxySettings {
 
-  public String getHost();
+  String getHost();
 
-  public int getPort();
+  int getPort();
 
-  public String getUsername();
+  String getUsername();
 
-  public String getPassword();
+  String getPassword();
 
-  public TlsContextFactory getTlsContextFactory();
 }

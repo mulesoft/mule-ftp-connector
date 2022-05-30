@@ -19,9 +19,9 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.ConfiguresProxy;
 
 /**
- * Groups FTP Proxy connection parameters
+ * Groups FTP HTTPs Proxy connection parameters
  *
- * @since 1.0
+ * @since 1.6.0
  */
 
 @Summary("Enables you to set HTTPS tunnel proxy.")
@@ -35,13 +35,8 @@ public class HttpsTunnelProxy extends HttpTunnelProxy implements ProxySettings, 
   @DisplayName("TLS Configuration")
   private TlsContextFactory tlsContextFactory;
 
-  @Override
   public TlsContextFactory getTlsContextFactory() {
     return tlsContextFactory;
-  }
-
-  public void setTlsContextFactory(TlsContextFactory tlsContextFactory) {
-    this.tlsContextFactory = tlsContextFactory;
   }
 
   @Override
