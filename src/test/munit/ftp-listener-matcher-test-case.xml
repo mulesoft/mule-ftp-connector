@@ -12,7 +12,15 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-listener-matcher-test-case.xml"/>
+    <munit:config name="ftp-listener-matcher-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
@@ -132,7 +140,7 @@
     </munit:test>
 
     <flow name="listen-filtering-updated-recently">
-        <ftp:listener config-ref="config" directory=".">
+        <ftp:listener config-ref="${config}" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>
@@ -144,7 +152,7 @@
     </flow>
 
     <flow name="listen-filtering-not-updated-recently">
-        <ftp:listener config-ref="config" directory=".">
+        <ftp:listener config-ref="${config}" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>
@@ -156,7 +164,7 @@
     </flow>
 
     <flow name="listen-filtering-updated-recently-or-too-old">
-        <ftp:listener config-ref="config" directory=".">
+        <ftp:listener config-ref="${config}" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>

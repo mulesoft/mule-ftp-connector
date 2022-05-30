@@ -4,10 +4,12 @@
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
       http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd" >
 
     <ftp:config name="config">
         <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/">
@@ -41,6 +43,52 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-proxy">
+
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest" >
+            <ftp:proxy>
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-https">
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest" >
+            <ftp:proxy>
+                <ftp:https-tunnel-proxy host="localhost" port="${squid.port.https}">
+                    <tls:context >
+                        <tls:trust-store path="dockercompose/truststorehttps" password="changeit"/>
+                    </tls:context>
+                </ftp:https-tunnel-proxy>
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-with-UTF8-control-encoding">
+        <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest"
+                        workingDir="/" controlEncoding="UTF-8">
+            <ftp:proxy>
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-response-timeout-exception">
+        <ftp:connection host="ftp${ftp.proxy}" username="timeout" password="timeout" responseTimeoutUnit="MILLISECONDS" responseTimeout="1">
+            <ftp:proxy>
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.http}" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="config-proxy-auth">
+        <ftp:connection host="ftpauth${ftp.proxy.auth}" username="guest" password="guest" >
+            <ftp:proxy >
+                <ftp:http-tunnel-proxy host="localhost" port="${squid.port.auth}" username="foo" password="bar"/>
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
     <flow name="wait-2-seconds">
         <logger level="DEBUG" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>
@@ -53,12 +101,12 @@
 
     <flow name="modify-file">
         <set-payload value="Content to append"/>
-        <ftp:write config-ref="config" path="random.txt" mode="APPEND"/>
+        <ftp:write config-ref="${config}" path="random.txt" mode="APPEND"/>
     </flow>
 
     <flow name="write-file">
         <set-payload value="File Content"/>
-        <ftp:write config-ref="config" path="random.txt"/>
+        <ftp:write config-ref="${config}" path="random.txt"/>
     </flow>
 
     <flow name="server-write-encoded-filename">

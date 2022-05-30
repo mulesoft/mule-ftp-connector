@@ -12,7 +12,20 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-directory-listener-post-processing-action-test-case.xml" />
+    <munit:config name="ftp-directory-listener-post-processing-action-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="proxy-auth">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-proxy-auth"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
@@ -26,7 +39,25 @@
             </java:args>
         </java:invoke-static>
 
-        <ftp:create-directory config-ref="config" directoryPath="#['/processed']"/>
+        <try>
+            <ftp:create-directory config-ref="${config}" directoryPath="#['/processed']"/>
+            <error-handler >
+                <on-error-continue/>
+            </error-handler>
+        </try>
+        <try>
+            <ftp:list config-ref="${config}" directoryPath="/" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <ftp:list config-ref="${config}" directoryPath="/processed" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <error-handler >
+                <on-error-continue/>
+            </error-handler>
+        </try>
     </munit:before-test>
 
     <munit:after-test name="clearDirectoryListenerMatcherTestServer">
@@ -36,6 +67,19 @@
                 #[{}]
             </java:args>
         </java:invoke-static>
+        <try>
+            <ftp:list config-ref="${config}" directoryPath="/" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <ftp:list config-ref="${config}" directoryPath="/processed" />
+            <foreach collection="#[payload]">
+                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+            </foreach>
+            <error-handler >
+                <on-error-continue/>
+            </error-handler>
+        </try>
     </munit:after-test>
 
     <munit:test name="renameTo" description="Verifies that files are renamed after processing">
@@ -48,7 +92,7 @@
             <set-variable variableName="renameTo" value="renamed.bak" />
         </munit:behavior>
         <munit:execution>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
@@ -73,7 +117,7 @@
             <set-variable variableName="renameTo" value="renamed.bak" />
         </munit:behavior>
         <munit:execution>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
@@ -98,11 +142,11 @@
             <set-variable variableName="renameTo" value="renamed.bak" />
         </munit:behavior>
         <munit:execution>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
@@ -127,11 +171,11 @@
             <set-variable variableName="renameTo" value="renamed.bak" />
         </munit:behavior>
         <munit:execution>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
-            <ftp:write config-ref="config" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
             <flow-ref name="wait-2-seconds"/>
@@ -161,7 +205,7 @@
             <flow-ref name="wait-2-seconds"/>
             <flow-ref name="wait-2-seconds"/>
 
-            <ftp:list config-ref="config" directoryPath="/"/>
+            <ftp:list config-ref="${config}" directoryPath="/"/>
             <set-variable variableName="fileCountInRootAfterMove" value="#[0]"/>
 
             <foreach>
@@ -172,7 +216,7 @@
                 </choice>
             </foreach>
 
-            <ftp:list config-ref="config" directoryPath="/processed"/>
+            <ftp:list config-ref="${config}" directoryPath="/processed"/>
             <set-variable variableName="filesProcessedAfterMove" value="#[payload]"/>
             <set-variable variableName="fileCountInProcessedAfterMove" value="#[sizeOf(payload)]"/>
         </munit:execution>
@@ -189,14 +233,14 @@
 
     <flow name="createFiles" maxConcurrency="1">
         <foreach collection="#[1 to vars.fileCount]" counterVariableName="iterator">
-            <ftp:write config-ref="config" path='#["/file" ++ vars.iterator ++ ".txt"]'>
+            <ftp:write config-ref="${config}" path='#["/file" ++ vars.iterator ++ ".txt"]'>
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
         </foreach>
     </flow>
 
     <flow name="renameToFlow">
-        <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false">
+        <ftp:listener config-ref="${config}" directory="." renameTo="renamed.bak" recursive="false">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>
@@ -206,7 +250,7 @@
     </flow>
 
     <flow name="renameToAndAutoDeleteFlow">
-        <ftp:listener config-ref="config" directory="." renameTo="renamed.bak" recursive="false" autoDelete="true">
+        <ftp:listener config-ref="${config}" directory="." renameTo="renamed.bak" recursive="false" autoDelete="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="1" timeUnit="SECONDS"/>
             </scheduling-strategy>
@@ -217,7 +261,7 @@
 
     <flow name="file-exists">
         <try>
-            <ftp:read config-ref="config" path="#[vars.fileExists]" />
+            <ftp:read config-ref="${config}" path="#[vars.fileExists]" />
             <set-payload value="#[true]" />
             <error-handler>
                 <on-error-continue enableNotifications="true" logException="true">
@@ -228,7 +272,7 @@
     </flow>
 
     <flow name="moveToProcessed">
-        <ftp:listener config-ref="config" directory="/" autoDelete="true" moveToDirectory="/processed" recursive="false">
+        <ftp:listener config-ref="${config}" directory="/" autoDelete="true" moveToDirectory="/processed" recursive="false">
             <scheduling-strategy >
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
