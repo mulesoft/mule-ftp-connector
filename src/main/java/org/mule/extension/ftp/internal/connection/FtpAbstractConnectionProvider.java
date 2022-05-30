@@ -15,6 +15,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NO
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
@@ -52,7 +53,6 @@ import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Connects to an FTP server
@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<FtpFileSystem> implements
     PoolingConnectionProvider<FtpFileSystem>, Initialisable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FtpAbstractConnectionProvider.class);
+  private static final Logger LOGGER = getLogger(FtpAbstractConnectionProvider.class);
   private static final String FTP_ERROR_MESSAGE_MASK =
       "Could not establish FTP connection with host: '%s' at port: '%d' - %s";
   public static final String ERROR_CODE_MASK = "Error code: %d - %s";
