@@ -35,7 +35,7 @@ public class MuleFTPHTTPClient extends FTPHTTPClient {
 
   @Override
   public void connect(String host, int port) throws SocketException, IOException {
-    if (proxy instanceof HttpsTunnelProxy) {
+    if (context != null) {
       setSocketFactory(context.getSocketFactory());
     }
     super.connect(host, port);
