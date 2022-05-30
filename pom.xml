@@ -352,6 +352,7 @@
                                 <ftpProxyAuth>${ftp.proxy.auth}</ftpProxyAuth>
                             </envVars>
                             <detachedMode>true</detachedMode>
+                            <skip>${docker.skip}</skip>
                         </configuration>
                         <executions>
                             <execution>
