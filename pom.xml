@@ -27,7 +27,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.3.0</maven.helper.plugin.version>
 
-        <muleFileCommonsVersion>1.3.8</muleFileCommonsVersion>
+        <muleFileCommonsVersion>1.4.0</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
         <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
