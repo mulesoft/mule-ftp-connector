@@ -38,7 +38,7 @@
         <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
         <munit.version>2.3.12</munit.version>
         <mtf.tools.version>1.1.2</mtf.tools.version>
-        <mavenResources.version>3.2.0</mavenResources.version>
+        <mavenResources.version>3.3.0</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <docker.maven.plugin.version>0.40.1</docker.maven.plugin.version>
