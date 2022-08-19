@@ -326,7 +326,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
         while (engine.hasNext()) {
           FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
           for (FTPFile file : files) {
-            if (FilenameUtils.getName(filePath).equals(file.getName())) {
+            if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
               return Optional.ofNullable(file);
             }
           }
