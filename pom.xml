@@ -41,7 +41,7 @@
         <mavenResources.version>3.3.0</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <docker.maven.plugin.version>0.40.1</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.40.2</docker.maven.plugin.version>
         <java.module.version>1.2.10</java.module.version>
         <file.connector.version>1.4.0</file.connector.version>
     </properties>
