@@ -52,6 +52,13 @@ public class PostActionGroup extends AbstractPostActionGroup {
   @Optional(defaultValue = "true")
   private boolean applyPostActionWhenFailed = true;
 
+  /**
+   * Enables you to overwrite the target file when the destination file has the same name
+   */
+  @Parameter
+  @Optional(defaultValue = "false")
+  private boolean overwrite = false;
+
 
   public PostActionGroup() {}
 
@@ -76,5 +83,9 @@ public class PostActionGroup extends AbstractPostActionGroup {
 
   public boolean isApplyPostActionWhenFailed() {
     return applyPostActionWhenFailed;
+  }
+
+  public boolean getOverwrite() {
+    return overwrite;
   }
 }
