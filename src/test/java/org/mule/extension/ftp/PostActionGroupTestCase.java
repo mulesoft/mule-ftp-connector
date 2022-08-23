@@ -10,10 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
-import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -31,6 +27,10 @@ import org.mule.extension.file.common.api.source.AbstractPostActionGroup;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
+
+import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
