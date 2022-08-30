@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-directory-listener-external-matcher-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerExternalMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerExternalMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:before-test name="check-correct-dispose-external-matcher-test-case">
+        <munit-tools:assert-that expression="#[MunitTools::queueSize()]" is="#[MunitTools::equalTo(0)]"/>
+        <ftp:list config-ref="config" directoryPath="."/>
+        <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+    </munit:before-test>
+
+    <munit:test name="listenerProcessesAllFiles">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="fileListenerFlow"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="amountOfFiles" value="#[100]"/>
+            <set-variable variableName="fileContent" value="File content"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.amountOfFiles]">
+                <ftp:write config-ref="config" path="#[payload ++ '.txt']">
+                    <ftp:content>#[vars.fileContent]</ftp:content>
+                </ftp:write>
+                <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
+                <munit-tools:sleep time="100"/>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                         is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+            </until-successful>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="count" value="0"/>
+            <foreach collection="#[1 to MunitTools::queueSize()]">
+                <munit-tools:dequeue/>
+                <set-variable variableName="count" value="#[vars.count + 1]"/>
+            </foreach>
+            <munit-tools:assert-that expression="#[vars.count]"
+                                     is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <ftp:matcher name="txt-files" filenamePattern="*.TXT" caseSensitive="false"/>
+
+    <flow name="fileListenerFlow">
+        <ftp:listener config-ref="config" matcher="txt-files" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </ftp:listener>
+        <set-payload value="#[attributes.fileName]"/>
+        <munit-tools:queue/>
+    </flow>
+</mule>
