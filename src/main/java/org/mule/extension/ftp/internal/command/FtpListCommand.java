@@ -125,35 +125,33 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       }
 
       for (FTPFile file : files) {
-        if (file != null) {
-          final URI fileUri = createUri(uri.getPath(), file.getName());
-          FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
+        final URI fileUri = createUri(uri.getPath(), file.getName());
+        FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
 
-          if (isVirtualDirectory(attributes.getName())) {
-            continue;
+        if (isVirtualDirectory(attributes.getName())) {
+          continue;
+        }
+
+        if (attributes.isDirectory()) {
+          if (matcher.test(attributes)) {
+            accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
           }
 
-          if (attributes.isDirectory()) {
-            if (matcher.test(attributes)) {
-              accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
+          if (recursive) {
+            URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
+            if (!client.changeWorkingDirectory(attributes.getName())) {
+              throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
+                                     recursionUri.getPath()));
             }
-
-            if (recursive) {
-              URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
-              if (!client.changeWorkingDirectory(attributes.getName())) {
-                throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
-                                       recursionUri.getPath()));
-              }
-              doList(config, recursionUri, accumulator, recursive, matcher, timeBetweenSizeCheck);
-              if (!client.changeToParentDirectory()) {
-                throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
-                                       trimLastFragment(recursionUri).getPath()));
-              }
+            doList(config, recursionUri, accumulator, recursive, matcher, timeBetweenSizeCheck);
+            if (!client.changeToParentDirectory()) {
+              throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
+                                     trimLastFragment(recursionUri).getPath()));
             }
-          } else {
-            if (matcher.test(attributes)) {
-              accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
-            }
+          }
+        } else {
+          if (matcher.test(attributes)) {
+            accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
           }
         }
       }
