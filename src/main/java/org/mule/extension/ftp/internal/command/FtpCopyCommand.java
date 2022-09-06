@@ -72,7 +72,7 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
       }
 
       for (FTPFile file : files) {
-        if (isVirtualDirectory(file.getName())) {
+        if (file != null && isVirtualDirectory(file.getName())) {
           continue;
         }
 
