@@ -72,7 +72,7 @@ public final class FtpDeleteCommand extends FtpCommand implements DeleteCommand 
     }
 
     for (FTPFile file : files) {
-      if (file != null && isVirtualDirectory(file.getName())) {
+      if (isVirtualDirectory(file.getName())) {
         continue;
       }
 
