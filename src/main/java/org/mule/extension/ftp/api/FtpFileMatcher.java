@@ -10,7 +10,6 @@ import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.PredicateType;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
@@ -90,19 +89,8 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   @Optional(defaultValue = "SECONDS")
   private TimeUnit timeUnit;
 
-
-  /**
-   * Enables you to configure an external file system matcher as case sensitive or insensitive.
-   */
-  @Parameter
-  @Optional(defaultValue = "true")
-  private boolean caseSensitive;
-
   @Override
   protected Predicate<FtpFileAttributes> addConditions(Predicate<FtpFileAttributes> predicate) {
-    setPredicateType(PredicateType.EXTERNAL_FILE_SYSTEM);
-    setCaseSensitive(caseSensitive);
-
     if (timestampSince != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
           || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
@@ -200,9 +188,5 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
 
   public Long getNotUpdatedInTheLast() {
     return notUpdatedInTheLast;
-  }
-
-  public boolean isCaseSensitive() {
-    return caseSensitive;
   }
 }
