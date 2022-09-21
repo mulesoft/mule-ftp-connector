@@ -7,6 +7,7 @@
 package org.mule.extension.ftp.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -26,13 +27,28 @@ public class FtpUtils {
 
   private FtpUtils() {}
 
+  private static char SEPARATOR = '/';
+
   /**
    * @param path to be normalized
    * @return a {@link String} representing the path in the following format (using the unix path separator): "directory/subdirectory"
    */
   public static String normalizePath(String path) {
     path = path.length() > 2 && (path.charAt(1) == ':' || path.charAt(2) == ':') ? path.substring(path.indexOf(':') + 1) : path;
-    return FilenameUtils.normalize(path, true);
+    return updatePathIfUnderRoot(FilenameUtils.normalize(path, true));
+  }
+
+  /**
+   * Method to remove the '/' when the full path is under root only.
+   * ex. '/abc.txt' 
+   * @param path, normalized path 
+   * @return updated path
+   */
+  public static String updatePathIfUnderRoot(String path) {
+    if (path.charAt(0) == SEPARATOR && path.split(String.valueOf(SEPARATOR)).length == 2) {
+      path = path.substring(1);
+    }
+    return path;
   }
 
   public static String getReplyErrorMessage(Integer replyCode, String replyString) {

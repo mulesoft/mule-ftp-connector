@@ -6,13 +6,15 @@
  */
 package org.mule.extension.ftp;
 
+import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+import static org.mule.extension.ftp.internal.FtpUtils.createUrl;
+import static org.mule.extension.ftp.internal.FtpUtils.updatePathIfUnderRoot;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
-import static org.mule.extension.ftp.internal.FtpUtils.createUrl;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -29,6 +31,8 @@ public class FtpUtilsTestCase {
   private final static String HOST = "127.0.0.1";
   private final static int PORT = 80;
   private final static String PATH = EMPTY;
+  private final static String FILE_PATH_UNDER_ROOT = "/Test1.txt";
+  private final static String FILE_NORMAL_PATH = "/Home/Test1.txt";
 
   private FTPClient client = mock(FTPClient.class);
   private InetAddress address = mock(InetAddress.class);
@@ -48,6 +52,15 @@ public class FtpUtilsTestCase {
     when(client.getRemoteAddress()).thenReturn(address);
     when(client.getRemotePort()).thenReturn(-2);
     createUrl(client, null);
+  }
+
+  @Test
+  public void testUpdatePathIfUnderRoot() {
+    String path1 = updatePathIfUnderRoot(FILE_PATH_UNDER_ROOT);
+    assertEquals(FILE_PATH_UNDER_ROOT.substring(1), path1);
+
+    String path2 = updatePathIfUnderRoot(FILE_NORMAL_PATH);
+    assertEquals(FILE_NORMAL_PATH, path2);
   }
 
   private void assertUrl(URL url) {
