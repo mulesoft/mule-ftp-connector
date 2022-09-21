@@ -6,13 +6,12 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-
-import static java.lang.String.format;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.ftp.FTPClient;
@@ -27,7 +26,7 @@ public class FtpUtils {
 
   private FtpUtils() {}
 
-  private static char SEPARATOR = '/';
+  private static char aSEPARATOR = '/';
 
   /**
    * @param path to be normalized
@@ -45,7 +44,7 @@ public class FtpUtils {
    * @return updated path
    */
   public static String updatePathIfUnderRoot(String path) {
-    if (path.charAt(0) == SEPARATOR && path.split(String.valueOf(SEPARATOR)).length == 2) {
+    if (path.charAt(0) == aSEPARATOR && path.split(String.valueOf(aSEPARATOR)).length == 2) {
       path = path.substring(1);
     }
     return path;
