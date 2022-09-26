@@ -159,8 +159,22 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     }
   }
 
+  /**
+   * Method to remove the '/' when the full path is under root only.
+   * ex. '/abc.txt' 
+   * @param path, normalized path 
+   * @return updated path
+   */
+  private static String updatePathIfUnderRoot(String path) {
+    if (path.charAt(0) == '/' && path.split("/").length == 2) {
+      path = path.substring(1);
+    }
+    return path;
+  }
+
   private OutputStream getOutputStream(String path, FileWriteMode mode) {
     try {
+      path = updatePathIfUnderRoot(path);
       return mode == APPEND ? client.appendFileStream(path) : client.storeFileStream(path);
     } catch (Exception e) {
       throw exception(format("Could not open stream to write to path '%s' using mode '%s'", path, mode), e);
