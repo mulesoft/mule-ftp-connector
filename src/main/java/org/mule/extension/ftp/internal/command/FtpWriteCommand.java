@@ -165,7 +165,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    * @param path, normalized path 
    * @return updated path
    */
-  private String updatePathIfUnderRoot(String path) {
+  private String removeSlashForRootDirectory(String path) {
     if (path.charAt(0) == SEPARATOR.charAt(0) && path.split(SEPARATOR).length == 2) {
       return path.substring(1);
     }
@@ -174,7 +174,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
 
   private OutputStream getOutputStream(String path, FileWriteMode mode) {
     try {
-      path = updatePathIfUnderRoot(path);
+      path = removeSlashForRootDirectory(path);
       return mode == APPEND ? client.appendFileStream(path) : client.storeFileStream(path);
     } catch (Exception e) {
       throw exception(format("Could not open stream to write to path '%s' using mode '%s'", path, mode), e);
