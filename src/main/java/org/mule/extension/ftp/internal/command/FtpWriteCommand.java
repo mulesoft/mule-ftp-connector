@@ -165,9 +165,9 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    * @param path, normalized path 
    * @return updated path
    */
-  private static String updatePathIfUnderRoot(String path) {
+  private String updatePathIfUnderRoot(String path) {
     if (path.charAt(0) == SEPARATOR.charAt(0) && path.split(SEPARATOR).length == 2) {
-      path = path.substring(1);
+      return path.substring(1);
     }
     return path;
   }
