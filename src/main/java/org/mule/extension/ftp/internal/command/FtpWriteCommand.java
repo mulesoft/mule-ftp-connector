@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
@@ -159,8 +160,23 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
     }
   }
 
+  /**
+   * Method to remove '/' when the file path is under root directory only.
+   * ex. '/abc.txt' 
+   * @param path, normalized path 
+   * @return updated path
+   */
+  private String removeSlashUnderRootDirOnly(String path) {
+    if (path != null && path.length() > 1 && path.charAt(0) == SEPARATOR.charAt(0)
+        && StringUtils.countMatches(path, SEPARATOR) == 1) {
+      return path.substring(1);
+    }
+    return path;
+  }
+
   private OutputStream getOutputStream(String path, FileWriteMode mode) {
     try {
+      path = removeSlashUnderRootDirOnly(path);
       return mode == APPEND ? client.appendFileStream(path) : client.storeFileStream(path);
     } catch (Exception e) {
       throw exception(format("Could not open stream to write to path '%s' using mode '%s'", path, mode), e);

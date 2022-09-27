@@ -118,6 +118,27 @@
         </munit:execution>
     </munit:test>
 
+	<munit:test name="ftp-write-without-working-directory">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt" encoding="UTF-8"/>
+            <ftp:write config-ref="config-no-working-directory" path='#[vars.fileName]' createParentDirectories="false">
+                <ftp:content>test content</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:read config-ref="config-no-working-directory" path='#[vars.fileName]'/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    attributes.name must equalTo(vars.fileName)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
     <munit:test name="ftp-write-with-different-encoding-creates-new-file">
         <munit:behavior>
             <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
