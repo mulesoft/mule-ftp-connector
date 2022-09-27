@@ -29,11 +29,11 @@ import java.io.OutputStream;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * A {@link FtpCommand} which implements the {@link WriteCommand} contract
@@ -168,7 +168,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   private String removeSlashUnderRootDirOnly(String path) {
     if (path != null && path.length() > 1 && path.charAt(0) == SEPARATOR.charAt(0)
-        && StringUtils.countOccurrencesOf(path, SEPARATOR) == 1) {
+        && StringUtils.countMatches(path, SEPARATOR) == 1) {
       return path.substring(1);
     }
     return path;
