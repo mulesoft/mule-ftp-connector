@@ -33,6 +33,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link FtpCommand} which implements the {@link WriteCommand} contract
@@ -160,13 +161,14 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   }
 
   /**
-   * Method to remove the '/' when the full path is under root only.
+   * Method to remove '/' when the file path is under root directory only.
    * ex. '/abc.txt' 
    * @param path, normalized path 
    * @return updated path
    */
-  private String removeSlashForRootDirectory(String path) {
-    if (path.charAt(0) == SEPARATOR.charAt(0) && path.split(SEPARATOR).length == 2) {
+  private String removeSlashUnderRootDirOnly(String path) {
+    if (path != null && path.length() > 1 && path.charAt(0) == SEPARATOR.charAt(0)
+        && StringUtils.countOccurrencesOf(path, SEPARATOR) == 1) {
       return path.substring(1);
     }
     return path;
@@ -174,7 +176,7 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
 
   private OutputStream getOutputStream(String path, FileWriteMode mode) {
     try {
-      path = removeSlashForRootDirectory(path);
+      path = removeSlashUnderRootDirOnly(path);
       return mode == APPEND ? client.appendFileStream(path) : client.storeFileStream(path);
     } catch (Exception e) {
       throw exception(format("Could not open stream to write to path '%s' using mode '%s'", path, mode), e);
