@@ -38,7 +38,7 @@
     </ftp:config>
 
 	<ftp:config name="config-no-working-directory">
-        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}">
             <reconnection >
                 <reconnect frequency="1000" count="5" />
             </reconnection>
