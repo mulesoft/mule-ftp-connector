@@ -309,7 +309,7 @@
         <StackingRuleEnumVal>0</StackingRuleEnumVal>
         <CarrierPackagingTypeVal>0</CarrierPackagingTypeVal>
         <SplitMethodEnumVal>NONE</SplitMethodEnumVal>
-        <SystemItemMasterID>0</SystemItemMasterID>
+        <SystemItemMainID>0</SystemItemMainID>
         <ItemPackageLevelCode>0</ItemPackageLevelCode>
         <ContentQuantity>0.000000</ContentQuantity>
         <Is3DLoadingRequired>bFALSE</Is3DLoadingRequired>
