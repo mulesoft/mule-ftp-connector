@@ -52,14 +52,14 @@
     </munit:before-suite>
 
     <munit:after-suite name="clearFtpTestServer-copyTestCase">
+        <ftp:delete config-ref="${config}" path="/copy-dir-test"/>
+        <ftp:delete config-ref="${config}" path="/copy-test"/>
         <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                             method="stopFtpServer()">
             <java:args>
                 #[{}]
             </java:args>
         </java:invoke-static>
-        <ftp:delete config-ref="${config}" path="/copy-dir-test"/>
-        <ftp:delete config-ref="${config}" path="/copy-test"/>
     </munit:after-suite>
 
     <ftp:config name="ftp-config">
