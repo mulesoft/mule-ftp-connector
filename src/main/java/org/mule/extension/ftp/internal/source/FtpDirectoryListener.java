@@ -281,7 +281,6 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         if (result != null) {
           onRejectedItem(result, ctx);
         }
-        returnConnection();
       }
     });
 
