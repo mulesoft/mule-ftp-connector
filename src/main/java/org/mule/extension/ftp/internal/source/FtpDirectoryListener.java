@@ -155,6 +155,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   public void onSuccess(@ParameterGroup(name = POST_PROCESSING_GROUP_NAME) PostActionGroup postAction,
                         SourceCallbackContext ctx) {
     postAction(postAction, ctx);
+    returnConnection();
   }
 
   @OnError
@@ -162,6 +163,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
                       SourceCallbackContext ctx) {
     if (postAction.isApplyPostActionWhenFailed()) {
       postAction(postAction, ctx);
+      returnConnection();
     }
   }
 
@@ -182,17 +184,17 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     } catch (Exception e) {
       extractConnectionException(e).ifPresent((connectionException) -> pollContext.onConnectionException(connectionException));
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
-                      e.getMessage()),
-              e);
+                          e.getMessage()),
+                   e);
 
       return;
     }
 
     try {
       List<Result<InputStream, FtpFileAttributes>> files =
-              ftpFileSystemConnection
-                      .list(config, directoryUri.getPath(), recursive, matcher,
-                              config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+          ftpFileSystemConnection
+              .list(config, directoryUri.getPath(), recursive, matcher,
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
 
       if (files.isEmpty()) {
         return;
@@ -218,8 +220,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       }
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
-                      directoryUri.getPath(), e.getMessage()),
-              e);
+                          directoryUri.getPath(), e.getMessage()),
+                   e);
     } finally {
       returnConnection();
     }
@@ -268,14 +270,14 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
             item.setWatermark(attributes.getTimestamp().truncatedTo(ChronoUnit.MINUTES));
           } else {
             LOGGER.warn(format("Use of watermark for files processing is enabled, but file [%s] does not have the"
-                            + " corresponding modification timestamp. Watermark ignored for this file.",
-                    fullPath));
+                + " corresponding modification timestamp. Watermark ignored for this file.",
+                               fullPath));
           }
         }
       } catch (Throwable t) {
         LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
-                        fullPath, t.getMessage()),
-                t);
+                            fullPath, t.getMessage()),
+                     t);
         if (result != null) {
           onRejectedItem(result, ctx);
         }
@@ -292,8 +294,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
         postAction.apply(openConnection(), attrs, config);
       } catch (Exception e) {
         LOGGER
-                .error("An error occurred while retrieving a connection to apply the post processing action to the file {} , it was neither moved nor deleted.",
-                        attrs.getPath());
+            .error("An error occurred while retrieving a connection to apply the post processing action to the file {} , it was neither moved nor deleted.",
+                   attrs.getPath());
       }
     });
   }
@@ -303,9 +305,9 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       return new OnNewFileCommand(openConnection()).resolveRootUri(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
-              format("Could not resolve path to directory '%s'. %s",
-                      directory, e.getMessage())),
-              e);
+                                                                            format("Could not resolve path to directory '%s'. %s",
+                                                                                   directory, e.getMessage())),
+                                     e);
     }
   }
 
