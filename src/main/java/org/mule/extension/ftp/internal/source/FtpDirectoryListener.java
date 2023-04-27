@@ -155,6 +155,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   public void onSuccess(@ParameterGroup(name = POST_PROCESSING_GROUP_NAME) PostActionGroup postAction,
                         SourceCallbackContext ctx) {
     postAction(postAction, ctx);
+    returnConnection();
   }
 
   @OnError
@@ -162,6 +163,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
                       SourceCallbackContext ctx) {
     if (postAction.isApplyPostActionWhenFailed()) {
       postAction(postAction, ctx);
+      returnConnection();
     }
   }
 
@@ -218,6 +220,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath(), e.getMessage()),
                    e);
+    } finally {
+      returnConnection();
     }
   }
 
@@ -301,6 +305,13 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
                                                                             format("Could not resolve path to directory '%s'. %s",
                                                                                    directory, e.getMessage())),
                                      e);
+    }
+  }
+
+  private synchronized void returnConnection() {
+    if (ftpFileSystemConnection != null) {
+      fileSystemProvider.disconnect(ftpFileSystemConnection);
+      ftpFileSystemConnection = null;
     }
   }
 }
