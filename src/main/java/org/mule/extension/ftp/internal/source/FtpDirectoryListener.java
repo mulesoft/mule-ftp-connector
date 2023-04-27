@@ -168,7 +168,9 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   @OnTerminate
-  public void onTerminate(SourceCallbackContext ctx) {}
+  public void onTerminate(SourceCallbackContext ctx) {
+    returnConnection();
+  }
 
   @Override
   public void poll(PollContext<InputStream, FtpFileAttributes> pollContext) {
@@ -240,7 +242,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     try {
       ftpFileSystemConnection.changeToBaseDir();
     } catch (Exception e) {
-      fileSystemProvider.disconnect(ftpFileSystemConnection);
+      returnConnection();
       throw e;
     }
     return ftpFileSystemConnection;
