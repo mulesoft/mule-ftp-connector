@@ -321,22 +321,26 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     String filePath = normalizePath(absoluteUri.getPath());
     String fileParentPath = getParentPath(absoluteUri);
     if (fileParentPath != null) {
-      if (tryChangeWorkingDirectory(fileParentPath)) {
-        FTPListParseEngine engine = client.initiateListParsing();
-        while (engine.hasNext()) {
-          FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
-          for (FTPFile file : files) {
-            if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
-              return Optional.ofNullable(file);
-            }
+      return getFTPFileInParentDirectory(fileParentPath, filePath);
+    } else {
+      // root directory
+      return Optional.of(createRootFile());
+    }
+  }
+
+  private Optional<FTPFile> getFTPFileInParentDirectory(String fileParentPath, String filePath) throws IOException {
+    if (tryChangeWorkingDirectory(fileParentPath)) {
+      FTPListParseEngine engine = client.initiateListParsing(filePath);
+      while (engine.hasNext()) {
+        FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+        for (FTPFile file : files) {
+          if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
+            return Optional.of(file);
           }
         }
       }
-      return Optional.empty();
-    } else {
-      // root directory
-      return Optional.ofNullable(createRootFile());
     }
+    return Optional.empty();
   }
 
   private String getParentPath(URI absoluteUri) {

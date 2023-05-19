@@ -21,10 +21,9 @@ import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import static org.apache.commons.net.ftp.FTPCmd.MLST;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -193,6 +192,76 @@ public class FtpCommandTestCase {
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
     verify(client, times(0)).initiateListParsing();
+  }
+
+  @Test
+  public void testThatGetFileFromParentDirectoryReturnsFileEvenIfThereIsNotMLSTCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR + "/files", mock(LockFactory.class)), client, ftpReadCommand);
+
+    for (int i = 0; i < 9; i++) {
+      String newPath = fullPath.substring(0, fullPath.length() - 4) + i;
+      newPath = newPath.concat(".txt");
+      testHarness.write(newPath, fileContent);
+    }
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
+    String[] files = testHarness.getFileList(TEMP_DIRECTORY);
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    assertThat(files.length, is(10));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing(anyString());
+  }
+
+  @Test
+  public void testThatGetInvalidFileFromParentDirectoryReturnsNullEvenIfThereIsNotMLSTCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR + "/files", mock(LockFactory.class)), client, ftpReadCommand);
+
+    for (int i = 0; i < 9; i++) {
+      String newPath = fullPath.substring(0, fullPath.length() - 4) + i;
+      newPath = newPath.concat(".txt");
+      testHarness.write(newPath, fileContent);
+    }
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/invalidFile.txt");
+    String[] files = testHarness.getFileList(TEMP_DIRECTORY);
+    assertThat(file, is(nullValue()));
+    assertThat(files.length, is(10));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing(anyString());
+  }
+
+  @Test
+  public void testThatGetInvalidFileFromParentDirectoryReturnsFileEvenIfThereIsNotMLSTCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR + "/files", mock(LockFactory.class)), client, ftpReadCommand);
+
+    for (int i = 0; i < 9; i++) {
+      String newPath = fullPath.substring(0, fullPath.length() - 4) + i;
+      newPath = newPath.concat(".txt");
+      testHarness.write(newPath, fileContent);
+    }
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/New.txt");
+    String[] files = testHarness.getFileList(TEMP_DIRECTORY);
+    assertThat(file, is(nullValue()));
+    assertThat(files.length, is(10));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
 }
