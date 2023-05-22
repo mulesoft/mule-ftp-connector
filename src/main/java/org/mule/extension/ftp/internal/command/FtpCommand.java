@@ -145,7 +145,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected void changeWorkingDirectory(String path) {
     if (!tryChangeWorkingDirectory(path)) {
       throw new IllegalArgumentException(format("Could not change working directory to '%s'. Path doesn't exist or is not a directory",
-                                                path.toString()));
+                                                path));
     }
     LOGGER.debug("working directory changed to {}", path);
   }
@@ -330,17 +330,37 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> getFTPFileInParentDirectory(String fileParentPath, String filePath) throws IOException {
     if (tryChangeWorkingDirectory(fileParentPath)) {
-      FTPListParseEngine engine = client.initiateListParsing(filePath);
-      while (engine.hasNext()) {
-        FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
-        for (FTPFile file : files) {
-          if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
-            return Optional.of(file);
-          }
+      FTPFile ftpFile = tryRetrieveFile(filePath);
+      if (ftpFile != null) {
+        return Optional.of(ftpFile);
+      }
+      return tryRetrieveDirectory(filePath);
+    }
+    return Optional.empty();
+  }
+
+  private Optional<FTPFile> tryRetrieveDirectory(String filePath) throws IOException {
+    FTPListParseEngine engine = client.initiateListParsing();
+    while (engine.hasNext()) {
+      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+      for (FTPFile file : files) {
+        if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
+          return Optional.of(file);
         }
       }
     }
     return Optional.empty();
+  }
+
+  private FTPFile tryRetrieveFile(String filePath) throws IOException {
+    FTPListParseEngine engine = client.initiateListParsing(filePath);
+    if (engine.hasNext()) {
+      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+      if (files.length > 0) {
+        return files[0];
+      }
+    }
+    return null;
   }
 
   private String getParentPath(URI absoluteUri) {
