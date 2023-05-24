@@ -320,27 +320,35 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
     String filePath = normalizePath(absoluteUri.getPath());
     String fileParentPath = getParentPath(absoluteUri);
-    if (fileParentPath != null) {
-      return getFTPFileInParentDirectory(fileParentPath, filePath);
-    } else {
-      // root directory
+
+    if (fileParentPath == null) {
       return Optional.of(createRootFile());
     }
-  }
 
-  private Optional<FTPFile> getFTPFileInParentDirectory(String fileParentPath, String filePath) throws IOException {
     if (tryChangeWorkingDirectory(fileParentPath)) {
-      FTPFile ftpFile = tryRetrieveFile(filePath);
-      if (ftpFile != null) {
-        return Optional.of(ftpFile);
+      Optional<FTPFile> foundFile = findFileByPath(filePath);
+      if (foundFile.isPresent()) {
+        return foundFile;
+      } else {
+        return findDirectoryByPath(filePath);
       }
-      return tryRetrieveDirectory(filePath);
     }
+
     return Optional.empty();
   }
 
-  private Optional<FTPFile> tryRetrieveDirectory(String filePath) throws IOException {
+  private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
+    FTPListParseEngine engine = client.initiateListParsing(filePath);
+    return findFileInEngine(engine, filePath);
+  }
+
+  private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
+    // If the file is a directory the list parsing can't find the directory by its name, it needs to do listParsing by current directory
     FTPListParseEngine engine = client.initiateListParsing();
+    return findFileInEngine(engine, filePath);
+  }
+
+  private Optional<FTPFile> findFileInEngine(FTPListParseEngine engine, String filePath) {
     while (engine.hasNext()) {
       FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
       for (FTPFile file : files) {
@@ -350,17 +358,6 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       }
     }
     return Optional.empty();
-  }
-
-  private FTPFile tryRetrieveFile(String filePath) throws IOException {
-    FTPListParseEngine engine = client.initiateListParsing(filePath);
-    if (engine.hasNext()) {
-      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
-      if (files.length > 0) {
-        return files[0];
-      }
-    }
-    return null;
   }
 
   private String getParentPath(URI absoluteUri) {
