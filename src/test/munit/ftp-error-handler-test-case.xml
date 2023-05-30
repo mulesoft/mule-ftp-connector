@@ -33,6 +33,7 @@
     </file:config>
 
     <!--If read fails because of some connectivity issue, then write stream buffer fails in error handler-->
+    <!--W-13501425 Fix test-->
     <munit:test name="write-after-read-error-fails" description="Ftp write fails because an error (e.g: some connectivity error) occurred while reading." ignore="true">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="ftp-dir-listener" />
