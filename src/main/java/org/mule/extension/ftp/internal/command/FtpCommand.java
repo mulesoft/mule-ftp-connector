@@ -145,7 +145,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   protected void changeWorkingDirectory(String path) {
     if (!tryChangeWorkingDirectory(path)) {
       throw new IllegalArgumentException(format("Could not change working directory to '%s'. Path doesn't exist or is not a directory",
-                                                path.toString()));
+                                                path));
     }
     LOGGER.debug("working directory changed to {}", path);
   }
@@ -320,23 +320,44 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
     String filePath = normalizePath(absoluteUri.getPath());
     String fileParentPath = getParentPath(absoluteUri);
-    if (fileParentPath != null) {
-      if (tryChangeWorkingDirectory(fileParentPath)) {
-        FTPListParseEngine engine = client.initiateListParsing();
-        while (engine.hasNext()) {
-          FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
-          for (FTPFile file : files) {
-            if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
-              return Optional.ofNullable(file);
-            }
-          }
+
+    if (fileParentPath == null) {
+      return Optional.of(createRootFile());
+    }
+
+    if (tryChangeWorkingDirectory(fileParentPath)) {
+      Optional<FTPFile> foundFile = findFileByPath(filePath);
+      if (foundFile.isPresent()) {
+        return foundFile;
+      } else {
+        return findDirectoryByPath(filePath);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
+    FTPListParseEngine engine = client.initiateListParsing(filePath);
+    return findFileInEngine(engine, filePath);
+  }
+
+  private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
+    // If the file is a directory the list parsing can't find the directory by its name, it needs to do listParsing by current directory
+    FTPListParseEngine engine = client.initiateListParsing();
+    return findFileInEngine(engine, filePath);
+  }
+
+  private Optional<FTPFile> findFileInEngine(FTPListParseEngine engine, String filePath) {
+    while (engine.hasNext()) {
+      FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
+      for (FTPFile file : files) {
+        if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
+          return Optional.of(file);
         }
       }
-      return Optional.empty();
-    } else {
-      // root directory
-      return Optional.ofNullable(createRootFile());
     }
+    return Optional.empty();
   }
 
   private String getParentPath(URI absoluteUri) {

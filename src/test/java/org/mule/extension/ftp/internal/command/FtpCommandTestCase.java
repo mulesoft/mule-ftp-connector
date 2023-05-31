@@ -9,10 +9,10 @@ package org.mule.extension.ftp.internal.command;
 import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -20,11 +20,16 @@ import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.function.Predicate;
+
 import static org.apache.commons.net.ftp.FTPCmd.MLST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -36,10 +41,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
 import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.function.Predicate;
 
 public class FtpCommandTestCase {
 
@@ -69,6 +70,11 @@ public class FtpCommandTestCase {
     client.login(FTP_USER, FTP_PASSWORD);
   }
 
+  @After
+  public void tearDown() throws Exception {
+    client.disconnect();
+  }
+
   @Test
   public void listRecentlyCreatedDirectory() throws Exception {
     ftpWriteCommand = new FtpWriteCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
@@ -86,7 +92,7 @@ public class FtpCommandTestCase {
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
-    verify(client, times(1)).initiateListParsing();
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
   @Test
@@ -100,7 +106,7 @@ public class FtpCommandTestCase {
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
-    verify(client, times(1)).initiateListParsing();
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
   @Test
@@ -118,7 +124,7 @@ public class FtpCommandTestCase {
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
-    verify(client, times(0)).initiateListParsing();
+    verify(client, times(0)).initiateListParsing(anyString());
   }
 
   @Test
@@ -127,7 +133,8 @@ public class FtpCommandTestCase {
     doReturn(522).doCallRealMethod().when(client).getReplyCode();
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
 
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
@@ -137,7 +144,7 @@ public class FtpCommandTestCase {
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing();
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
   @Test
@@ -145,7 +152,8 @@ public class FtpCommandTestCase {
     doThrow(new MalformedServerReplyException()).when(client).mlistDir();
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
 
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
@@ -156,7 +164,7 @@ public class FtpCommandTestCase {
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing();
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
   @Test
@@ -164,7 +172,8 @@ public class FtpCommandTestCase {
     when(client.hasFeature(MLST.getCommand())).thenReturn(false);
 
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
 
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
@@ -181,7 +190,8 @@ public class FtpCommandTestCase {
   @Test
   public void listDirectoryFromServerThatSupportsMLSDCommand() throws Exception {
     ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
-    ftpListCommand = new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
+    ftpListCommand =
+        new FtpListCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client, ftpReadCommand);
 
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
@@ -192,7 +202,35 @@ public class FtpCommandTestCase {
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
-    verify(client, times(0)).initiateListParsing();
+    verify(client, times(0)).initiateListParsing(anyString());
+  }
+
+  @Test
+  public void testThatGetFileFromParentDirectoryReturnsFileEvenIfThereIsNotMLSTCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing(anyString());
+  }
+
+  @Test
+  public void testThatGetFileFromParentDirectory2ReturnsFileEvenIfThereIsNotMLSTCommand() throws Exception {
+    ftpReadCommand = new FtpReadCommand(new FtpFileSystem(client, WORKING_DIR, mock(LockFactory.class)), client);
+
+    Predicate matcher = spy(Predicate.class);
+    when(matcher.test(any())).thenReturn(true);
+
+    FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
+    assertThat(file, is(notNullValue()));
+    assertThat(file.getName(), is(fileName));
+    verify(client, times(1)).mlistFile(any());
+    verify(client, times(1)).initiateListParsing(anyString());
   }
 
 }
