@@ -22,7 +22,7 @@
         <mule.version>4.1.2</mule.version>
 
         <commonsNetVersion>3.6</commonsNetVersion>
-        <commonsIoVersion>2.11.0</commonsIoVersion>
+        <commonsIoVersion>2.13.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.3.0</maven.helper.plugin.version>
