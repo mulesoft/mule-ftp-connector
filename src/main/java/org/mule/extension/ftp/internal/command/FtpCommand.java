@@ -31,6 +31,7 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
@@ -314,7 +315,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (file == null) {
       return getFileFromParentDirectory(absoluteUri);
     }
-    return Optional.ofNullable(file);
+    return Optional.of(file);
   }
 
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
@@ -326,11 +327,13 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
 
     if (tryChangeWorkingDirectory(fileParentPath)) {
+      // It's a directory
+      if (FilenameUtils.getExtension(fileParentPath).isEmpty()) {
+        return findDirectoryByPath(filePath);
+      }
       Optional<FTPFile> foundFile = findFileByPath(filePath);
       if (foundFile.isPresent()) {
         return foundFile;
-      } else {
-        return findDirectoryByPath(filePath);
       }
     }
 
@@ -339,7 +342,12 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
     FTPListParseEngine engine = client.initiateListParsing(filePath);
-    return findFileInEngine(engine, filePath);
+    if (engine.hasNext()) {
+      // Since it looks for a single file it should be only one file
+      FTPFile[] ftpFiles = engine.getNext(1);
+      return Optional.of(ftpFiles[0]);
+    }
+    return Optional.empty();
   }
 
   private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
