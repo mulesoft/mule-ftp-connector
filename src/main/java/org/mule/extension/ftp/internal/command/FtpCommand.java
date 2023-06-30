@@ -328,7 +328,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
     if (tryChangeWorkingDirectory(fileParentPath)) {
       // It's a directory
-      if (FilenameUtils.getExtension(fileParentPath).isEmpty()) {
+      if (FilenameUtils.getExtension(filePath).isEmpty()) {
         return findDirectoryByPath(filePath);
       }
       Optional<FTPFile> foundFile = findFileByPath(filePath);
