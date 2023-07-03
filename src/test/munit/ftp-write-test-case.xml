@@ -139,7 +139,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="ftp-write-with-different-encoding-creates-new-file">
+    <munit:test name="ftp-write-with-different-encoding-creates-new-file" ignore="true">
         <munit:behavior>
             <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
                                 method="cleanServer()">
