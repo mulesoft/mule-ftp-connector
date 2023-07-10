@@ -344,7 +344,10 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (engine.hasNext()) {
       // Since it looks for a single file it should be only one file
       FTPFile[] ftpFiles = engine.getNext(1);
-      return Optional.of(ftpFiles[0]);
+      FTPFile ftpFile = ftpFiles[0];
+      if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
+        return Optional.of(ftpFile);
+      }
     }
     return Optional.empty();
   }
