@@ -314,7 +314,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (file == null) {
       return getFileFromParentDirectory(absoluteUri);
     }
-    return Optional.ofNullable(file);
+    return Optional.of(file);
   }
 
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
@@ -326,11 +326,13 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
 
     if (tryChangeWorkingDirectory(fileParentPath)) {
+      // It's a directory
+      if (FilenameUtils.getExtension(filePath).isEmpty()) {
+        return findDirectoryByPath(filePath);
+      }
       Optional<FTPFile> foundFile = findFileByPath(filePath);
       if (foundFile.isPresent()) {
         return foundFile;
-      } else {
-        return findDirectoryByPath(filePath);
       }
     }
 
@@ -339,7 +341,15 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
     FTPListParseEngine engine = client.initiateListParsing(filePath);
-    return findFileInEngine(engine, filePath);
+    if (engine.hasNext()) {
+      // Since it looks for a single file it should be only one file
+      FTPFile[] ftpFiles = engine.getNext(1);
+      FTPFile ftpFile = ftpFiles[0];
+      if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
+        return Optional.of(ftpFile);
+      }
+    }
+    return Optional.empty();
   }
 
   private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
