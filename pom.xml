@@ -263,7 +263,7 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>mule/vsftpd-ftp</name>
+                                    <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
                                     </build>
