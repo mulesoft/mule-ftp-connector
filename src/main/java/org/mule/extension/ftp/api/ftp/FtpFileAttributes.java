@@ -61,11 +61,19 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     symbolicLink = ftpFile.isSymbolicLink();
   }
 
+  // Adding default constructor
+  public FtpFileAttributes() {
+  }
+
   /**
    * @return The last time the file was modified, or {@code null} if such information is not available.
    */
   public LocalDateTime getTimestamp() {
     return timestamp;
+  }
+
+  public void setTimestamp(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
   }
 
   /**
@@ -74,6 +82,9 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   @Override
   public String getName() {
     return name;
+  }
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**
@@ -84,12 +95,20 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return size;
   }
 
+  public void setSize(long size) {
+    this.size = size;
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public boolean isRegularFile() {
     return regularFile;
+  }
+
+  public void setRegularFile(boolean regularFile) {
+    this.regularFile = regularFile;
   }
 
   /**
@@ -100,6 +119,10 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return directory;
   }
 
+  public void setDirectory(boolean directory) {
+    this.directory = directory;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -108,11 +131,19 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return symbolicLink;
   }
 
+  public void setSymbolicLink(boolean symbolicLink) {
+    this.symbolicLink = symbolicLink;
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public String getPath() {
     return normalizePath(super.getPath());
+  }
+
+  public void setPath(String path) {
+    this.path = normalizePath(path);
   }
 }

@@ -41,6 +41,10 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   private static final Logger LOGGER = getLogger(FtpFileMatcher.class);
   private AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
 
+  public FtpFileMatcher() {
+    this.timeUnit =TimeUnit.SECONDS;
+    this.caseSensitive = true;
+  }
 
   /**
    * Files created before this date are rejected.
@@ -186,23 +190,62 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return timestampSince;
   }
 
+  public void setTimestampSince(LocalDateTime timestampSince) {
+    this.timestampSince = timestampSince;
+  }
+
+
   public LocalDateTime getTimestampUntil() {
     return timestampUntil;
+  }
+
+  public void setTimestampUntil(LocalDateTime timestampUntil) {
+    this.timestampUntil = timestampUntil;
   }
 
   public TimeUnit getTimeUnit() {
     return timeUnit;
   }
 
+  public void setTimeUnit(TimeUnit timeUnit) {
+    this.timeUnit = timeUnit;
+  }
+
   public Long getUpdatedInTheLast() {
     return updatedInTheLast;
+  }
+
+  public void setUpdatedInTheLast(Long updatedInTheLast) {
+    this.updatedInTheLast = updatedInTheLast;
   }
 
   public Long getNotUpdatedInTheLast() {
     return notUpdatedInTheLast;
   }
 
+  public void setNotUpdatedInTheLast(Long notUpdatedInTheLast) {
+    this.notUpdatedInTheLast = notUpdatedInTheLast;
+  }
+
   public boolean isCaseSensitive() {
     return caseSensitive;
   }
+
+  public void setCaseSensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+  }
+
+
+  public AtomicBoolean getAlreadyLoggedWarning() {
+    return alreadyLoggedWarning;
+  }
+
+  public void setAlreadyLoggedWarning(AtomicBoolean alreadyLoggedWarning) {
+    this.alreadyLoggedWarning = alreadyLoggedWarning;
+  }
+
+
 }
+
+
+

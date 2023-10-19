@@ -29,4 +29,7 @@ public class FTPConnectionException extends ConnectionException {
   public FTPConnectionException(String message, Throwable throwable, FileError fileError) {
     super(message, new ModuleException(fileError, throwable));
   }
+  public FTPConnectionException() {
+    super(); // Default constructor
+  }
 }
