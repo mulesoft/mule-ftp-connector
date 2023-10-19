@@ -107,6 +107,10 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return regularFile;
   }
 
+  public boolean getRegularFile() {
+    return regularFile;
+  }
+
   public void setRegularFile(boolean regularFile) {
     this.regularFile = regularFile;
   }
@@ -119,6 +123,10 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return directory;
   }
 
+  public boolean getDirectory() {
+    return directory;
+  }
+
   public void setDirectory(boolean directory) {
     this.directory = directory;
   }
@@ -128,6 +136,10 @@ public class FtpFileAttributes extends AbstractFileAttributes {
    */
   @Override
   public boolean isSymbolicLink() {
+    return symbolicLink;
+  }
+
+  public boolean getSymbolicLink() {
     return symbolicLink;
   }
 

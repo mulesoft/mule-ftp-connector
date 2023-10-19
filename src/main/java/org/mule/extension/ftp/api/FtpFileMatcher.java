@@ -231,6 +231,10 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return caseSensitive;
   }
 
+  public boolean getCaseSensitive() {
+    return caseSensitive;
+  }
+
   public void setCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
   }
