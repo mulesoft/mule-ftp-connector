@@ -190,7 +190,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return timestampSince;
   }
 
-  public void setTimestampSince(LocalDateTime timestampSince) {
+  public void setTimestampsince(LocalDateTime timestampSince) {
     this.timestampSince = timestampSince;
   }
 
@@ -199,7 +199,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return timestampUntil;
   }
 
-  public void setTimestampUntil(LocalDateTime timestampUntil) {
+  public void setTimestampuntil(LocalDateTime timestampUntil) {
     this.timestampUntil = timestampUntil;
   }
 
@@ -207,7 +207,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return timeUnit;
   }
 
-  public void setTimeUnit(TimeUnit timeUnit) {
+  public void setTimeunit(TimeUnit timeUnit) {
     this.timeUnit = timeUnit;
   }
 
@@ -215,7 +215,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return updatedInTheLast;
   }
 
-  public void setUpdatedInTheLast(Long updatedInTheLast) {
+  public void setUpdatedInThelast(Long updatedInTheLast) {
     this.updatedInTheLast = updatedInTheLast;
   }
 
@@ -223,7 +223,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return notUpdatedInTheLast;
   }
 
-  public void setNotUpdatedInTheLast(Long notUpdatedInTheLast) {
+  public void setNotUpdatedInThelast(Long notUpdatedInTheLast) {
     this.notUpdatedInTheLast = notUpdatedInTheLast;
   }
 
@@ -231,11 +231,11 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return caseSensitive;
   }
 
-  public boolean getCaseSensitive() {
+  public boolean getFtpFileMatcherCaseSensitive() {
     return caseSensitive;
   }
 
-  public void setCaseSensitive(boolean caseSensitive) {
+  public void setFtpFileMatcherCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
   }
 

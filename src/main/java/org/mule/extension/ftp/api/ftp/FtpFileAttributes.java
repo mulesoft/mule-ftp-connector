@@ -50,6 +50,9 @@ public class FtpFileAttributes extends AbstractFileAttributes {
    * @param uri the file's {@link URI}
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
+
+
+
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
     super(uri);
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
@@ -61,8 +64,19 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     symbolicLink = ftpFile.isSymbolicLink();
   }
 
-  // Adding default constructor
+
   public FtpFileAttributes() {
+    super(createDefaultUri());
+    timestamp = null;
+    name = "";
+    size = 0;
+    regularFile = false;
+    directory = false;
+    symbolicLink = false;
+  }
+
+  private static URI createDefaultUri() {
+    return URI.create("file:///defaultPath");
   }
 
   /**
@@ -155,7 +169,4 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     return normalizePath(super.getPath());
   }
 
-  public void setPath(String path) {
-    this.path = normalizePath(path);
-  }
 }
