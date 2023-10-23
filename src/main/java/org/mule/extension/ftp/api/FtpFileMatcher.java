@@ -42,7 +42,7 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   private AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
 
   public FtpFileMatcher() {
-    this.timeUnit =TimeUnit.SECONDS;
+    this.timeUnit = TimeUnit.SECONDS;
     this.caseSensitive = true;
   }
 
@@ -250,6 +250,5 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
 
 
 }
-
 
 

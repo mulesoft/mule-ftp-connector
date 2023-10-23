@@ -97,6 +97,7 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   public String getName() {
     return name;
   }
+
   public void setName(String name) {
     this.name = name;
   }
