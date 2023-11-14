@@ -60,6 +60,23 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-anita">
+
+        <ftp:connection host="ftp${ftp.listener.port}" username="bob" password="1234" >
+            <ftp:proxy>
+                <ftp:http-tunnel-proxy host="localhost" port="${ftp.listener.port}" />
+            </ftp:proxy>
+        </ftp:connection>
+    </ftp:config>
+
+    <ftp:config name="ftpConfigForDocker">
+        <ftp:connection username="bob" password="1234" host="127.0.0.1" port="${ftp.listener.port}" workingDir="/">
+            <reconnection>
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
     <ftp:config name="config-proxy-https">
         <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest" >
             <ftp:proxy>
