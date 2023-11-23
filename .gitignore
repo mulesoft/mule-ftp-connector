@@ -31,3 +31,4 @@ hostkey.ser
 *.h2.db
 *.factorypath
 bin
+/test.sh
