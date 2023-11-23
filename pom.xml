@@ -227,16 +227,10 @@
                     </environmentVariables>
                     <runtimeConfiguration>
                         <discoverRuntimes>
-                            <product>EE</product>
+                            <product>ALL</product>
                             <includeSnapshots>true</includeSnapshots>
                         </discoverRuntimes>
                     </runtimeConfiguration>
-                    <sharedLibraries>
-                        <sharedLibrary>
-                            <groupId>org.python</groupId>
-                            <artifactId>jython-standalone</artifactId>
-                        </sharedLibrary>
-                    </sharedLibraries>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -256,17 +250,6 @@
                         <artifactId>mtf-tools</artifactId>
                         <version>${mtf.tools.version}</version>
                         <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.mule.modules</groupId>
-                        <artifactId>mule-scripting-module</artifactId>
-                        <version>2.0.3</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.python</groupId>
-                        <artifactId>jython-standalone</artifactId>
-                        <version>2.7.2</version>
                     </dependency>
                 </dependencies>
             </plugin>
