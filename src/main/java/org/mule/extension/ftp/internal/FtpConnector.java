@@ -7,6 +7,9 @@
 package org.mule.extension.ftp.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
@@ -29,6 +32,7 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.JavaVersionSupport;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +42,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 1.0
  */
+@JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 @Extension(name = "FTP")
 @Operations({FtpOperations.class})
 @ConnectionProviders(FtpConnectionProvider.class)
