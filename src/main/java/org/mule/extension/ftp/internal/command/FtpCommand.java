@@ -328,7 +328,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (tryChangeWorkingDirectory(fileParentPath)) {
       // It's a directory
       if (FilenameUtils.getExtension(filePath).isEmpty()) {
-        return findDirectoryByPath(filePath);
+        return findFileByPathInListing(filePath);
       }
       Optional<FTPFile> foundFile = findFileByPath(filePath);
       if (foundFile.isPresent()) {
@@ -342,17 +342,24 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      // Since it looks for a single file it should be only one file
-      FTPFile[] ftpFiles = engine.getNext(1);
-      FTPFile ftpFile = ftpFiles[0];
-      if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
-        return Optional.of(ftpFile);
-      }
+      return getFtpFileByList(filePath, engine);
+    } else {
+      // The server does not support LIST by single file, linear search will be done as a last attempt
+      return findFileByPathInListing(filePath);
+    }
+  }
+
+  private static Optional<FTPFile> getFtpFileByList(String filePath, FTPListParseEngine engine) {
+    // Since it looks for a single file it should be only one file
+    FTPFile[] ftpFiles = engine.getNext(1);
+    FTPFile ftpFile = ftpFiles[0];
+    if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
+      return Optional.of(ftpFile);
     }
     return Optional.empty();
   }
 
-  private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
+  private Optional<FTPFile> findFileByPathInListing(String filePath) throws IOException {
     // If the file is a directory the list parsing can't find the directory by its name, it needs to do listParsing by current directory
     FTPListParseEngine engine = client.initiateListParsing();
     return findFileInEngine(engine, filePath);
