@@ -205,6 +205,13 @@ public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<F
       if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
         throw handleClientReplyCode(client.getReplyCode());
       }
+      if ("UTF-8".equals(controlEncoding)) {
+        // Forces UTF-8 support on Windows based FTP servers; no impacts on Unix based
+        client.sendCommand("OPTS UTF8 ON");
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("UTF-8 control encoding support option activated on server");
+        }
+      }
       if (!client.login(connectionSettings.getUsername(), connectionSettings.getPassword())) {
         throw handleClientReplyCode(client.getReplyCode());
       }
