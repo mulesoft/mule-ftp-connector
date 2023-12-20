@@ -350,7 +350,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (engine.hasNext()) {
       return getFtpFileByList(engine);
     } else if (fileIsPresentInParentPath(filePath, fileParentPath)) {
-        return findFileByListingParentDirectory(filePath);
+      return findFileByListingParentDirectory(filePath);
     }
     return Optional.empty();
   }
