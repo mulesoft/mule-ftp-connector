@@ -118,7 +118,7 @@
         </munit:execution>
     </munit:test>
 
-	<munit:test name="ftp-write-without-working-directory">
+    <munit:test name="ftp-write-without-working-directory">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt" encoding="UTF-8"/>
             <ftp:write config-ref="config-no-working-directory" path='#[vars.fileName]' createParentDirectories="false">
@@ -145,7 +145,7 @@
                                 method="cleanServer()">
             </java:invoke-static>
             <flow-ref name="server-write-encoded-filename"/>
-            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+            <set-variable variableName="fileName" value="名古屋市.txt" encoding="UTF-8"/>
         </munit:behavior>
         <munit:execution>
             <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false" mode="CREATE_NEW">
