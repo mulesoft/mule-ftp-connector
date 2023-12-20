@@ -31,6 +31,7 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
@@ -330,7 +331,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       if (FilenameUtils.getExtension(filePath).isEmpty()) {
         return findFileByListingParentDirectory(filePath);
       } else {
-        return findFileByPath(filePath);
+        return findFileByPath(filePath, fileParentPath);
       }
     }
     return Optional.empty();
@@ -338,22 +339,30 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   /**
    * This method tries to use the LIST command to find the file, if it is not supported or found, it will try to find it iterating the files of the parent directory
-   * @param filePath the path to the file to be found
+   *
+   * @param filePath       the path to the file to be found
+   * @param fileParentPath the path to the parent directory of the file to be found
    * @return Optional with the file if it was found, empty otherwise
    * @throws IOException if the parent directory could not be listed
    */
-  private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
+  private Optional<FTPFile> findFileByPath(String filePath, String fileParentPath) throws IOException {
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
       return getFtpFileByList(engine);
-    } else {
-      return findFileByListingParentDirectory(filePath);
+    } else if (fileIsPresentInParentPath(filePath, fileParentPath)) {
+        return findFileByListingParentDirectory(filePath);
     }
+    return Optional.empty();
+  }
+
+  private boolean fileIsPresentInParentPath(String filePath, String fileParentPath) throws IOException {
+    String fileName = getFileName(filePath);
+    String[] filenames = client.listNames(fileParentPath);
+    return Arrays.stream(filenames).anyMatch(fileName::contains);
   }
 
   /**
    * Returns the first file found by the list parsing engine
-   * @param engine the engine to be used to find the file
    * @return Optional with the file if it was found, empty otherwise
    */
   private Optional<FTPFile> getFtpFileByList(FTPListParseEngine engine) {
