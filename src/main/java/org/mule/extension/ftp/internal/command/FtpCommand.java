@@ -333,6 +333,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       }
       return findFileByPath(filePath);
     }
+
     return Optional.empty();
   }
 
