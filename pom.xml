@@ -13,7 +13,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-ftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.8.6-LSC2-SNAPSHOT</version>
+    <version>1.8.6-LSC3-SNAPSHOT</version>
 
     <name>FTP Connector</name>
     <description>A Mule connector that provides functionality to manage files in an FTP server</description>
@@ -21,9 +21,9 @@
     <properties>
         <mule.version>4.1.2</mule.version>
 
-        <commonsNetVersion>3.10.0</commonsNetVersion>
-        <commonsIoVersion>2.13.0</commonsIoVersion>
-        <commonsLangVersion>3.12.0</commonsLangVersion>
+        <commonsNetVersion>3.8.0</commonsNetVersion>
+        <commonsIoVersion>2.14.0</commonsIoVersion>
+        <commonsLangVersion>3.13.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
 
