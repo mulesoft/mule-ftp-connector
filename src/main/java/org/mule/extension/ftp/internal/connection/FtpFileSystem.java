@@ -18,6 +18,7 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.success
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.commons.net.ftp.FTPCmd;
 import org.mule.extension.file.common.api.AbstractExternalFileSystem;
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -68,6 +69,7 @@ import org.slf4j.Logger;
 public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
+  private boolean isListSupported;
 
   private static String resolveBasePath(String basePath, FTPClient client) {
     if (isBlank(basePath)) {
@@ -102,6 +104,12 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;
+
+    try {
+      isListSupported = client.listHelp(FTPCmd.LIST.getCommand()) != null;
+    } catch (IOException e) {
+      LOGGER.trace("Could not validate the LIST command support");
+    }
 
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
@@ -381,4 +389,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     return ((FtpReadCommand) readCommand).getFile(filePath);
   }
 
+  public boolean isListSupported() {
+    return isListSupported;
+  }
 }

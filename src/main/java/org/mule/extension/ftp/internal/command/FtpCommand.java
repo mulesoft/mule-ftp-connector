@@ -330,9 +330,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       // It's a directory
       if (FilenameUtils.getExtension(filePath).isEmpty()) {
         return findFileByListingParentDirectory(filePath);
-      } else {
-        return findFileByPath(filePath, fileParentPath);
       }
+      return findFileByPath(filePath);
     }
     return Optional.empty();
   }
@@ -341,34 +340,28 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * This method tries to use the LIST command to find the file, if it is not supported or found, it will try to find it iterating the files of the parent directory
    *
    * @param filePath       the path to the file to be found
-   * @param fileParentPath the path to the parent directory of the file to be found
    * @return Optional with the file if it was found, empty otherwise
    * @throws IOException if the parent directory could not be listed
    */
-  private Optional<FTPFile> findFileByPath(String filePath, String fileParentPath) throws IOException {
-    FTPListParseEngine engine = client.initiateListParsing(filePath);
-    if (engine.hasNext()) {
-      return getFtpFileByList(engine);
-    } else if (fileIsPresentInParentPath(filePath, fileParentPath)) {
-      return findFileByListingParentDirectory(filePath);
+  private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
+    if (fileSystem.isListSupported()) {
+      return getFtpFileByList(filePath);
     }
-    return Optional.empty();
-  }
-
-  private boolean fileIsPresentInParentPath(String filePath, String fileParentPath) throws IOException {
-    String fileName = getFileName(filePath);
-    String[] filenames = client.listNames(fileParentPath);
-    return Arrays.stream(filenames).anyMatch(fileName::contains);
+    return findFileByListingParentDirectory(filePath);
   }
 
   /**
    * Returns the first file found by the list parsing engine
+   * @param filePath the path to the file to be found
    * @return Optional with the file if it was found, empty otherwise
    */
-  private Optional<FTPFile> getFtpFileByList(FTPListParseEngine engine) {
+  private Optional<FTPFile> getFtpFileByList(String filePath) throws IOException {
     // Since it looks for a single file it should be only one file
-    FTPFile[] ftpFiles = engine.getNext(1);
-    return Optional.ofNullable(ftpFiles[0]);
+    FTPListParseEngine engine = client.initiateListParsing(filePath);
+    if (engine.hasNext()) {
+      return Arrays.stream(engine.getFiles()).findFirst();
+    }
+    return Optional.empty();
   }
 
   /**
