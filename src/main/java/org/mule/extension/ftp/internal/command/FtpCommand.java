@@ -346,7 +346,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @throws IOException if the parent directory could not be listed
    */
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
-    if (fileSystem.isSingleFileListingSupported()) {
+    if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET
+        || fileSystem.getSingleFileListingMode() == SingleFileListingMode.SUPPORTED) {
       return getFtpFileByList(filePath);
     }
     return findFileByListingParentDirectory(filePath);

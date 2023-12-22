@@ -382,13 +382,6 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     return ((FtpReadCommand) readCommand).getFile(filePath);
   }
 
-  /**
-   * @return whether if the single file listing mode is set to supported or not
-   */
-  public boolean isSingleFileListingSupported() {
-    return this.singleFileListingMode == SingleFileListingMode.SUPPORTED;
-  }
-
   public void setSingleFileListingMode(SingleFileListingMode singleFileListingMode) {
     this.singleFileListingMode = singleFileListingMode;
   }
