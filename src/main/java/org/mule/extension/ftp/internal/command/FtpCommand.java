@@ -361,7 +361,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET){
+      if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET) {
         fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
       }
       return Arrays.stream(engine.getFiles()).findFirst();

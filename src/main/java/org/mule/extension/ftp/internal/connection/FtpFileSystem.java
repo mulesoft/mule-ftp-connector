@@ -392,6 +392,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   public void setSingleFileListingMode(SingleFileListingMode singleFileListingMode) {
     this.singleFileListingMode = singleFileListingMode;
   }
+
   public SingleFileListingMode getSingleFileListingMode() {
     return this.singleFileListingMode;
   }
