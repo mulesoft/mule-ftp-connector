@@ -346,29 +346,34 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @throws IOException if the parent directory could not be listed
    */
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
-    switch (fileSystem.getSingleFileListingMode()) {
-      case UNSET:
-        Optional<FTPFile> ftpFileByList = getFtpFileByList(filePath);
-        return ftpFileByList.isPresent() ? ftpFileByList : findFileByListingParentDirectory(filePath);
-      case SUPPORTED:
-        return getFtpFileByList(filePath);
-      default: // Assume unsupported if not explicitly set or supported
-        return findFileByListingParentDirectory(filePath);
+    SingleFileListingMode singleFileListingMode = fileSystem.getSingleFileListingMode();
+
+    if (singleFileListingMode == SingleFileListingMode.SUPPORTED) {
+      return getFtpFileByList(filePath);
     }
+
+    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED) {
+      return findFileByListingParentDirectory(filePath);
+    }
+
+    Optional<FTPFile> file = tryEfficientListingFirst(filePath);
+    fileSystem.setSingleFileListingMode(file.isPresent() ? SingleFileListingMode.SUPPORTED : SingleFileListingMode.UNSUPPORTED);
+    return file;
   }
 
+  private Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
+    Optional<FTPFile> file = getFtpFileByList(filePath);
+    return file.isPresent() ? file : findFileByListingParentDirectory(filePath);
+  }
   /**
    * Returns the first file found by the list parsing engine
    * @param filePath the path to the file to be found
    * @return Optional with the file if it was found, empty otherwise
    */
-  private Optional<FTPFile> getFtpFileByList(String filePath) throws IOException {
+  public Optional<FTPFile> getFtpFileByList(String filePath) throws IOException {
     // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET) {
-        fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
-      }
       return Arrays.stream(engine.getFiles()).findFirst();
     }
     return Optional.empty();
@@ -387,9 +392,6 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
       for (FTPFile file : files) {
         if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
-          if (file.isFile() && fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET) {
-            fileSystem.setSingleFileListingMode(SingleFileListingMode.UNSUPPORTED);
-          }
           return Optional.of(file);
         }
       }

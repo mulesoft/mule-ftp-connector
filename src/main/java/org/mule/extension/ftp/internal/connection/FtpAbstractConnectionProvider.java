@@ -171,6 +171,8 @@ public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<F
   @ExcludeFromConnectivitySchema
   private String controlEncoding;
 
+  private SingleFileListingMode singleFileListingMode;
+
   /**
    * Creates and returns a new instance of {@link FtpFileSystem}
    *
@@ -178,7 +180,7 @@ public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<F
    */
   @Override
   public FtpFileSystem connect() throws ConnectionException {
-    return new FtpFileSystem(setupClient(), getWorkingDir(), lockFactory);
+    return new FtpFileSystem(setupClient(), getWorkingDir(), lockFactory, singleFileListingMode);
   }
 
   private FTPClient setupClient() throws ConnectionException {
@@ -345,5 +347,13 @@ public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<F
     }
 
   }
+  public void setSingleFileListingMode(SingleFileListingMode singleFileListingMode) {
+    LOGGER.debug("Switching singleFileListingMode to {}", singleFileListingMode);
+    this.singleFileListingMode = singleFileListingMode;
+  }
 
+  public SingleFileListingMode getSingleFileListingMode() {
+    LOGGER.debug("Current singleFileListingMode is {}", singleFileListingMode);
+    return this.singleFileListingMode;
+  }
 }

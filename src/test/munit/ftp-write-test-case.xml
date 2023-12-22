@@ -167,5 +167,20 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
+    <munit:test name="ftp-write-on-new">
+        <munit:execution>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+
+            <set-variable variableName="fileName" value='#["newFile_" ++ uuid() ++ ".txt"]'/>
+            <ftp:write config-ref="config" path='#[vars.fileName]' mode="CREATE_NEW">
+                <ftp:content ><![CDATA[#["test"]]]></ftp:content>
+            </ftp:write>
+
+            <ftp:read config-ref="config" path='#[vars.fileName]'/>
+
+        </munit:execution>
+    </munit:test>
 
 </mule>

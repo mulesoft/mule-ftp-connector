@@ -24,6 +24,7 @@ import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -32,6 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +100,12 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
         }
         IOUtils.copy(content, outputStream);
         LOGGER.debug("Successfully wrote to path {}", normalizedPath);
+        if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET) {
+          fileSystem.setSingleFileListingMode(
+              client.initiateListParsing(normalizedPath).hasNext()
+                  ? SingleFileListingMode.SUPPORTED
+                  : SingleFileListingMode.UNSUPPORTED);
+        }
       } catch (Exception e) {
         throw exception(format("Exception was found writing to file '%s'", normalizedPath), e);
       } finally {
