@@ -339,18 +339,22 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * This method tries to use the LIST command to find the file, if it is not supported or found, it will try to find it iterating the files of the parent directory
+   * This method validates if initiateClientListParsing is supported and if it is, it tries to find the file directly, if not it lists the parent directory and does a linear search
    *
    * @param filePath       the path to the file to be found
    * @return Optional with the file if it was found, empty otherwise
    * @throws IOException if the parent directory could not be listed
    */
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
-    if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET
-        || fileSystem.getSingleFileListingMode() == SingleFileListingMode.SUPPORTED) {
-      return getFtpFileByList(filePath);
+    switch (fileSystem.getSingleFileListingMode()) {
+      case UNSET:
+        Optional<FTPFile> ftpFileByList = getFtpFileByList(filePath);
+        return ftpFileByList.isPresent() ? ftpFileByList : findFileByListingParentDirectory(filePath);
+      case SUPPORTED:
+        return getFtpFileByList(filePath);
+      default: // Assume unsupported if not explicitly set or supported
+        return findFileByListingParentDirectory(filePath);
     }
-    return findFileByListingParentDirectory(filePath);
   }
 
   /**
