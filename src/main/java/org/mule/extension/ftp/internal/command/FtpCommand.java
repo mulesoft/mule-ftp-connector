@@ -26,6 +26,7 @@ import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
@@ -345,7 +346,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @throws IOException if the parent directory could not be listed
    */
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
-    if (fileSystem.isListSupported()) {
+    if (fileSystem.isSingleFileListingSupported()) {
       return getFtpFileByList(filePath);
     }
     return findFileByListingParentDirectory(filePath);
@@ -360,6 +361,9 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
+      if (fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET){
+        fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
+      }
       return Arrays.stream(engine.getFiles()).findFirst();
     }
     return Optional.empty();
@@ -378,6 +382,9 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
       for (FTPFile file : files) {
         if (file != null && FilenameUtils.getName(filePath).equals(file.getName())) {
+          if (file.isFile() && fileSystem.getSingleFileListingMode() == SingleFileListingMode.UNSET) {
+            fileSystem.setSingleFileListingMode(SingleFileListingMode.UNSUPPORTED);
+          }
           return Optional.of(file);
         }
       }
