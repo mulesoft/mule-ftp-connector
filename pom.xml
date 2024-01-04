@@ -52,6 +52,8 @@
         <licenseYear>2023</licenseYear>
         <mule-sdk-api.version>0.7.0</mule-sdk-api.version>
         <jacoco.version>0.8.10</jacoco.version>
+        <minRangePort>9000</minRangePort>
+        <maxRangePort>10000</maxRangePort>
     </properties>
 
     <dependencies>
@@ -295,8 +297,8 @@
                                 <portName>ftp.proxy</portName>
                                 <portName>ftp.proxy.auth</portName>
                             </portNames>
-                            <minPortNumber>9000</minPortNumber>
-                            <maxPortNumber>10000</maxPortNumber>
+                            <minPortNumber>${minRangePort}</minPortNumber>
+                            <maxPortNumber>${maxRangePort}</maxPortNumber>
                             <randomPort>false</randomPort>
                         </configuration>
                     </execution>
