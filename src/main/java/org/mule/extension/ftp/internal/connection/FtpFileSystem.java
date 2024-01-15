@@ -68,7 +68,7 @@ import org.slf4j.Logger;
 public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
-  private SingleFileListingMode singleFileListingMode;
+  private SingleFileListingMode singleFileListingMode = SingleFileListingMode.UNSET;
 
   private static String resolveBasePath(String basePath, FTPClient client) {
     if (isBlank(basePath)) {
@@ -384,10 +384,12 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   }
 
   public void setSingleFileListingMode(SingleFileListingMode singleFileListingMode) {
+    LOGGER.debug("Setting singleFileListingMode = {}", singleFileListingMode);
     this.singleFileListingMode = singleFileListingMode;
   }
 
   public SingleFileListingMode getSingleFileListingMode() {
+    LOGGER.debug("Current singleFileListingMode = {}", singleFileListingMode);
     return this.singleFileListingMode;
   }
 }

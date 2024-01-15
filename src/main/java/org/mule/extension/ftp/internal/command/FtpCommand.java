@@ -356,14 +356,20 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
       return findFileByListingParentDirectory(filePath);
     }
 
-    Optional<FTPFile> file = tryEfficientListingFirst(filePath);
-    fileSystem.setSingleFileListingMode(file.isPresent() ? SingleFileListingMode.SUPPORTED : SingleFileListingMode.UNSUPPORTED);
-    return file;
+    return tryEfficientListingFirst(filePath);
   }
 
-  private Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
+  protected Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
     Optional<FTPFile> file = getFtpFileByList(filePath);
-    return file.isPresent() ? file : findFileByListingParentDirectory(filePath);
+    if (file.isPresent()) {
+      fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
+    } else {
+      file = findFileByListingParentDirectory(filePath);
+      if (file.isPresent()) {
+        fileSystem.setSingleFileListingMode(SingleFileListingMode.UNSUPPORTED);
+      }
+    }
+    return file;
   }
   /**
    * Returns the first file found by the list parsing engine
