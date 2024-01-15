@@ -27,23 +27,33 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
 
-        <muleFileCommonsVersion>1.4.1</muleFileCommonsVersion>
+
+        <muleFileCommonsVersion>1.4.3</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
-        <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
 
-        <munit.version>2.3.16</munit.version>
-        <munit.extensions.maven.plugin.version>1.1.3</munit.extensions.maven.plugin.version>
-        <mtf.tools.version>1.1.2</mtf.tools.version>
+        <munit.version>3.1.0-rc4</munit.version>
+        <munit.extensions.maven.plugin.version>1.2.0-rc3</munit.extensions.maven.plugin.version>
+        <mtf.tools.version>1.2.0-rc1</mtf.tools.version>
+        <mtf.javaopts></mtf.javaopts>
         <mavenResources.version>3.3.1</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <docker.maven.plugin.version>0.40.2</docker.maven.plugin.version>
-        <java.module.version>1.2.10</java.module.version>
-        <file.connector.version>1.5.0</file.connector.version>
+        <java.module.version>1.2.12</java.module.version>
+        <file.connector.version>1.5.2</file.connector.version>
+        <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
+        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
+        <licenseYear>2023</licenseYear>
+        <mule-sdk-api.version>0.7.0</mule-sdk-api.version>
+        <jacoco.version>0.8.10</jacoco.version>
+        <minRangePort>9000</minRangePort>
+        <maxRangePort>10000</maxRangePort>
     </properties>
 
     <dependencies>
@@ -83,6 +93,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commonsCollectionsVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
+            <version>${mule-sdk-api.version}</version>
         </dependency>
 
         <dependency>
@@ -135,6 +151,38 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mulesoft.license</groupId>
+                        <artifactId>license</artifactId>
+                        <version>${mulesoftLicenseVersion}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <header>${licensePath}</header>
+                    <properties>
+                        <year>${licenseYear}</year>
+                    </properties>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${mavenResources.version}</version>
                 <executions>
@@ -169,10 +217,21 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <argLines>
+                        <argLine>
+                            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec
+                        </argLine>
+                    </argLines>
+                    <environmentVariables>
+                        <!-- Toggles the JDK17 style flag -->
+                        <!-- ugly hack -->
+                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>
+                    </environmentVariables>
                     <runtimeConfiguration>
                         <discoverRuntimes>
-                            <product>ALL</product>
-                            <includeSnapshots>true</includeSnapshots>
+                            <minMuleVersion>${minVersion}</minMuleVersion>
+                            <includeSnapshots>false</includeSnapshots>
+                            <product>EE</product>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
@@ -238,12 +297,28 @@
                                 <portName>ftp.proxy</portName>
                                 <portName>ftp.proxy.auth</portName>
                             </portNames>
-                            <minPortNumber>9000</minPortNumber>
-                            <maxPortNumber>10000</maxPortNumber>
+                            <minPortNumber>${minRangePort}</minPortNumber>
+                            <maxPortNumber>${maxRangePort}</maxPortNumber>
                             <randomPort>false</randomPort>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jdkinternals</goal> <!-- verify main classes -->
+                            <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
             </plugin>
 
         </plugins>
