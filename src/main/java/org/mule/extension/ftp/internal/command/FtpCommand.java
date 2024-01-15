@@ -371,6 +371,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     }
     return file;
   }
+
   /**
    * Returns the first file found by the list parsing engine
    * @param filePath the path to the file to be found
