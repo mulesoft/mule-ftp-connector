@@ -307,7 +307,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
-    if (fileSystem.isFeatureSupported(MLST.getCommand())){
+    if (fileSystem.isFeatureSupported(MLST.getCommand())) {
       try {
         return Optional.ofNullable(client.mlistFile(filePath)); // This method also obtains directories.
       } catch (MalformedServerReplyException e) {
