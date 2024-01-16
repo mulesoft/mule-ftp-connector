@@ -72,6 +72,14 @@
         </ftp:connection>
     </ftp:config>
 
+    <ftp:config name="config-no-working-directory">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}">
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
+        </ftp:connection>
+    </ftp:config>
+
     <ftp:config name="config-proxy-with-UTF8-control-encoding">
         <ftp:connection host="ftp${ftp.proxy}" username="guest" password="guest"
                         workingDir="/" controlEncoding="UTF-8">

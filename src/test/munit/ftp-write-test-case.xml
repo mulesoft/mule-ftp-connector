@@ -145,7 +145,7 @@
                                 method="cleanServer()">
             </java:invoke-static>
             <flow-ref name="server-write-encoded-filename"/>
-            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+            <set-variable variableName="fileName" value="名古屋市.txt" encoding="UTF-8"/>
         </munit:behavior>
         <munit:execution>
             <ftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false" mode="CREATE_NEW">
@@ -166,6 +166,21 @@
                 </munit-tools:that>
             </munit-tools:assert>
         </munit:validation>
+    </munit:test>
+    <munit:test name="ftp-write-on-new">
+        <munit:execution>
+            <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                                method="cleanServer()">
+            </java:invoke-static>
+
+            <set-variable variableName="fileName" value='#["newFile_" ++ uuid() ++ ".txt"]'/>
+            <ftp:write config-ref="config" path='#[vars.fileName]' mode="CREATE_NEW">
+                <ftp:content ><![CDATA[#["test"]]]></ftp:content>
+            </ftp:write>
+
+            <ftp:read config-ref="config" path='#[vars.fileName]'/>
+
+        </munit:execution>
     </munit:test>
 
 </mule>

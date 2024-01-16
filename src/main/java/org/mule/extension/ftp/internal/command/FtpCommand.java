@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.net.ftp.FTPCmd.MLST;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
@@ -26,11 +27,13 @@ import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
@@ -304,17 +307,14 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
-    FTPFile file = null;
-    // Check if MLST command is supported.
-    try {
-      file = client.mlistFile(filePath); // This method also obtains directories.
-    } catch (MalformedServerReplyException e) {
-      LOGGER.debug(e.getMessage());
+    if (fileSystem.isFeatureSupported(MLST.getCommand())) {
+      try {
+        return Optional.ofNullable(client.mlistFile(filePath)); // This method also obtains directories.
+      } catch (MalformedServerReplyException e) {
+        LOGGER.debug(e.getMessage());
+      }
     }
-    if (file == null) {
-      return getFileFromParentDirectory(absoluteUri);
-    }
-    return Optional.of(file);
+    return getFileFromParentDirectory(absoluteUri);
   }
 
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
@@ -328,37 +328,71 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     if (tryChangeWorkingDirectory(fileParentPath)) {
       // It's a directory
       if (FilenameUtils.getExtension(filePath).isEmpty()) {
-        return findDirectoryByPath(filePath);
+        return findFileByListingParentDirectory(filePath);
       }
-      Optional<FTPFile> foundFile = findFileByPath(filePath);
-      if (foundFile.isPresent()) {
-        return foundFile;
-      }
+      return findFileByPath(filePath);
     }
 
     return Optional.empty();
   }
 
+  /**
+   * This method validates if initiateClientListParsing is supported and if it is, it tries to find the file directly, if not it lists the parent directory and does a linear search
+   *
+   * @param filePath       the path to the file to be found
+   * @return Optional with the file if it was found, empty otherwise
+   * @throws IOException if the parent directory could not be listed
+   */
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
+    SingleFileListingMode singleFileListingMode = fileSystem.getSingleFileListingMode();
+
+    if (singleFileListingMode == SingleFileListingMode.SUPPORTED) {
+      return getFtpFileByList(filePath);
+    }
+
+    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED) {
+      return findFileByListingParentDirectory(filePath);
+    }
+
+    return tryEfficientListingFirst(filePath);
+  }
+
+  protected Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
+    Optional<FTPFile> file = getFtpFileByList(filePath);
+    if (file.isPresent()) {
+      fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
+    } else {
+      file = findFileByListingParentDirectory(filePath);
+      if (file.isPresent()) {
+        fileSystem.setSingleFileListingMode(SingleFileListingMode.UNSUPPORTED);
+      }
+    }
+    return file;
+  }
+
+  /**
+   * Returns the first file found by the list parsing engine
+   * @param filePath the path to the file to be found
+   * @return Optional with the file if it was found, empty otherwise
+   */
+  public Optional<FTPFile> getFtpFileByList(String filePath) throws IOException {
+    // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      // Since it looks for a single file it should be only one file
-      FTPFile[] ftpFiles = engine.getNext(1);
-      FTPFile ftpFile = ftpFiles[0];
-      if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
-        return Optional.of(ftpFile);
-      }
+      return Arrays.stream(engine.getFiles()).findFirst();
     }
     return Optional.empty();
   }
 
-  private Optional<FTPFile> findDirectoryByPath(String filePath) throws IOException {
+  /**
+   * This method does a linear search of the file by listing the parent directory and comparing the name of the file
+   * @param filePath the path to the file to be found
+   * @return Optional with the file if it was found, empty otherwise
+   * @throws IOException if the parent directory could not be listed
+   */
+  private Optional<FTPFile> findFileByListingParentDirectory(String filePath) throws IOException {
     // If the file is a directory the list parsing can't find the directory by its name, it needs to do listParsing by current directory
     FTPListParseEngine engine = client.initiateListParsing();
-    return findFileInEngine(engine, filePath);
-  }
-
-  private Optional<FTPFile> findFileInEngine(FTPListParseEngine engine, String filePath) {
     while (engine.hasNext()) {
       FTPFile[] files = engine.getNext(FTP_LIST_PAGE_SIZE);
       for (FTPFile file : files) {
