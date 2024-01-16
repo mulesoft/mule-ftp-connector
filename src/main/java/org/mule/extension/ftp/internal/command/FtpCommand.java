@@ -9,6 +9,7 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.net.ftp.FTPCmd.MLST;
 import static org.apache.commons.net.ftp.FTPFile.DIRECTORY_TYPE;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
@@ -306,17 +307,14 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   private Optional<FTPFile> doGetFileFromAbsoluteUri(URI absoluteUri) throws IOException {
     String filePath = normalizeUri(absoluteUri).getPath();
-    FTPFile file = null;
-    // Check if MLST command is supported.
-    try {
-      file = client.mlistFile(filePath); // This method also obtains directories.
-    } catch (MalformedServerReplyException e) {
-      LOGGER.debug(e.getMessage());
+    if (fileSystem.isFeatureSupported(MLST.getCommand())){
+      try {
+        return Optional.ofNullable(client.mlistFile(filePath)); // This method also obtains directories.
+      } catch (MalformedServerReplyException e) {
+        LOGGER.debug(e.getMessage());
+      }
     }
-    if (file == null) {
-      return getFileFromParentDirectory(absoluteUri);
-    }
-    return Optional.of(file);
+    return getFileFromParentDirectory(absoluteUri);
   }
 
   private Optional<FTPFile> getFileFromParentDirectory(URI absoluteUri) throws IOException {
