@@ -309,7 +309,10 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     String filePath = normalizeUri(absoluteUri).getPath();
     if (fileSystem.isFeatureSupported(MLST.getCommand())) {
       try {
-        return Optional.ofNullable(client.mlistFile(filePath)); // This method also obtains directories.
+        FTPFile ftpFile = client.mlistFile(filePath);
+        if (ftpFile != null && FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
+          return Optional.of(ftpFile);
+        }
       } catch (MalformedServerReplyException e) {
         LOGGER.debug(e.getMessage());
       }
@@ -379,7 +382,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      return Arrays.stream(engine.getNext(1)).findFirst();
+      FTPFile[] ftpFiles = engine.getNext(1);
+      FTPFile ftpFile = ftpFiles[0];
+      if (FilenameUtils.getName(filePath).equals(ftpFile.getName())) {
+        return Optional.of(ftpFile);
+      }
     }
     return Optional.empty();
   }
