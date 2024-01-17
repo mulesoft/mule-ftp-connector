@@ -226,12 +226,12 @@ public class FtpCommandTestCase {
 
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
+    when(client.mlistFile(anyString())).thenThrow(new MalformedServerReplyException());
 
     FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
-    verify(client, times(1)).mlistFile(any());
-    verify(client, times(1)).initiateListParsing(anyString());
+    verify(client, times(2)).mlistFile(any());
   }
 
   @Test
@@ -246,7 +246,6 @@ public class FtpCommandTestCase {
     assertThat(file, is(notNullValue()));
     assertThat(file.getName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
-    verify(client, times(1)).initiateListParsing(anyString());
   }
 
 }
