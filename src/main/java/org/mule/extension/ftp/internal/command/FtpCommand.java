@@ -379,7 +379,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
     // Since it looks for a single file it should be only one file
     FTPListParseEngine engine = client.initiateListParsing(filePath);
     if (engine.hasNext()) {
-      return Arrays.stream(engine.getFiles()).findFirst();
+      return Arrays.stream(engine.getNext(1)).findFirst();
     }
     return Optional.empty();
   }
