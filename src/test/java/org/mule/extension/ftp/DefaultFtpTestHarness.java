@@ -9,6 +9,7 @@ package org.mule.extension.ftp;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
@@ -23,6 +24,8 @@ import org.mule.test.infrastructure.process.rules.FtpServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -184,14 +187,19 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
     assertThat(createUri(fileAttributes.getPath()).getPath(),
                equalTo(createUri(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).getPath()));
     assertThat(fileAttributes.getSize(), is(file.getSize()));
-    assertTime(fileAttributes.getTimestamp(), file.getTimestamp());
+    assertTime(fileAttributes.getTimestamp(), file.getTimestamp(), 1);
     assertThat(fileAttributes.isDirectory(), is(false));
     assertThat(fileAttributes.isSymbolicLink(), is(false));
     assertThat(fileAttributes.isRegularFile(), is(true));
   }
 
-  private void assertTime(LocalDateTime dateTime, Calendar calendar) {
-    assertThat(dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), is(calendar.toInstant().toEpochMilli()));
+  private void assertTime(LocalDateTime dateTime, Calendar calendar, long toleranceMicroseconds) {
+    Instant expectedInstant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+    Instant actualInstant = calendar.toInstant();
+    long differenceMicroseconds = Duration.between(expectedInstant, actualInstant).toNanos() / 1000;
+
+    // The FTP server MLST is less precise than the Java Calendar, so we need to allow for some tolerance
+    assertThat(differenceMicroseconds, is(lessThanOrEqualTo(toleranceMicroseconds)));
   }
 
   /**
