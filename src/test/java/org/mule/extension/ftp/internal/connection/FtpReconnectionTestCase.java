@@ -8,8 +8,10 @@ package org.mule.extension.ftp.internal.connection;
 
 import static org.apache.commons.io.FileUtils.getTempDirectory;
 import static org.hamcrest.core.Is.isA;
+import static org.mockito.Matchers.anyString;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-
+import static org.mockito.Mockito.when;
+import org.mockito.Mockito;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.ftp.internal.command.FtpCommand;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -33,7 +35,7 @@ import io.qameta.allure.Feature;
 @Feature("Reconnection from FTP exception")
 public class FtpReconnectionTestCase extends AbstractMuleTestCase {
 
-  private FtpDummyCommand command = new FtpDummyCommand();
+  private FtpDummyCommand command;
 
   @Rule
   public ExpectedException ftpConnectionThrown = ExpectedException.none();
@@ -42,6 +44,9 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
   @Description("When the FTP connection closes, a FTPConnectionClosedException is raised. " +
       "This should be treated as a ConnectionException")
   public void testReconnectionFromFTPConnectionClosed() {
+    FtpFileSystem ftpFileSystemMock = Mockito.mock(FtpFileSystem.class);
+    when(ftpFileSystemMock.isFeatureSupported(anyString())).thenReturn(true);
+    command = new FtpDummyCommand(ftpFileSystemMock);
     ftpConnectionThrown.expectCause(isA(ConnectionException.class));
     ftpConnectionThrown.expectCause(new TypeSafeMatcher<Throwable>() {
 
@@ -59,8 +64,8 @@ public class FtpReconnectionTestCase extends AbstractMuleTestCase {
 
   private class FtpDummyCommand extends FtpCommand {
 
-    public FtpDummyCommand() {
-      super(null, new FTPClient() {
+    public FtpDummyCommand(FtpFileSystem ftpFileSystem) {
+      super(ftpFileSystem, new FTPClient() {
 
         @Override
         public FTPFile mlistFile(String pathname) throws IOException {

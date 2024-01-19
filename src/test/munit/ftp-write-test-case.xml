@@ -84,7 +84,7 @@
 
     <munit:test name="ftp-proxy-write-with-encoding">
         <munit:behavior>
-            <set-variable variableName="fileName" value="/名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
+            <set-variable variableName="fileName" value="名古屋市立大学_面会報告書.txt" encoding="UTF-8"/>
             <ftp:write config-ref="config-proxy-with-UTF8-control-encoding" path='#[vars.fileName]' createParentDirectories="false">
                 <ftp:content>test content</ftp:content>
             </ftp:write>

@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 public class FtpFileSystem extends AbstractExternalFileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
+  private SingleFileListingMode singleFileListingMode = SingleFileListingMode.UNSET;
 
   private static String resolveBasePath(String basePath, FTPClient client) {
     if (isBlank(basePath)) {
@@ -98,10 +99,11 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    *
    * @param client a ready to use {@link FTPClient}
    */
-  public FtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory) {
+  public FtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory, SingleFileListingMode singleFileListingMode) {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;
+    this.singleFileListingMode = singleFileListingMode;
 
     copyCommand = new FtpCopyCommand(this, client);
     createDirectoryCommand = new FtpCreateDirectoryCommand(this, client);
@@ -381,4 +383,13 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     return ((FtpReadCommand) readCommand).getFile(filePath);
   }
 
+  public void setSingleFileListingMode(SingleFileListingMode singleFileListingMode) {
+    LOGGER.debug("Setting singleFileListingMode = {}", singleFileListingMode);
+    this.singleFileListingMode = singleFileListingMode;
+  }
+
+  public SingleFileListingMode getSingleFileListingMode() {
+    LOGGER.debug("Current singleFileListingMode = {}", singleFileListingMode);
+    return this.singleFileListingMode;
+  }
 }
