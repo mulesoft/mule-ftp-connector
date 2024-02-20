@@ -57,7 +57,7 @@
             <ftp:proxy>
                 <ftp:https-tunnel-proxy host="localhost" port="${squid.port.https}">
                     <tls:context >
-                        <tls:trust-store path="dockercompose/truststorehttps" password="changeit"/>
+                        <tls:trust-store path="dockercompose/truststorehttps.p12" password="changeit"/>
                     </tls:context>
                 </ftp:https-tunnel-proxy>
             </ftp:proxy>
