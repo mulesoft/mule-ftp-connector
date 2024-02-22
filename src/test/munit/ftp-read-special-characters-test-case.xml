@@ -15,10 +15,14 @@
     <munit:config name="ftp-read-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="config">
-                <munit:parameter name="config" value="config"/>
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="config-docker">
-                <munit:parameter name="config" value="config-docker"/>
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-docker"/>
+                </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
@@ -49,12 +53,12 @@
         <munit:behavior>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
             <set-variable variableName="fileName" value="Test_File_!@#$%^&amp;*()_+=-.{}[];:|\\/,?~`.txt"/>
-            <ftp:write config-ref="config-docker" path="#[vars.fileName]">
+            <ftp:write config-ref="${config}" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
         </munit:behavior>
         <munit:execution>
-            <ftp:read config-ref="config-docker" path='#[vars.fileName]'/>
+            <ftp:read config-ref="${config}" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-equals actual="#[payload as String]" expected="#[vars.fileContent]"/>
