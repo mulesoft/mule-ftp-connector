@@ -19,9 +19,9 @@
                     <munit:parameter propertyName="config" value="config"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="config-docker">
+            <munit:parameterization name="config-proxy">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker"/>
+                    <munit:parameter propertyName="config" value="config-proxy"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
