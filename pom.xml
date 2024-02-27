@@ -338,11 +338,11 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>mule/vsftpd-ftp-${ftp.listener.port}</name>                                    <build>
-                                    <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
+                                    <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
+                                    <build>
+                                        <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
                                     </build>
                                     <run>
-                                        <containerNamePattern>%e</containerNamePattern>
                                         <ports>
                                             <!--ftp command port-->
                                             <port>${ftp.listener.port}:21</port>
@@ -417,6 +417,7 @@
                             <composeFiles>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose-auth.yml</composeFile>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
+
                             </composeFiles>
                             <envVars>
                                 <squidPort>${squid.port.http}</squidPort>
