@@ -414,6 +414,7 @@
                         <artifactId>docker-compose-maven-plugin</artifactId>
                         <version>4.0.0</version>
                         <configuration>
+                            <projectName>ftp-docker-compose-${squid.port.auth}_${ftp.listener.port}_${ftp.proxy.auth}</projectName>
                             <composeFiles>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose-auth.yml</composeFile>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
