@@ -338,7 +338,7 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
+                                    <name>mule/vsftpd-ftp</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
                                     </build>
@@ -415,11 +415,9 @@
                         <artifactId>docker-compose-maven-plugin</artifactId>
                         <version>4.0.0</version>
                         <configuration>
-                            <projectName>ftp-docker-compose-${squid.port.auth}_${ftp.listener.port}_${ftp.proxy.auth}</projectName>
                             <composeFiles>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose-auth.yml</composeFile>
                                 <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
-
                             </composeFiles>
                             <envVars>
                                 <squidPort>${squid.port.http}</squidPort>
