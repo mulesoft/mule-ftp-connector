@@ -343,6 +343,7 @@
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
                                     </build>
                                     <run>
+                                        <containerNamePattern>%e</containerNamePattern>
                                         <ports>
                                             <!--ftp command port-->
                                             <port>${ftp.listener.port}:21</port>

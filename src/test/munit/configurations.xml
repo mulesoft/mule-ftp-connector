@@ -98,7 +98,7 @@
     </ftp:config>
 
     <ftp:config name="config-docker">
-        <ftp:connection username="bob" password="1234" host="localhost" port="${ftp.listener.port}" workingDir="/">
+        <ftp:connection username="bob" password="1234" host="127.0.0.1" port="${ftp.listener.port}" workingDir="/">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="1" maxIdle="1" maxWait="5000"/>
         </ftp:connection>
     </ftp:config>
