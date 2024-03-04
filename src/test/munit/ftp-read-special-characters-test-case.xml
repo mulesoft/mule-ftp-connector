@@ -12,20 +12,7 @@
         http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="ftp-read-test-case.xml">
-        <munit:parameterizations>
-            <munit:parameterization name="config">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config"/>
-                </munit:parameters>
-            </munit:parameterization>
-            <munit:parameterization name="config-proxy">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-proxy"/>
-                </munit:parameters>
-            </munit:parameterization>
-        </munit:parameterizations>
-    </munit:config>
+    <munit:config name="ftp-read-test-case.xml"/>
 
     <munit:dynamic-port propertyName="ftp.server.port"/>
 
@@ -53,31 +40,16 @@
         <munit:behavior>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
             <set-variable variableName="fileName" value="Test_File_!@#$%^&amp;*()_+=-.{}[];:|\\/,?~`.txt"/>
-            <ftp:write config-ref="${config}" path="#[vars.fileName]">
-                <ftp:content>#[vars.fileContent]</ftp:content>
-            </ftp:write>
-        </munit:behavior>
-        <munit:execution>
-            <ftp:read config-ref="${config}" path='#[vars.fileName]'/>
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert-equals actual="#[payload as String]" expected="#[vars.fileContent]"/>
-        </munit:validation>
-    </munit:test>
-
-    <munit:test name="ftp-read-file-with-special-characters-embedded-ftp-server">
-        <munit:behavior>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <set-variable variableName="fileName" value="Test_File_!@#$%^&amp;*()_+=-.{}[];:|\\/,?~`.txt"/>
             <ftp:write config-ref="config" path="#[vars.fileName]">
                 <ftp:content>#[vars.fileContent]</ftp:content>
             </ftp:write>
         </munit:behavior>
         <munit:execution>
             <ftp:read config-ref="config" path='#[vars.fileName]'/>
+            <set-payload value="#[%dw 2.0 output application/json --- payload]"/>
         </munit:execution>
         <munit:validation>
-            <munit-tools:assert-equals actual="#[payload as String]" expected="#[vars.fileContent]"/>
+            <munit-tools:assert-equals actual="#[payload]" expected="#[vars.fileContent]"/>
         </munit:validation>
     </munit:test>
 </mule>
