@@ -349,7 +349,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
     SingleFileListingMode singleFileListingMode = fileSystem.getSingleFileListingMode();
 
-    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED || hasSpecialCharacterUnsupportedForSingleFileListing(filePath)) {
+    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED
+        || hasSpecialCharacterUnsupportedForSingleFileListing(filePath)) {
       return findFileByListingParentDirectory(filePath);
     }
 
