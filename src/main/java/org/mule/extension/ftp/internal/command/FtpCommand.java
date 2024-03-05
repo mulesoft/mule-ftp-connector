@@ -367,9 +367,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @return true if the file path contains special characters, false otherwise
    */
   private boolean hasSpecialCharacterUnsupportedForSingleFileListing(String filePath) {
-    boolean contains = filePath.matches(UNSUPPORTED_SPECIAL_CHARACTERS_SINGLEFILELISTING);
-    LOGGER.warn("File {} contains special characters, performance could be affected.", filePath);
-    return contains;
+    boolean hasSpecialCharacters = filePath.matches(UNSUPPORTED_SPECIAL_CHARACTERS_SINGLEFILELISTING);
+    if (hasSpecialCharacters && LOGGER.isWarnEnabled()) {
+      LOGGER.warn("File {} contains special characters, performance could be affected.", filePath);
+    }
+    return hasSpecialCharacters;
   }
 
   protected Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
