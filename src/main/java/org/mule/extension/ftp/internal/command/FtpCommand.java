@@ -57,6 +57,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private static final int FTP_LIST_PAGE_SIZE = 25;
   protected static final String ROOT = "/";
   protected static final String SEPARATOR = "/";
+  public static final String UNSUPPORTED_SPECIAL_CHARACTERS_SINGLEFILELISTING = ".*\\[.*";
 
   protected final FTPClient client;
 
@@ -348,15 +349,29 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   private Optional<FTPFile> findFileByPath(String filePath) throws IOException {
     SingleFileListingMode singleFileListingMode = fileSystem.getSingleFileListingMode();
 
+    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED
+        || hasSpecialCharacterUnsupportedForSingleFileListing(filePath)) {
+      return findFileByListingParentDirectory(filePath);
+    }
+
     if (singleFileListingMode == SingleFileListingMode.SUPPORTED) {
       return getFtpFileByList(filePath);
     }
 
-    if (singleFileListingMode == SingleFileListingMode.UNSUPPORTED) {
-      return findFileByListingParentDirectory(filePath);
-    }
-
     return tryEfficientListingFirst(filePath);
+  }
+
+  /**
+   * This method checks if the file path contains special characters that are not supported for single file listing
+   * @param filePath the path to the file to be found
+   * @return true if the file path contains special characters, false otherwise
+   */
+  private boolean hasSpecialCharacterUnsupportedForSingleFileListing(String filePath) {
+    boolean hasSpecialCharacters = filePath.matches(UNSUPPORTED_SPECIAL_CHARACTERS_SINGLEFILELISTING);
+    if (hasSpecialCharacters && LOGGER.isWarnEnabled()) {
+      LOGGER.warn("File {} contains special characters, performance could be affected.", filePath);
+    }
+    return hasSpecialCharacters;
   }
 
   protected Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
