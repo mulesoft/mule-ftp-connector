@@ -23,7 +23,7 @@
 
         <commonsNetVersion>3.8.0</commonsNetVersion>
         <commonsIoVersion>2.13.0</commonsIoVersion>
-        <commonsLangVersion>3.12.0</commonsLangVersion>
+        <commonsLangVersion>3.14.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
 
