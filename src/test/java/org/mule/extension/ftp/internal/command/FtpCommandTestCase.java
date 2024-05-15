@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
-import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
+import static org.mule.extension.ftp.api.FileTestHarness.WORKING_DIR;
 
 public class FtpCommandTestCase {
 

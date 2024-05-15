@@ -7,20 +7,20 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
-import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
-import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
-import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.api.FileWriteMode.APPEND;
+import static org.mule.extension.ftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.ftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.internal.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.operation.WriteCommand;
+import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
+import org.mule.extension.ftp.internal.exception.IllegalPathException;
+import org.mule.extension.ftp.internal.lock.NullUriLock;
+import org.mule.extension.ftp.internal.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;

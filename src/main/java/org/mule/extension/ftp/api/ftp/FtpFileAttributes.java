@@ -7,7 +7,8 @@
 package org.mule.extension.ftp.api.ftp;
 
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
-import org.mule.extension.file.common.api.AbstractFileAttributes;
+
+import org.mule.extension.ftp.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
@@ -47,10 +48,9 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   /**
    * Creates a new instance
    *
-   * @param uri the file's {@link URI}
+   * @param uri     the file's {@link URI}
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
-
 
 
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {

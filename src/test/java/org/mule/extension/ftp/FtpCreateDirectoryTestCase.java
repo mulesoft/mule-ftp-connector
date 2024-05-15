@@ -11,12 +11,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
-import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.internal.error.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;

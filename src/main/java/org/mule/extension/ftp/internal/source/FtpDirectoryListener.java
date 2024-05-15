@@ -7,18 +7,17 @@
 package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
-import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
+import static org.mule.extension.ftp.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 
-import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.ftp.api.matchers.NullFilePayloadPredicate;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
-import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessageFactory;

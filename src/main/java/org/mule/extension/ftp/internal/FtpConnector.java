@@ -11,12 +11,12 @@ import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
 import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
 import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
 
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.ftp.api.proxy.HttpTunnelProxy;
 import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
+import org.mule.extension.ftp.internal.error.FileError;
 import org.mule.extension.ftp.internal.source.FtpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 

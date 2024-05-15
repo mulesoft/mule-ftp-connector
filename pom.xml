@@ -59,13 +59,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${muleFileCommonsVersion}</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
-
-        <dependency>
             <groupId>org.mule.sdk</groupId>
             <artifactId>mule-sdk-api</artifactId>
             <version>${muleSdkApiVersion}</version>
@@ -105,14 +98,6 @@
             <groupId>org.mule.tests</groupId>
             <artifactId>mule-tests-runner</artifactId>
             <version>${muleTestsRunnerVersion}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${muleFileCommonsVersion}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
