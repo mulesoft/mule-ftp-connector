@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.1.9</version>
+        <version>1.3.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +41,7 @@
         <mavenResources.version>3.3.1</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <docker.maven.plugin.version>0.40.2</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.43.3</docker.maven.plugin.version>
         <java.module.version>1.2.12</java.module.version>
         <file.connector.version>1.5.2</file.connector.version>
 
