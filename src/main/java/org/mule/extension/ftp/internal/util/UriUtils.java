@@ -23,10 +23,10 @@ public final class UriUtils {
 
   private UriUtils() {}
 
-  private static String SEPARATOR = "/";
+  private static final String SEPARATOR = "/";
   private static final char EOL = 0;
-  private static final String regexMetaChars = ".^$+{[]|()";
-  private static final String globMetaChars = "\\*?[{";
+  private static final String REGEX_META_CHARS = ".^$+{[]|()";
+  private static final String GLOB_META_CHARS = "\\*?[{";
 
   /**
    * Creates an {@link URI} for a given path.
@@ -51,7 +51,7 @@ public final class UriUtils {
     String fullPath;
     try {
       if (filePath.length() > 0) {
-        if (isAbsolute(filePath)) {
+        if (Boolean.TRUE.equals(isAbsolute(filePath))) {
           fullPath = filePath;
         } else {
           fullPath = addSeparator(basePath) + filePath;
@@ -272,10 +272,10 @@ public final class UriUtils {
   }
 
   private static boolean isRegexMeta(char c) {
-    return regexMetaChars.indexOf(c) != -1;
+    return REGEX_META_CHARS.indexOf(c) != -1;
   }
 
   private static boolean isGlobMeta(char c) {
-    return globMetaChars.indexOf(c) != -1;
+    return GLOB_META_CHARS.indexOf(c) != -1;
   }
 }

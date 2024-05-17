@@ -15,7 +15,7 @@ import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
 
-import org.mule.extension.file.common.api.FileAttributes;
+import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Startable;
