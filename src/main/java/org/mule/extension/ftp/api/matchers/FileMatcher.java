@@ -45,8 +45,8 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
 
   private static final String SIZE_MUST_BE_GREATER_THAN_ZERO_MESSAGE =
       "Matcher attribute '%s' must be greater than zero but '%d' was received";
-  protected static final TimeSinceFunction FILE_TIME_UNTIL = new TimeSinceFunction();
-  protected static final TimeUntilFunction FILE_TIME_SINCE = new TimeUntilFunction();
+  protected static final TimeSinceFunction FILE_TIME_SINCE = new TimeSinceFunction();
+  protected static final TimeUntilFunction FILE_TIME_UNTIL = new TimeUntilFunction();
   public static final boolean DEFAULT_CASE_SENSITIVE = true;
   /**
    * A matching pattern to be applied on the file name. This pattern needs to be consistent with the rules of
