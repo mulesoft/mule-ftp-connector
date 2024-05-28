@@ -152,7 +152,7 @@ public class FtpCommandTestCase {
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing(anyString());
+    verify(client, times(1)).initiateListParsing();
   }
 
   @Test
@@ -174,7 +174,7 @@ public class FtpCommandTestCase {
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing(anyString());
+    verify(client, times(1)).initiateListParsing();
   }
 
   @Test
