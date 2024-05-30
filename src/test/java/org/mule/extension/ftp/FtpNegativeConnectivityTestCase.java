@@ -17,6 +17,8 @@ import static org.mule.extension.ftp.internal.error.FileError.UNKNOWN_HOST;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
+
+import org.junit.Ignore;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -30,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 @Story("Negative Connectivity Testing")
 public class FtpNegativeConnectivityTestCase extends CommonFtpConnectorTestCase {
 

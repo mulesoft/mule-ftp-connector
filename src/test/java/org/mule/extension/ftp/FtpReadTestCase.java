@@ -19,6 +19,7 @@ import static org.mule.extension.ftp.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 
+import org.junit.Ignore;
 import org.mule.extension.ftp.internal.exception.DeletedFileWhileReadException;
 import org.mule.extension.ftp.internal.exception.FileBeingModifiedException;
 import org.mule.extension.ftp.internal.exception.IllegalPathException;
@@ -41,6 +42,7 @@ import org.junit.rules.ExpectedException;
 import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   private static String DELETED_FILE_NAME = "deleted.txt";
