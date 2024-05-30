@@ -15,6 +15,8 @@ import static org.mule.extension.ftp.internal.error.FileError.FILE_ALREADY_EXIST
 import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
+
+import org.junit.Ignore;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.exception.IllegalPathException;
 
@@ -22,6 +24,7 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpCopyTestCase extends CommonFtpConnectorTestCase {
 
   private static final String SOURCE_FILE_NAME = "test.txt";

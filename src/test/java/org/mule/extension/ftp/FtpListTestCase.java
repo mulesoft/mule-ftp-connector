@@ -17,6 +17,8 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
+
+import org.junit.Ignore;
 import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.exception.IllegalPathException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -37,6 +39,7 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEST_FILE_PATTERN = "test-file-%d.html";

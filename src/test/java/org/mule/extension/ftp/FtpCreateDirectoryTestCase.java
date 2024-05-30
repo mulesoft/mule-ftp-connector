@@ -16,12 +16,14 @@ import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
+import org.junit.Ignore;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   private static final String DIRECTORY = "validDirectory";

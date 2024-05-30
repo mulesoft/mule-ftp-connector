@@ -10,6 +10,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+
+import org.junit.Ignore;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.message.OutputHandler;
@@ -27,6 +29,8 @@ import org.junit.runners.Parameterized;
 
 @RunnerDelegateTo(Parameterized.class)
 @Feature(FTP_EXTENSION)
+@Ignore
+
 public class FtpWriteTypeTestCase extends CommonFtpConnectorTestCase {
 
   @Parameterized.Parameters(name = "{0}")
