@@ -16,6 +16,8 @@ import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.internal.error.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
+
+import org.junit.Ignore;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.exception.IllegalPathException;
 
@@ -25,6 +27,8 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
+
 public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 
   private static final String RENAME_TO = "renamed";

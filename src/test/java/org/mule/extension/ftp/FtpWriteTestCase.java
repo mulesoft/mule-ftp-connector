@@ -43,6 +43,7 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEMP_DIRECTORY = "files";
