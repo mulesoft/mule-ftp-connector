@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-move-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="before-ftp-move-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-ftp-move-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-ftp-move-test-case">
+        <try>
+            <ftp:delete config-ref="config" path="source"/>
+            <ftp:delete config-ref="config" path="target"/>
+            <error-handler >
+                <on-error-continue type="FTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="ftp-move-directories" description="Perform a move operation that move a whole directory">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <ftp:create-directory config-ref="config" directoryPath="move-dir-test"/>
+            <ftp:create-directory config-ref="config" directoryPath="move-dir-test/folder-to-move"/>
+
+            <ftp:write config-ref="config" path="move-dir-test/folder-to-move/file1.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config" path="move-dir-test/folder-to-move/file2.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config" path="move-dir-test/folder-to-move/file3.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:move config-ref="config" sourcePath="move-dir-test/folder-to-move/"
+                       targetPath="move-dir-test/folder-moved" overwrite="false"
+                       createParentDirectories="true"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file1.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <ftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file2.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <ftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file3.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+
+            <try>
+                <ftp:read config-ref="config" path="move-dir-test/folder-to-move/file1.txt"/>
+                <error-handler >
+                    <on-error-continue type="FTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+            <try>
+                <ftp:read config-ref="config" path="move-dir-test/folder-to-move/file2.txt"/>
+                <error-handler >
+                    <on-error-continue type="FTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+            <try>
+                <ftp:read config-ref="config" path="move-dir-test/folder-to-move/file3.txt"/>
+                <error-handler >
+                    <on-error-continue type="FTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-move-to-target-ending-in-separator" description="Perform move operations of a file with a destination that ends in a separator">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <ftp:create-directory config-ref="config" directoryPath="move-test"/>
+            <ftp:create-directory config-ref="config" directoryPath="move-test/folder-input"/>
+
+            <ftp:write config-ref="config" path="move-test/folder-input/hello-world.txt">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="move-test/folder-input/hello-world.txt"
+                       targetPath="move-test/folder-output/" overwrite="false"
+                       createParentDirectories="true"/>
+            <set-payload value="Copy with FTP works fine!!"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:read config-ref="config" path="move-test/folder-output/hello-world.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-move-directory-without-createParentDirectories"
+                description="Directories with different hierarchies are created and a second level directory is moved to a target without creating the parent directories,
+                the target is expected to contain only one file">
+        <munit:behavior >
+            <ftp:create-directory config-ref="config" directoryPath="source/first-level-subDirectory/second-level-subDirectory"/>
+            <ftp:create-directory config-ref="config" directoryPath="target"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:move config-ref="config" sourcePath="source/first-level-subDirectory/second-level-subDirectory" targetPath="target" createParentDirectories="false"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:list config-ref="config" directoryPath="target"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+            <munit-tools:assert-equals actual="#[payload[0].attributes.fileName]" expected='#["second-level-subDirectory"]'/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-move-directory-with-target-invalid" description="An attempt is made to move a directory without the createParentDirectories property to an invalid path." expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <ftp:create-directory  config-ref="config" directoryPath="source/created-to-move"/>
+            <ftp:create-directory  config-ref="config" directoryPath="target"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target/directory-non-exists" createParentDirectories="false"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-move-directory-with-source-invalid" description="Trying to move a non-existent file" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="target"/>
+            <ftp:create-directory config-ref="config" directoryPath="source"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:move config-ref="config" sourcePath="source/directory-non-exists" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-move-directory-exists-on-target" description="An attempt is made to move a file that already exists on the destination." expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/created-to-move"/>
+            <ftp:create-directory config-ref="config" directoryPath="target/created-to-move"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-move-directory-exist-on-target-whit-renameTo-enable"
+                description="An existing file is moved to the destination and when the overwrite property is configured,
+                it is expected that the file will be renamed and that the destination will obtain one more directory than at the beginning.">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/created-to-move"/>
+            <ftp:create-directory config-ref="config" directoryPath="target/created-to-move"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:list config-ref="config" directoryPath="target"/>
+            <set-variable value="#[sizeOf(payload)]" variableName="sizeTargetBeforeMove"/>
+            <ftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target" overwrite="true" renameTo="directory-renamed"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:list config-ref="config" directoryPath="target"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(vars.sizeTargetBeforeMove)]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>
