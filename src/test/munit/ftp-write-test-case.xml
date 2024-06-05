@@ -36,6 +36,92 @@
         </java:invoke-static>
     </munit:after-suite>
 
+    <munit:test name="ftp-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-void-file">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-void.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::isEmptyString()]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-write-file-exists-with-createNewMode" description="It tries to create a new file when one with the same name already exists."
+                expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="createNewFail.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <ftp:write config-ref="config" path="#[vars.fileName]">
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]">
+            </ftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-with-createNewMode" description="Will create a new file with the CreateNew setting.">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="newFileToTest.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <try>
+                <ftp:delete config-ref="config" path="#[vars.fileName]"/>
+                <error-handler >
+                    <on-error-continue enableNotifications="false" logException="false" type="FTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+        </munit:behavior>
+        <munit:execution>
+            <set-payload value="Hello World!"/>
+            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]">
+            </ftp:write>
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-read-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:read config-ref="config" path="#[vars.fileName]" />
+            <set-payload value="Hello World!" />
+            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-write-lock">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:write config-ref="config" path="#[vars.fileName]" lock="true" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
     <munit:test name="ftp-write-on-invalid-working-directory" expectedErrorType="FTP:ILLEGAL_PATH">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
