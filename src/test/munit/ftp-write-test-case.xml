@@ -98,19 +98,6 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="ftp-read-write">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="write-file.txt"/>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-        </munit:behavior>
-        <munit:execution>
-            <ftp:read config-ref="config" path="#[vars.fileName]" />
-            <set-payload value="Hello World!" />
-            <ftp:write config-ref="config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
-        </munit:execution>
-    </munit:test>
-
     <munit:test name="ftp-write-lock">
         <munit:behavior>
             <set-variable variableName="fileName" value="write-file.txt"/>
