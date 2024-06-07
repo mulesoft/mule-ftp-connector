@@ -87,8 +87,6 @@
         </munit:validation>
     </munit:test>
 
-
-
     <munit:test name="ftp-create-directory-already-exists" description="Perform a create operation but it already exists. Expect FTP:FILE_ALREADY_EXISTS error"
                 expectedErrorType="FTP:FILE_ALREADY_EXISTS">
         <munit:behavior >
@@ -119,6 +117,7 @@
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
+            <ftp:delete config-ref="config" path="created-dir-test/?1*@|#"/>
         </munit:validation>
     </munit:test>
 
