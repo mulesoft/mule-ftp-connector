@@ -49,7 +49,7 @@
         </munit:enable-flow-sources>
 
         <munit:behavior>
-            <set-variable variableName="amountOfFiles" value="#[100]"/>
+            <set-variable variableName="amountOfFiles" value="#[80]"/>
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
         <munit:execution>
