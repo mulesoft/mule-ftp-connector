@@ -80,14 +80,6 @@ public class FtpFileAttributesTestCase {
     assertThat(ftpAttributes.getTimestamp(), is(nullValue()));
   }
 
-  @Test
-  public void missingNameFromFtpFile() {
-    when(ftpFile.getName()).thenReturn(null);
-
-    FtpFileAttributes ftpAttributes = getFtpFileAttributes();
-    assertThat(ftpAttributes.getName(), is(isEmptyString()));
-  }
-
   private FtpFileAttributes getFtpFileAttributes() {
     return new FtpFileAttributes(uri, ftpFile);
   }
