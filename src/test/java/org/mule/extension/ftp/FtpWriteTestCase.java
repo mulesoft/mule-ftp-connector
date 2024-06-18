@@ -157,9 +157,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     assertThat(content, is(HELLO_WORLD));
   }
 
-  //TODO: MULE-16515 ignore this test until issue is fixed.
   @Test
-  @Ignore
   public void writeOnLockedFile() throws Exception {
     final String path = "file";
     testHarness.write(path, HELLO_WORLD);
