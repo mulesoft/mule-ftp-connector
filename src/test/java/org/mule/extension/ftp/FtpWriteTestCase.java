@@ -157,9 +157,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     assertThat(content, is(HELLO_WORLD));
   }
 
-  //TODO: MULE-16515 ignore this test until issue is fixed.
   @Test
-  @Ignore
   public void writeOnLockedFile() throws Exception {
     final String path = "file";
     testHarness.write(path, HELLO_WORLD);
@@ -205,9 +203,6 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void writeOnAPathWithColon() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
-    // removed when the test server always runs in an external Linux container.
-    assumeTrue(!IS_OS_WINDOWS);
     final String filePath = "folder/fi:le.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
