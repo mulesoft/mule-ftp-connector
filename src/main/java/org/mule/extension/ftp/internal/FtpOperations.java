@@ -74,7 +74,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Summary("List all the files from given directory")
   @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<FtpFileSystem, Result<Object, FtpFileAttributes>> list(@Config FileConnectorConfig config,
+  public PagingProvider<FtpFileSystem, Result<String, FtpFileAttributes>> list(@Config FileConnectorConfig config,
                                                                                @Path(type = DIRECTORY,
                                                                                    location = EXTERNAL) String directoryPath,
                                                                                @Optional(

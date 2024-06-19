@@ -119,12 +119,12 @@ public abstract class BaseFileSystemOperations {
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected PagingProvider<FileSystem, Result<CursorProvider, FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                           String directoryPath,
-                                                                                           boolean recursive,
-                                                                                           FileMatcher matchWith,
-                                                                                           Long timeBetweenSizeCheck,
-                                                                                           StreamingHelper streamingHelper) {
+  protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                   String directoryPath,
+                                                                                   boolean recursive,
+                                                                                   FileMatcher matchWith,
+                                                                                   Long timeBetweenSizeCheck,
+                                                                                   StreamingHelper streamingHelper) {
     return doPagedList(config, directoryPath, recursive, matchWith, timeBetweenSizeCheck, streamingHelper, null);
   }
 
@@ -146,29 +146,29 @@ public abstract class BaseFileSystemOperations {
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected PagingProvider<FileSystem, Result<CursorProvider, FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                           String directoryPath,
-                                                                                           boolean recursive,
-                                                                                           FileMatcher matchWith,
-                                                                                           Long timeBetweenSizeCheck,
-                                                                                           StreamingHelper streamingHelper,
-                                                                                           SubsetList subsetList) {
-    return new PagingProvider<FileSystem, Result<CursorProvider, FileAttributes>>() {
+  protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                   String directoryPath,
+                                                                                   boolean recursive,
+                                                                                   FileMatcher matchWith,
+                                                                                   Long timeBetweenSizeCheck,
+                                                                                   StreamingHelper streamingHelper,
+                                                                                   SubsetList subsetList) {
+    return new PagingProvider<FileSystem, Result<String, FileAttributes>>() {
 
       private List<Result<InputStream, FileAttributes>> files;
       private Iterator<Result<InputStream, FileAttributes>> filesIterator;
       private final AtomicBoolean initialised = new AtomicBoolean(false);
 
       @Override
-      public List<Result<CursorProvider, FileAttributes>> getPage(FileSystem connection) {
+      public List<Result<String, FileAttributes>> getPage(FileSystem connection) {
         if (initialised.compareAndSet(false, true)) {
           initializePagingProvider(connection);
         }
-        List<Result<CursorProvider, FileAttributes>> page = new LinkedList<>();
+        List<Result<String, FileAttributes>> page = new LinkedList<>();
         for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
           Result<InputStream, FileAttributes> result = filesIterator.next();
-          page.add((Result.<CursorProvider, FileAttributes>builder().attributes(result.getAttributes().get())
-              .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
+          page.add((Result.<String, FileAttributes>builder().attributes(result.getAttributes().get())
+              .output(result.getAttributes().get().getPath())
               .mediaType(result.getMediaType().orElse(null))
               .attributesMediaType(result.getAttributesMediaType().orElse(null))
               .build()));
