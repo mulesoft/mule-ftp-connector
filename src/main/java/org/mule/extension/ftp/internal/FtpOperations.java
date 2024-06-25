@@ -13,19 +13,19 @@ import static org.mule.runtime.core.api.util.StringUtils.isBlank;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
-import org.mule.extension.file.common.api.BaseFileSystemOperations;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.exceptions.FileCopyErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileDeleteErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileRenameErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileWriteErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.IllegalContentException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
+import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.connection.FileSystem;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.error.provider.FileCopyErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileDeleteErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileListErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileReadErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileRenameErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileWriteErrorTypeProvider;
+import org.mule.extension.ftp.internal.exception.IllegalContentException;
+import org.mule.extension.ftp.internal.exception.IllegalPathException;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -67,14 +67,14 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
-   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Message messages} each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Summary("List all the files from given directory")
   @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<FtpFileSystem, Result<Object, FtpFileAttributes>> list(@Config FileConnectorConfig config,
+  public PagingProvider<FtpFileSystem, Result<String, FtpFileAttributes>> list(@Config FileConnectorConfig config,
                                                                                @Path(type = DIRECTORY,
                                                                                    location = EXTERNAL) String directoryPath,
                                                                                @Optional(

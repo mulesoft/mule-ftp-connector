@@ -8,10 +8,10 @@ package org.mule.extension.ftp;
 
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
 
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.event.CoreEvent;

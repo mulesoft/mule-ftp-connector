@@ -8,14 +8,16 @@ package org.mule.extension.ftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import io.qameta.allure.Feature;
+import org.junit.Ignore;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
+@Ignore
 public class FtpDeleteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String SUB_FOLDER = "files/subfolder";

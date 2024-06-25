@@ -10,13 +10,12 @@ import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.PredicateType;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
+import org.mule.extension.ftp.api.matchers.FileMatcher;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.extension.file.common.api.matcher.FileMatcher;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 

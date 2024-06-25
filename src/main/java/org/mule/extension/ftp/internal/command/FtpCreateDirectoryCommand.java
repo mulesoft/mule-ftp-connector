@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.internal.command;
 
-import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
+import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import org.apache.commons.net.ftp.FTPClient;

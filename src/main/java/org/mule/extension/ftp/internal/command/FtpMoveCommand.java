@@ -7,8 +7,8 @@
 package org.mule.extension.ftp.internal.command;
 
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.command.MoveCommand;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.operation.MoveCommand;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;

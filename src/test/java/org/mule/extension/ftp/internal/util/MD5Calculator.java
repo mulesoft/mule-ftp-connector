@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.utils;
+package org.mule.extension.ftp.internal.util;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -12,13 +12,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.AbstractFtpTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.tck.junit4.rule.SystemProperty;
-import org.mule.test.extension.file.common.api.FileTestHarness;
+import org.mule.extension.ftp.api.FileTestHarness;
 import org.mule.test.infrastructure.client.ftp.FTPTestClient;
 import org.mule.test.infrastructure.process.rules.FtpServer;
 

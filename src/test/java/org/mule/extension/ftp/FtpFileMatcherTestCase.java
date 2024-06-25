@@ -7,12 +7,11 @@
 package org.mule.extension.ftp;
 
 import static org.mockito.Mockito.when;
-import static org.mule.extension.file.common.api.matcher.MatchPolicy.INCLUDE;
-import static org.mule.extension.file.common.api.matcher.MatchPolicy.REQUIRE;
+import static org.mule.extension.ftp.api.matchers.MatchPolicy.INCLUDE;
+import static org.mule.extension.ftp.api.matchers.MatchPolicy.REQUIRE;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
-import org.mule.test.extension.file.common.FileMatcherContractTestCase;
 
 import java.time.LocalDateTime;
 

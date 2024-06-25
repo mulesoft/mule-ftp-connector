@@ -101,6 +101,43 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="ftp-read-non-exists-file" description="Attempting to read a non-existent file."
+                expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="source/filePath.txt"/>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+            <ftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
+                <ftp:content>#[vars.fileContent]</ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:read config-ref="config" path="non-exists-file.txt"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-read-file-with-mimeType" description="A file is read and assigned an outputMimeType">
+        <munit:behavior>
+            <ftp:write config-ref="config" path="source/jsonDocument.json">
+                <ftp:content ><![CDATA[{
+  "name": "Document Json",
+  "purpose": ReadTests
+}]]></ftp:content>
+            </ftp:write>
+            <ftp:write config-ref="config" path="source/xmlDocument.xml" >
+                <ftp:content ><![CDATA[<root>
+  <name>Document Json</name>
+  <purpose>ReadTests</purpose>
+</root>]]></ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:validation >
+            <ftp:read config-ref="config" path="source/jsonDocument.json" outputMimeType="application/json"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/json')]"/>
+            <ftp:read config-ref="config" path="source/xmlDocument.xml" outputMimeType="application/xml"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/xml')]" />
+        </munit:validation>
+    </munit:test>
+
 </mule>
 
 

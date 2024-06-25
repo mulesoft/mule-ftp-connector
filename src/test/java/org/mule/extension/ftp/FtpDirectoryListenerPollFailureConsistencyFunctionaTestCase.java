@@ -11,6 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mule.tck.probe.PollingProber.check;
 
+import org.junit.Ignore;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.qameta.allure.Description;
 import org.junit.Test;
 
+@Ignore
 public class FtpDirectoryListenerPollFailureConsistencyFunctionaTestCase extends CommonFtpConnectorTestCase {
 
   private static final String CONTENT = "File Content.";

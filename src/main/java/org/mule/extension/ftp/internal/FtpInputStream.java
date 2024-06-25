@@ -8,16 +8,16 @@ package org.mule.extension.ftp.internal;
 
 import static java.util.Optional.empty;
 
-import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.UriLock;
-import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
-import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
+import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.lock.UriLock;
+import org.mule.extension.ftp.internal.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.ftp.internal.stream.LazyStreamSupplier;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
+import org.mule.extension.ftp.internal.operation.AbstractConnectedFileInputStreamSupplier;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-delete-directory-test-case.xml"/>
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="before-ftp-delete-directory-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-ftp-delete-directory-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-ftp-delete-directory-test-case">
+        <try>
+            <ftp:delete config-ref="config" path="test/created-to-eliminate"/>
+            <error-handler >
+                <on-error-continue type="FTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="ftp-delete-not-exist-directory" description="Test that tries to remove a non-existent directory, it expects an error FTP:ILLEGAL_PATH"
+                expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:execution>
+            <ftp:delete config-ref="config" path="created-to-eliminate"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-delete-void-and-subdirectory"
+                description="We create two empty subdirectories, one is deleted, then the content of the parent directory is listed,
+                 it is expected to have a single element">
+        <munit:behavior >
+            <ftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/eliminated-01"/>
+            <ftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/eliminated-02"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:delete config-ref="config" path="test/created-to-eliminate/eliminated-02"/>
+            <ftp:list config-ref="config" directoryPath="test/created-to-eliminate"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

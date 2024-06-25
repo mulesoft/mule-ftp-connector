@@ -7,7 +7,8 @@
 package org.mule.extension.ftp.api.ftp;
 
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
-import org.mule.extension.file.common.api.AbstractFileAttributes;
+
+import org.mule.extension.ftp.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
@@ -28,11 +29,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   private LocalDateTime timestamp;
 
   @Parameter
-  // TODO MULE-15337: Remove redundant 'name' attribute in next major version,
-  // since it represents the same that 'fileName' from AbstractFileAttributes.
-  private String name;
-
-  @Parameter
   private long size;
 
   @Parameter
@@ -47,17 +43,14 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   /**
    * Creates a new instance
    *
-   * @param uri the file's {@link URI}
+   * @param uri     the file's {@link URI}
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
-
 
 
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
     super(uri);
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
-    // TODO MULE-15337: Remove redundant 'name' attribute in next major version
-    name = ftpFile.getName() != null ? ftpFile.getName() : "";
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
     directory = ftpFile.isDirectory();
@@ -68,7 +61,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   public FtpFileAttributes() {
     super(createDefaultUri());
     timestamp = null;
-    name = "";
     size = 0;
     regularFile = false;
     directory = false;
@@ -88,18 +80,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
 
   public void setTimestamp(LocalDateTime timestamp) {
     this.timestamp = timestamp;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   /**

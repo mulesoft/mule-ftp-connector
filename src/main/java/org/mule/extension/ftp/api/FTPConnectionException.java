@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.api;
 
-import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.ftp.internal.error.FileError;
 import org.mule.extension.ftp.internal.FtpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.exception.ModuleException;

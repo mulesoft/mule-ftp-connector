@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.DefaultFtpTestHarness;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_PASSWORD;
 import static org.mule.extension.ftp.DefaultFtpTestHarness.FTP_USER;
-import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR;
+import static org.mule.extension.ftp.api.FileTestHarness.WORKING_DIR;
 
 public class FtpCommandTestCase {
 
@@ -152,7 +152,7 @@ public class FtpCommandTestCase {
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing(anyString());
+    verify(client, times(1)).initiateListParsing(any());
   }
 
   @Test
@@ -174,7 +174,7 @@ public class FtpCommandTestCase {
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
-    verify(client, times(1)).initiateListParsing(anyString());
+    verify(client, times(1)).initiateListParsing(any());
   }
 
   @Test

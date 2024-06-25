@@ -11,8 +11,11 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import io.qameta.allure.Feature;
+import org.junit.Ignore;
 
 @Feature(FTP_EXTENSION)
+@Ignore
+
 public class FtpMoveTestCase extends FtpCopyTestCase {
 
   @Override

@@ -6,8 +6,8 @@
  */
 package org.mule.extension.ftp.internal;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.internal.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;

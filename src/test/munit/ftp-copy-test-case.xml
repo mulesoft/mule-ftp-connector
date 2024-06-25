@@ -145,4 +145,101 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="ftp-copy-non-exists-directory" description="Perform a copy operation from a non-existent directory"
+                expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="copy-test/non-exist-directory" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-already-exists" description="Perform a copy operation on a file that already exists on the target"
+                expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <ftp:write config-ref="config" path="target/test.txt"/>
+            <ftp:write config-ref="config" path="source/test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="source/test.txt" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-with-createParentDirectories-disable-to-non-exists-target"
+                description="Perform a copy operation to a non-existent target with the create parent directory property disabled"
+                expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <ftp:write config-ref="config" path="source/copy-file-test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy  config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/non-exists-directory" createParentDirectories="false"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-with-createParentDirectories-enable-to-non-exists-target"
+                description="Perform a copy operation to a non-existent target with the create parent directory property enable">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <ftp:write config-ref="config" path="source/copy-file-test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy  config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/will-be-created-directory" createParentDirectories="true"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="target/will-be-created-directory/copy-file-test.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-with-createParentDirectories-disable-to-exists-target"
+                description="Perform a copy operation to a existent target with the create parent directory property disable">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <ftp:write config-ref="config" path="source/copy-file-test.txt"/>
+            <ftp:create-directory config-ref="config" directoryPath="target/created-to-copy"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/created-to-copy" createParentDirectories="false"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="target/created-to-copy/copy-file-test.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-exists-and-rename"
+                description="Copy a file that has the same name as another on the target. This copy must be renamed.">
+        <munit:behavior>
+            <set-payload value="This file was copied and renamed"/>
+            <ftp:write config-ref="config" path="source/file-for-copy-and-rename.txt"/>
+            <set-payload value="Hello World!!"/>
+            <ftp:write config-ref="config" path="target/file-for-copy-and-rename.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="source/file-for-copy-and-rename.txt" targetPath="target" renameTo="rename-file.txt"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="target/file-for-copy-and-rename.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]" />
+            <ftp:read config-ref="config" path="target/rename-file.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('This file was copied and renamed')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-copy-file-exists-and-overwrite"
+                description="Copy a file that has the same name as another on the target. This copy must be overwrite.">
+        <munit:behavior>
+            <set-payload value="This file was copied and overwrite"/>
+            <ftp:write config-ref="config" path="source/file-for-copy-and-overwrite.txt"/>
+            <set-payload value="Hello World!!"/>
+            <ftp:write config-ref="config" path="target/file-for-copy-and-overwrite.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:copy config-ref="config" sourcePath="source/file-for-copy-and-overwrite.txt" targetPath="target" overwrite="true"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:read config-ref="config" path="target/file-for-copy-and-overwrite.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('This file was copied and overwrite')]"/>
+        </munit:validation>
+    </munit:test>
+
 </mule>
