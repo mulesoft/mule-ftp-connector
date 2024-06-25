@@ -67,7 +67,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
-   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Message messages} each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
