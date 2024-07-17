@@ -21,11 +21,11 @@
     <properties>
         <mule.version>4.3.0</mule.version>
 
-        <commonsNetVersion>3.8.0</commonsNetVersion>
-        <commonsIoVersion>2.13.0</commonsIoVersion>
-        <commonsLangVersion>3.12.0</commonsLangVersion>
+        <commonsNetVersion>3.9.0</commonsNetVersion>
+        <commonsIoVersion>2.16.1</commonsIoVersion>
+        <commonsLangVersion>3.14.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
+        <maven.helper.plugin.version>3.6.0</maven.helper.plugin.version>
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
@@ -34,19 +34,19 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
 
-        <munit.version>3.2.0-rc2</munit.version>
+        <munit.version>3.2.1</munit.version>
         <munit.extensions.maven.plugin.version>1.2.0</munit.extensions.maven.plugin.version>
         <mtf.tools.version>1.2.0</mtf.tools.version>
         <mtf.javaopts></mtf.javaopts>
         <mavenResources.version>3.3.1</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <docker.maven.plugin.version>0.43.3</docker.maven.plugin.version>
-        <java.module.version>1.2.12</java.module.version>
+        <docker.maven.plugin.version>0.44.0</docker.maven.plugin.version>
+        <java.module.version>1.2.13</java.module.version>
         <file.connector.version>1.5.2</file.connector.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
-        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <license.maven.plugin.version>4.5</license.maven.plugin.version>
         <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
         <licenseYear>2023</licenseYear>
         <mule-sdk-api.version>0.7.0</mule-sdk-api.version>
@@ -367,12 +367,12 @@
                             <dependency>
                                 <groupId>org.slf4j</groupId>
                                 <artifactId>slf4j-api</artifactId>
-                                <version>2.0.7</version>
+                                <version>2.0.13</version>
                             </dependency>
                             <dependency>
                                 <groupId>org.slf4j</groupId>
                                 <artifactId>jcl-over-slf4j</artifactId>
-                                <version>2.0.7</version>
+                                <version>2.0.13</version>
                             </dependency>
                         </dependencies>
                         <executions>
