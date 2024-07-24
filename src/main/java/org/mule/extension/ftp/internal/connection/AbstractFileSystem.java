@@ -90,10 +90,10 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    */
   @Override
   @Deprecated
-  public List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                           String directoryPath,
-                                           boolean recursive,
-                                           Predicate<A> matcher) {
+  public List<Result<String, A>> list(FileConnectorConfig config,
+                                      String directoryPath,
+                                      boolean recursive,
+                                      Predicate<A> matcher) {
     return getListCommand().list(config, directoryPath, recursive, matcher);
   }
 
@@ -101,11 +101,11 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                           String directoryPath,
-                                           boolean recursive,
-                                           Predicate<A> matcher,
-                                           Long timeBetweenSizeCheck) {
+  public List<Result<String, A>> list(FileConnectorConfig config,
+                                      String directoryPath,
+                                      boolean recursive,
+                                      Predicate<A> matcher,
+                                      Long timeBetweenSizeCheck) {
     return getListCommand().list(config, directoryPath, recursive, matcher, timeBetweenSizeCheck);
   }
 
@@ -113,12 +113,12 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                           String directoryPath,
-                                           boolean recursive,
-                                           Predicate<A> matcher,
-                                           Long timeBetweenSizeCheck,
-                                           SubsetList subsetList) {
+  public List<Result<String, A>> list(FileConnectorConfig config,
+                                      String directoryPath,
+                                      boolean recursive,
+                                      Predicate<A> matcher,
+                                      Long timeBetweenSizeCheck,
+                                      SubsetList subsetList) {
     return getListCommand().list(config, directoryPath, recursive, matcher, timeBetweenSizeCheck, subsetList);
   }
 

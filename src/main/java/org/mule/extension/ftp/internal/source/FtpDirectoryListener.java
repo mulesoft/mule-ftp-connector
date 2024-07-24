@@ -40,7 +40,6 @@ import org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -73,7 +72,7 @@ import org.slf4j.LoggerFactory;
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
 // TODO: MULE-13940 - add mimeType here too
-public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttributes> {
+public class FtpDirectoryListener extends PollingSource<String, FtpFileAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpDirectoryListener.class);
   private static final String ATTRIBUTES_CONTEXT_VAR = "attributes";
@@ -172,7 +171,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   @Override
-  public void poll(PollContext<InputStream, FtpFileAttributes> pollContext) {
+  public void poll(PollContext<String, FtpFileAttributes> pollContext) {
     refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
@@ -190,7 +189,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     }
 
     try {
-      List<Result<InputStream, FtpFileAttributes>> files =
+      List<Result<String, FtpFileAttributes>> files =
           ftpFileSystemConnection
               .list(config, directoryUri.getPath(), recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
@@ -198,7 +197,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       if (files.isEmpty()) {
         return;
       }
-      for (Result<InputStream, FtpFileAttributes> file : files) {
+      for (Result<String, FtpFileAttributes> file : files) {
 
         FtpFileAttributes attributes = file.getAttributes().orElse(null);
 
@@ -231,8 +230,8 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
   }
 
   @Override
-  public void onRejectedItem(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
-    closeQuietly(result.getOutput());
+  public void onRejectedItem(Result<String, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
+    LOGGER.info("File processing was rejected for path: {}", result.getOutput());
   }
 
   private FtpFileSystem openConnection() throws Exception {
@@ -247,10 +246,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
     return ftpFileSystemConnection;
   }
 
-  private boolean processFile(Result<InputStream, FtpFileAttributes> file,
-                              PollContext<InputStream, FtpFileAttributes> pollContext) {
+  private boolean processFile(Result<String, FtpFileAttributes> file,
+                              PollContext<String, FtpFileAttributes> pollContext) {
     FtpFileAttributes attributes = file.getAttributes().get();
-    String fullPath = attributes.getPath();
+    String fullPath = file.getOutput();
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Processing file {}", attributes);
@@ -258,11 +257,11 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
     PollItemStatus status = pollContext.accept(item -> {
       SourceCallbackContext ctx = item.getSourceCallbackContext();
-      Result<InputStream, FtpFileAttributes> result = null;
+      Result<String, FtpFileAttributes> result = null;
       try {
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         item.setResult(file);
-        item.setId(attributes.getPath());
+        item.setId(fullPath);
         if (watermarkEnabled) {
           if (attributes.getTimestamp() != null) {
             // We are truncating this value to maintain watermark behaviour from previous versions.

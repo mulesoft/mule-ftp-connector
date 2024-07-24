@@ -17,7 +17,6 @@ import org.mule.extension.ftp.api.matchers.NullFilePayloadPredicate;
 import org.mule.extension.ftp.internal.subset.SubsetList;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -65,11 +64,11 @@ public abstract class BaseFileSystemOperations {
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Deprecated
-  protected List<Result<InputStream, FileAttributes>> doList(FileConnectorConfig config,
-                                                             FileSystem fileSystem,
-                                                             String directoryPath,
-                                                             boolean recursive,
-                                                             FileMatcher matchWith) {
+  protected List<Result<String, FileAttributes>> doList(FileConnectorConfig config,
+                                                        FileSystem fileSystem,
+                                                        String directoryPath,
+                                                        boolean recursive,
+                                                        FileMatcher matchWith) {
     fileSystem.changeToBaseDir();
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith));
   }
@@ -82,21 +81,21 @@ public abstract class BaseFileSystemOperations {
    * after their parent directory.
    * <p>
    *
-   * @param config                the config that is parameterizing this operation
-   * @param directoryPath         the path to the directory to be listed
-   * @param recursive             whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith             a matcher used to filter the output list
-   * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
+   * @param config               the config that is parameterizing this operation
+   * @param directoryPath        the path to the directory to be listed
+   * @param recursive            whether to include the contents of sub-directories. Defaults to false.
+   * @param matchWith            a matcher used to filter the output list
+   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
    * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the
-   *         attributes
+   * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected List<Result<InputStream, FileAttributes>> doList(FileConnectorConfig config,
-                                                             FileSystem fileSystem,
-                                                             String directoryPath,
-                                                             boolean recursive,
-                                                             FileMatcher matchWith,
-                                                             Long timeBetweenSizeCheck) {
+  protected List<Result<String, FileAttributes>> doList(FileConnectorConfig config,
+                                                        FileSystem fileSystem,
+                                                        String directoryPath,
+                                                        boolean recursive,
+                                                        FileMatcher matchWith,
+                                                        Long timeBetweenSizeCheck) {
     fileSystem.changeToBaseDir();
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck);
   }
@@ -155,8 +154,8 @@ public abstract class BaseFileSystemOperations {
                                                                                    SubsetList subsetList) {
     return new PagingProvider<FileSystem, Result<String, FileAttributes>>() {
 
-      private List<Result<InputStream, FileAttributes>> files;
-      private Iterator<Result<InputStream, FileAttributes>> filesIterator;
+      private List<Result<String, FileAttributes>> files;
+      private Iterator<Result<String, FileAttributes>> filesIterator;
       private final AtomicBoolean initialised = new AtomicBoolean(false);
 
       @Override
@@ -166,9 +165,9 @@ public abstract class BaseFileSystemOperations {
         }
         List<Result<String, FileAttributes>> page = new LinkedList<>();
         for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
-          Result<InputStream, FileAttributes> result = filesIterator.next();
+          Result<String, FileAttributes> result = filesIterator.next();
           page.add((Result.<String, FileAttributes>builder().attributes(result.getAttributes().get())
-              .output(result.getAttributes().get().getPath())
+              .output(result.getOutput())
               .mediaType(result.getMediaType().orElse(null))
               .attributesMediaType(result.getAttributesMediaType().orElse(null))
               .build()));

@@ -51,10 +51,10 @@ public interface FileSystem<A extends FileAttributes> {
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Deprecated
-  List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                    String directoryPath,
-                                    boolean recursive,
-                                    Predicate<A> matcher);
+  List<Result<String, A>> list(FileConnectorConfig config,
+                               String directoryPath,
+                               boolean recursive,
+                               Predicate<A> matcher);
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -64,20 +64,20 @@ public interface FileSystem<A extends FileAttributes> {
    * after their parent directory.
    * <p>
    *
-   * @param config                the config that is parameterizing this operation
-   * @param directoryPath         the path to the directory to be listed
-   * @param recursive             whether to include the contents of sub-directories
-   * @param matcher               a {@link Predicate} of {@link FileAttributes} used to filter the output list
-   * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
+   * @param config               the config that is parameterizing this operation
+   * @param directoryPath        the path to the directory to be listed
+   * @param recursive            whether to include the contents of sub-directories
+   * @param matcher              a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
    * @return a {@link List} of {@link Result} objects, each one containing each file's content in the payload and metadata in the
-   *         attributes
+   * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                            String directoryPath,
-                                            boolean recursive,
-                                            Predicate<A> matcher,
-                                            Long timeBetweenSizeCheck) {
+  default List<Result<String, A>> list(FileConnectorConfig config,
+                                       String directoryPath,
+                                       boolean recursive,
+                                       Predicate<A> matcher,
+                                       Long timeBetweenSizeCheck) {
     return list(config, directoryPath, recursive, matcher);
   }
 
@@ -89,21 +89,21 @@ public interface FileSystem<A extends FileAttributes> {
    * after their parent directory.
    * <p>
    *
-   * @param config                the config that is parameterizing this operation
-   * @param directoryPath         the path to the directory to be listed
-   * @param recursive             whether to include the contents of sub-directories
-   * @param matcher               a {@link Predicate} of {@link FileAttributes} used to filter the output list
-   * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @param subsetList        parameter group that lets you obtain a subset of the results
+   * @param config               the config that is parameterizing this operation
+   * @param directoryPath        the path to the directory to be listed
+   * @param recursive            whether to include the contents of sub-directories
+   * @param matcher              a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
+   * @param subsetList           parameter group that lets you obtain a subset of the results
    * @return a {@link List} of {@link Result} objects, each one containing each file's content in the payload and metadata in the
-   *         attributes
+   * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                            String directoryPath,
-                                            boolean recursive,
-                                            Predicate<A> matcher,
-                                            Long timeBetweenSizeCheck, SubsetList subsetList) {
+  default List<Result<String, A>> list(FileConnectorConfig config,
+                                       String directoryPath,
+                                       boolean recursive,
+                                       Predicate<A> matcher,
+                                       Long timeBetweenSizeCheck, SubsetList subsetList) {
     return list(config, directoryPath, recursive, matcher, timeBetweenSizeCheck);
   }
 

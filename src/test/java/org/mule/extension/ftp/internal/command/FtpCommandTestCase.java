@@ -147,7 +147,7 @@ public class FtpCommandTestCase {
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
 
-    List<Result<InputStream, FtpFileAttributes>> files =
+    List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
@@ -168,7 +168,7 @@ public class FtpCommandTestCase {
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
 
-    List<Result<InputStream, FtpFileAttributes>> files =
+    List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
@@ -190,7 +190,7 @@ public class FtpCommandTestCase {
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
 
-    List<Result<InputStream, FtpFileAttributes>> files =
+    List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
@@ -210,7 +210,7 @@ public class FtpCommandTestCase {
     Predicate matcher = spy(Predicate.class);
     when(matcher.test(any())).thenReturn(true);
 
-    List<Result<InputStream, FtpFileAttributes>> files =
+    List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));

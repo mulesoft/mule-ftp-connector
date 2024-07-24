@@ -20,6 +20,7 @@ import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.operation.ListCommand;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.IOException;
@@ -61,10 +62,10 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
    */
   @Deprecated
   @Override
-  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                           String directoryPath,
-                                                           boolean recursive,
-                                                           Predicate<FtpFileAttributes> matcher) {
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                      String directoryPath,
+                                                      boolean recursive,
+                                                      Predicate<FtpFileAttributes> matcher) {
     return list(config, directoryPath, recursive, matcher, null);
   }
 
@@ -73,11 +74,11 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
    * {@inheritDoc}
    */
   @Override
-  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                           String directoryPath,
-                                                           boolean recursive,
-                                                           Predicate<FtpFileAttributes> matcher,
-                                                           Long timeBetweenSizeCheck) {
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                      String directoryPath,
+                                                      boolean recursive,
+                                                      Predicate<FtpFileAttributes> matcher,
+                                                      Long timeBetweenSizeCheck) {
     URI uri = resolvePath(normalizePath(directoryPath));
 
     if (!tryChangeWorkingDirectory(uri.getPath())) {
@@ -91,7 +92,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throw exception(format("Could not change working directory to '%s' while trying to list that directory", uri.getPath()));
     }
 
-    List<Result<InputStream, FtpFileAttributes>> accumulator = new LinkedList<>();
+    List<Result<String, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
       doList(config, uri, accumulator, recursive, matcher, timeBetweenSizeCheck);
@@ -110,7 +111,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
   private void doList(FileConnectorConfig config,
                       URI uri,
-                      List<Result<InputStream, FtpFileAttributes>> accumulator,
+                      List<Result<String, FtpFileAttributes>> accumulator,
                       boolean recursive,
                       Predicate<FtpFileAttributes> matcher,
                       Long timeBetweenSizeCheck)
@@ -135,7 +136,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
           if (attributes.isDirectory()) {
             if (matcher.test(attributes)) {
-              accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
+              accumulator.add(Result.<String, FtpFileAttributes>builder().output(null).attributes(attributes).build());
             }
 
             if (recursive) {
@@ -152,12 +153,18 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
             }
           } else {
             if (matcher.test(attributes)) {
-              accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
+              accumulator.add(getFilePath(fileUri, attributes));
             }
           }
         }
       }
     }
+  }
+
+  private Result<String, FtpFileAttributes> getFilePath(URI fileUri, FtpFileAttributes attributes) {
+    return Result.<String, FtpFileAttributes>builder().output(fileUri.getPath())
+        .mediaType(MediaType.TEXT)
+        .attributes(attributes).build();
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {
