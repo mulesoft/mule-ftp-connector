@@ -80,15 +80,9 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                                                @Optional(
                                                                                    defaultValue = "false") boolean recursive,
                                                                                @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher,
-                                                                               @ConfigOverride @Placement(
-                                                                                   tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
-                                                                               @ConfigOverride @Placement(
-                                                                                   tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
                                                                                StreamingHelper streamingHelper) {
     PagingProvider result =
-        doPagedList(config, directoryPath, recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
-                    streamingHelper);
+        doPagedList(config, directoryPath, recursive, matcher, streamingHelper);
     return result;
   }
 

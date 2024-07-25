@@ -24,7 +24,6 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -60,25 +59,11 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   /**
    * {@inheritDoc}
    */
-  @Deprecated
   @Override
   public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
                                                       String directoryPath,
                                                       boolean recursive,
                                                       Predicate<FtpFileAttributes> matcher) {
-    return list(config, directoryPath, recursive, matcher, null);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                      String directoryPath,
-                                                      boolean recursive,
-                                                      Predicate<FtpFileAttributes> matcher,
-                                                      Long timeBetweenSizeCheck) {
     URI uri = resolvePath(normalizePath(directoryPath));
 
     if (!tryChangeWorkingDirectory(uri.getPath())) {
@@ -95,7 +80,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
     List<Result<String, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
-      doList(config, uri, accumulator, recursive, matcher, timeBetweenSizeCheck);
+      doList(config, uri, accumulator, recursive, matcher);
 
       if (!isPositiveCompletion(client.getReplyCode())) {
         throw exception(format("Failed to list files on directory '%s'", uri.getPath()));
@@ -113,8 +98,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                       URI uri,
                       List<Result<String, FtpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<FtpFileAttributes> matcher,
-                      Long timeBetweenSizeCheck)
+                      Predicate<FtpFileAttributes> matcher)
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
 
@@ -145,7 +129,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                 throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                        recursionUri.getPath()));
               }
-              doList(config, recursionUri, accumulator, recursive, matcher, timeBetweenSizeCheck);
+              doList(config, recursionUri, accumulator, recursive, matcher);
               if (!client.changeToParentDirectory()) {
                 throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
                                        trimLastFragment(recursionUri).getPath()));

@@ -16,8 +16,7 @@
     </flow>
 
     <flow name="listWithStableSizeTime">
-        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
-                  timeBetweenSizeCheck="200"/>
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"/>
     </flow>
 
     <flow name="listWithEmbeddedPredicate">
@@ -45,8 +44,7 @@
     </flow>
 
     <flow name="listFilesWithFilesStillBeingWritten">
-        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
-                  timeBetweenSizeCheck="2000">
+        <ftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <ftp:matcher directories="EXCLUDE" filenamePattern="*"/>
         </ftp:list>
         <foreach>

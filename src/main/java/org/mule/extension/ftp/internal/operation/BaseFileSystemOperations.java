@@ -63,7 +63,6 @@ public abstract class BaseFileSystemOperations {
    * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  @Deprecated
   protected List<Result<String, FileAttributes>> doList(FileConnectorConfig config,
                                                         FileSystem fileSystem,
                                                         String directoryPath,
@@ -73,6 +72,7 @@ public abstract class BaseFileSystemOperations {
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith));
   }
 
+
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
    * <p>
@@ -81,50 +81,20 @@ public abstract class BaseFileSystemOperations {
    * after their parent directory.
    * <p>
    *
-   * @param config               the config that is parameterizing this operation
-   * @param directoryPath        the path to the directory to be listed
-   * @param recursive            whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith            a matcher used to filter the output list
-   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the
+   * @param config        the config that is parameterizing this operation
+   * @param directoryPath the path to the directory to be listed
+   * @param recursive     whether to include the contents of sub-directories. Defaults to false.
+   * @param matchWith     a matcher used to filter the output list
+   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and metadata in the
    * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected List<Result<String, FileAttributes>> doList(FileConnectorConfig config,
-                                                        FileSystem fileSystem,
-                                                        String directoryPath,
-                                                        boolean recursive,
-                                                        FileMatcher matchWith,
-                                                        Long timeBetweenSizeCheck) {
-    fileSystem.changeToBaseDir();
-    return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck);
-  }
-
-
-  /**
-   * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
-   * <p>
-   * If the listing encounters a directory, the output list will include its contents depending on the value of the
-   * {@code recursive} parameter. If {@code recursive} is enabled, then all the files in that directory will be listed immediately
-   * after their parent directory.
-   * <p>
-   *
-   * @param config                the config that is parameterizing this operation
-   * @param directoryPath         the path to the directory to be listed
-   * @param recursive             whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith             a matcher used to filter the output list
-   * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and metadata in the
-   *         attributes
-   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
-   */
   protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
                                                                                    String directoryPath,
                                                                                    boolean recursive,
                                                                                    FileMatcher matchWith,
-                                                                                   Long timeBetweenSizeCheck,
                                                                                    StreamingHelper streamingHelper) {
-    return doPagedList(config, directoryPath, recursive, matchWith, timeBetweenSizeCheck, streamingHelper, null);
+    return doPagedList(config, directoryPath, recursive, matchWith, streamingHelper, null);
   }
 
   /**
@@ -135,21 +105,19 @@ public abstract class BaseFileSystemOperations {
    * after their parent directory.
    * <p>
    *
-   * @param config                the config that is parameterizing this operation
-   * @param directoryPath         the path to the directory to be listed
-   * @param recursive             whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith             a matcher used to filter the output list
-   * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @param subsetList        parameter group that lets you obtain a subset of the results
+   * @param config        the config that is parameterizing this operation
+   * @param directoryPath the path to the directory to be listed
+   * @param recursive     whether to include the contents of sub-directories. Defaults to false.
+   * @param matchWith     a matcher used to filter the output list
+   * @param subsetList    parameter group that lets you obtain a subset of the results
    * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and metadata in the
-   *         attributes
+   * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
                                                                                    String directoryPath,
                                                                                    boolean recursive,
                                                                                    FileMatcher matchWith,
-                                                                                   Long timeBetweenSizeCheck,
                                                                                    StreamingHelper streamingHelper,
                                                                                    SubsetList subsetList) {
     return new PagingProvider<FileSystem, Result<String, FileAttributes>>() {
@@ -177,7 +145,7 @@ public abstract class BaseFileSystemOperations {
 
       private void initializePagingProvider(FileSystem connection) {
         connection.changeToBaseDir();
-        files = connection.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck, subsetList);
+        files = connection.list(config, directoryPath, recursive, getPredicate(matchWith), subsetList);
         filesIterator = files.iterator();
       }
 

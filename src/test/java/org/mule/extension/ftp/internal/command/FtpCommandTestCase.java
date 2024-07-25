@@ -21,7 +21,6 @@ import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -148,7 +147,7 @@ public class FtpCommandTestCase {
     when(matcher.test(any())).thenReturn(true);
 
     List<Result<String, FtpFileAttributes>> files =
-        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).mlistDir();
@@ -169,7 +168,7 @@ public class FtpCommandTestCase {
     when(matcher.test(any())).thenReturn(true);
 
     List<Result<String, FtpFileAttributes>> files =
-        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
@@ -191,7 +190,7 @@ public class FtpCommandTestCase {
     when(matcher.test(any())).thenReturn(true);
 
     List<Result<String, FtpFileAttributes>> files =
-        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
@@ -211,7 +210,7 @@ public class FtpCommandTestCase {
     when(matcher.test(any())).thenReturn(true);
 
     List<Result<String, FtpFileAttributes>> files =
-        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher, 0L);
+        ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());

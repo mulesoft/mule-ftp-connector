@@ -191,8 +191,7 @@ public class FtpDirectoryListener extends PollingSource<String, FtpFileAttribute
     try {
       List<Result<String, FtpFileAttributes>> files =
           ftpFileSystemConnection
-              .list(config, directoryUri.getPath(), recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+              .list(config, directoryUri.getPath(), recursive, matcher);
 
       if (files.isEmpty()) {
         return;
