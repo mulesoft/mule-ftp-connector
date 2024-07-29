@@ -7,8 +7,7 @@
 package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
-import static org.mule.extension.ftp.api.FileDisplayConstants.MATCHER;
-import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
+import static org.mule.extension.ftp.internal.constant.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
