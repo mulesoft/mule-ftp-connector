@@ -18,7 +18,6 @@ import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
 import org.mule.extension.ftp.internal.operation.ExternalFileCommand;
@@ -237,7 +236,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   protected void createDirectory(String directoryPath) {
     URI uri = createUri(fileSystem.getBasePath(), directoryPath);
-    FileAttributes targetFile = getFile(directoryPath);
+    FtpFileAttributes targetFile = getFile(directoryPath);
 
     if (targetFile != null) {
       throw new FileAlreadyExistsException(format("Directory '%s' already exists", uri.getPath()));
@@ -248,7 +247,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
 
   /**
    * Performs the base logic and delegates into
-   * {@link FtpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, URI, boolean)} to perform the actual
+   * {@link FtpCopyDelegate#doCopy(FileConnectorConfig, FtpFileAttributes, URI, boolean)} to perform the actual
    * copying logic
    *  @param config the config that is parameterizing this operation
    * @param source the path to be copied
@@ -258,15 +257,16 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    */
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, FtpCopyDelegate delegate) {
-    FileAttributes sourceFile = getExistingFile(source);
+    FtpFileAttributes sourceFile = getExistingFile(source);
     URI targetUri = createUri(getBasePath(fileSystem).getPath(), target);
-    FileAttributes targetFile = getFile(targetUri.getPath());
+    FtpFileAttributes targetFile = getFile(targetUri.getPath());
     // This additional check has to be added because there are directories that exist that do not appear when listed.
     boolean targetPathIsDirectory = getUriToDirectory(target).isPresent();
     String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
     if (targetPathIsDirectory || targetFile != null) {
       if (targetPathIsDirectory || targetFile.isDirectory()) {
-        if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getName().equals(targetFile.getName())) && !overwrite) {
+        if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getFileName().equals(targetFile.getFileName()))
+            && !overwrite) {
           throw alreadyExistsException(targetUri);
         } else {
           targetUri = createUri(targetUri.getPath(), targetFileName);

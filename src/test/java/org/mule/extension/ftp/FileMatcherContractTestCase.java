@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.matchers.FileMatcher;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
@@ -24,7 +24,7 @@ import static org.mule.extension.ftp.api.matchers.MatchPolicy.EXCLUDE;
 import static org.mule.extension.ftp.api.matchers.MatchPolicy.REQUIRE;
 
 @SmallTest
-public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAttributes>
+public class FileMatcherContractTestCase<T extends FileMatcher, A extends FtpFileAttributes>
     extends AbstractMuleTestCase {
 
   private static final String FILENAME = "Mule.java";
@@ -40,7 +40,7 @@ public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAt
   @Before
   public void before() {
     attributes = mock(getFileAttributesClass());
-    when(attributes.getName()).thenReturn(FILENAME);
+    when(attributes.getFileName()).thenReturn(FILENAME);
     when(attributes.getPath()).thenReturn(PATH);
     when(attributes.getSize()).thenReturn(SIZE);
     when(attributes.isRegularFile()).thenReturn(true);
@@ -57,7 +57,7 @@ public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAt
   }
 
   protected Class<A> getFileAttributesClass() {
-    return (Class<A>) FileAttributes.class;
+    return (Class<A>) FtpFileAttributes.class;
   }
 
   @Test
@@ -107,14 +107,14 @@ public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAt
 
   @Test
   public void matchFilenameByRegex() {
-    when(attributes.getName()).thenReturn("20060101_test.csv");
+    when(attributes.getFileName()).thenReturn("20060101_test.csv");
     builder.setFilenamePattern("regex:[0-9]*_test.csv");
     assertMatch();
   }
 
   @Test
   public void rejectFilenameByRegex() {
-    when(attributes.getName()).thenReturn("20060101_TEST.csv");
+    when(attributes.getFileName()).thenReturn("20060101_TEST.csv");
     builder.setFilenamePattern("regex:[0-9]*_test.csv");
     assertReject();
   }
@@ -152,7 +152,7 @@ public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAt
 
   @Test
   public void rejectPathByRegex() {
-    when(attributes.getName()).thenReturn("20060101_TEST.csv");
+    when(attributes.getFileName()).thenReturn("20060101_TEST.csv");
     builder.setFilenamePattern("regex:[0-9]*_test.csv");
     assertReject();
   }

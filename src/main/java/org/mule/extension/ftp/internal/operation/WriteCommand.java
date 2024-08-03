@@ -32,8 +32,7 @@ public interface WriteCommand {
    * @param mode a {@link FileWriteMode}
    * @param lock whether or not to lock the file
    * @param createParentDirectory whether or not to attempt creating the parent directory if it doesn't exist.
-   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *        not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
+   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing.}
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Deprecated

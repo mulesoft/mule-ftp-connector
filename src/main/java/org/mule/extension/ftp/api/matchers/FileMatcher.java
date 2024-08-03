@@ -7,8 +7,8 @@
 package org.mule.extension.ftp.api.matchers;
 
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.PredicateType;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.util.TimeSinceFunction;
 import org.mule.extension.ftp.internal.util.TimeUntilFunction;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -23,7 +23,7 @@ import static org.mule.extension.ftp.api.matchers.MatchPolicy.INCLUDE;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 
 /**
- * Builds a {@link Predicate} which verifies that a {@link FileAttributes} instance is compliant with a number of criterias. This
+ * Builds a {@link Predicate} which verifies that a {@link FtpFileAttributes} instance is compliant with a number of criterias. This
  * builder is stateful and not thread-safe. A new instance should be use per each desired {@link Predicate}.
  * <p>
  * This builder can either be used programmatically or through Mule's SDK since its internal state is annotated with the
@@ -38,10 +38,10 @@ import static org.mule.runtime.api.util.Preconditions.checkArgument;
  * The class is also given the &quot;matcher&quot; alias to make it DSL/XML friendly.
  *
  * @param <T> {@code this} instance concrete type. It allows to extend this class while allowing setter chains
- * @param <A> The concrete implementation of {@link FileAttributes} that this builder uses to assert the file properties
+ * @param <A> The concrete implementation of {@link FtpFileAttributes} that this builder uses to assert the file properties
  * @since 1.0
  */
-public abstract class FileMatcher<T extends FileMatcher, A extends FileAttributes> {
+public abstract class FileMatcher<T extends FileMatcher, A extends FtpFileAttributes> {
 
   private static final String SIZE_MUST_BE_GREATER_THAN_ZERO_MESSAGE =
       "Matcher attribute '%s' must be greater than zero but '%d' was received";
@@ -122,7 +122,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
     Predicate<A> predicate = payload -> true;
     if (filenamePattern != null) {
       PathMatcherPredicate pathMatcher = new PathMatcherPredicate(filenamePattern, predicateType, caseSensitive);
-      predicate = predicate.and(payload -> pathMatcher.test(payload.getName()));
+      predicate = predicate.and(payload -> pathMatcher.test(payload.getFileName()));
     }
 
     if (pathPattern != null) {

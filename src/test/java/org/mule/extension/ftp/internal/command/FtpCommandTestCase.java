@@ -93,7 +93,7 @@ public class FtpCommandTestCase {
     FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
 
     assertThat(file, is(notNullValue()));
-    assertThat(file.getName(), is(fileName));
+    assertThat(file.getFileName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
     verify(client, times(1)).initiateListParsing(anyString());
   }
@@ -108,7 +108,7 @@ public class FtpCommandTestCase {
     FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
 
     assertThat(file, is(notNullValue()));
-    assertThat(file.getName(), is(fileName));
+    assertThat(file.getFileName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
     verify(client, times(1)).initiateListParsing(anyString());
   }
@@ -127,7 +127,7 @@ public class FtpCommandTestCase {
     FtpFileAttributes file = ftpReadCommand.getFile(fullPath);
 
     assertThat(file, is(notNullValue()));
-    assertThat(file.getName(), is(fileName));
+    assertThat(file.getFileName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
     verify(client, times(0)).initiateListParsing(anyString());
   }
@@ -149,7 +149,7 @@ public class FtpCommandTestCase {
     List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    assertThat(files.get(0).getAttributes().get().getFileName(), is(TEMP_DIRECTORY));
     verify(client, times(1)).mlistDir();
     verify(client, times(1)).initiateListParsing(any());
   }
@@ -170,7 +170,7 @@ public class FtpCommandTestCase {
     List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    assertThat(files.get(0).getAttributes().get().getFileName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
     verify(client, times(1)).initiateListParsing(any());
@@ -192,7 +192,7 @@ public class FtpCommandTestCase {
     List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    assertThat(files.get(0).getAttributes().get().getFileName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(0)).mlistDir();
     verify(client, times(1)).initiateListParsing();
@@ -212,7 +212,7 @@ public class FtpCommandTestCase {
     List<Result<String, FtpFileAttributes>> files =
         ftpListCommand.list(mock(FileConnectorConfig.class), "/" + WORKING_DIR, false, matcher);
     assertThat(files.size(), is(1));
-    assertThat(files.get(0).getAttributes().get().getName(), is(TEMP_DIRECTORY));
+    assertThat(files.get(0).getAttributes().get().getFileName(), is(TEMP_DIRECTORY));
     verify(client, atLeastOnce()).hasFeature(MLST.getCommand());
     verify(client, times(1)).mlistDir();
     verify(client, times(0)).initiateListParsing(anyString());
@@ -229,7 +229,7 @@ public class FtpCommandTestCase {
 
     FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
     assertThat(file, is(notNullValue()));
-    assertThat(file.getName(), is(fileName));
+    assertThat(file.getFileName(), is(fileName));
     verify(client, times(2)).mlistFile(any());
   }
 
@@ -243,7 +243,7 @@ public class FtpCommandTestCase {
 
     FtpFileAttributes file = ftpReadCommand.getFile(TEMP_DIRECTORY + "/NewFile.txt");
     assertThat(file, is(notNullValue()));
-    assertThat(file.getName(), is(fileName));
+    assertThat(file.getFileName(), is(fileName));
     verify(client, times(1)).mlistFile(any());
   }
 

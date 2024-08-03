@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
 import org.mule.runtime.api.message.Message;
@@ -19,7 +19,7 @@ import java.io.InputStream;
  *
  * @since 1.0
  */
-public interface ReadCommand<A extends FileAttributes> {
+public interface ReadCommand {
 
   /**
    * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)}
@@ -28,11 +28,11 @@ public interface ReadCommand<A extends FileAttributes> {
    * @param filePath the path of the file you want to read
    * @param lock whether or not to lock the file
    * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a
-   *         {@link FileAttributes} object as {@link Message#getAttributes()}
+   *         {@link FtpFileAttributes} object as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Deprecated
-  Result<InputStream, A> read(FileConnectorConfig config, String filePath, boolean lock);
+  Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock);
 
   /**
    * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)}
@@ -41,11 +41,12 @@ public interface ReadCommand<A extends FileAttributes> {
    * @param filePath the path of the file you want to read
    * @param lock whether or not to lock the file
    * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FileAttributes} object
+   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FtpFileAttributes} object
    *         as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
-  default Result<InputStream, A> read(FileConnectorConfig config, String filePath, boolean lock, Long timeBetweenSizeCheck) {
+  default Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                      Long timeBetweenSizeCheck) {
     return read(config, filePath, lock);
   }
 
@@ -59,11 +60,12 @@ public interface ReadCommand<A extends FileAttributes> {
    * @param attributes the attributes of the file you want to read
    * @param lock whether or not to lock the file
    * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FileAttributes} object
+   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FtpFileAttributes} object
    *         as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
-  default Result<InputStream, A> read(FileConnectorConfig config, A attributes, boolean lock, Long timeBetweenSizeCheck) {
+  default Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, FtpFileAttributes attributes, boolean lock,
+                                                      Long timeBetweenSizeCheck) {
     return read(config, attributes.getPath(), lock, timeBetweenSizeCheck);
   }
 

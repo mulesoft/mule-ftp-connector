@@ -8,18 +8,12 @@ package org.mule.extension.ftp.internal.config;
 
 import org.mule.extension.ftp.internal.connection.FileSystem;
 import org.mule.runtime.extension.api.annotation.param.DefaultEncoding;
-import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.RefName;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.display.Placement;
-import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
 /**
  * Generic contract for a config of a connector which operates over a {@link FileSystem}
@@ -35,24 +29,10 @@ public abstract class FileConnectorConfig {
   private String muleEncoding;
 
   /**
-   * Deprecated parameter
-   */
-  @Parameter
-  @Summary("This parameter is deprecated and will not be taken into account")
-  @DisplayName("Default write encoding(DEPRECATED)")
-  @Optional
-  @Placement(tab = ADVANCED_TAB)
-  private String defaultWriteEncoding;
-
-  /**
    * @return the name that this config has on the mule registry
    */
   protected String getConfigName() {
     return configName;
-  }
-
-  public String getDefaultWriteEncoding() {
-    return defaultWriteEncoding == null ? muleEncoding : defaultWriteEncoding;
   }
 
   /**

@@ -18,9 +18,6 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.success
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.ftp.internal.connection.AbstractExternalFileSystem;
-import org.mule.extension.ftp.internal.connection.AbstractFileSystem;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.operation.CopyCommand;
 import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
 import org.mule.extension.ftp.internal.operation.DeleteCommand;
@@ -230,10 +227,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * <p>
    * The invoked <b>MUST</b> make sure that the returned stream is closed in order for the underlying connection to be closed.
    *
-   * @param filePayload a {@link FileAttributes} referencing to a FTP file
+   * @param filePayload a {@link FtpFileAttributes} referencing to a FTP file
    * @return an {@link InputStream}
    */
-  public InputStream retrieveFileContent(FileAttributes filePayload) {
+  public InputStream retrieveFileContent(FtpFileAttributes filePayload) {
     try {
       InputStream inputStream = client.retrieveFileStream(normalizePath(filePayload.getPath()));
       if (inputStream == null) {

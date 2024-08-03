@@ -11,7 +11,7 @@ import org.mule.extension.ftp.internal.operation.*;
 import org.mule.extension.ftp.internal.exception.FileLockedException;
 import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.internal.subset.SubsetList;
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -32,7 +32,7 @@ import static java.lang.String.format;
  *
  * @since 1.0
  */
-public abstract class AbstractFileSystem<A extends FileAttributes> implements FileSystem<A> {
+public abstract class AbstractFileSystem implements FileSystem {
 
   private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 
@@ -89,10 +89,10 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public List<Result<String, A>> list(FileConnectorConfig config,
-                                      String directoryPath,
-                                      boolean recursive,
-                                      Predicate<A> matcher) {
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                      String directoryPath,
+                                                      boolean recursive,
+                                                      Predicate<FtpFileAttributes> matcher) {
     return getListCommand().list(config, directoryPath, recursive, matcher);
   }
 
@@ -100,11 +100,11 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public List<Result<String, A>> list(FileConnectorConfig config,
-                                      String directoryPath,
-                                      boolean recursive,
-                                      Predicate<A> matcher,
-                                      SubsetList subsetList) {
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                      String directoryPath,
+                                                      boolean recursive,
+                                                      Predicate<FtpFileAttributes> matcher,
+                                                      SubsetList subsetList) {
     return getListCommand().list(config, directoryPath, recursive, matcher, subsetList);
   }
 
@@ -113,8 +113,8 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    */
   @Deprecated
   @Override
-  public Result<InputStream, A> read(FileConnectorConfig config, String filePath,
-                                     boolean lock) {
+  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath,
+                                                     boolean lock) {
     return getReadCommand().read(config, filePath, lock);
   }
 
@@ -122,8 +122,8 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public Result<InputStream, A> read(FileConnectorConfig config, String filePath,
-                                     boolean lock, Long timeBetweenSizeCheck) {
+  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath,
+                                                     boolean lock, Long timeBetweenSizeCheck) {
     return getReadCommand().read(config, filePath, lock, timeBetweenSizeCheck);
   }
 
@@ -218,7 +218,7 @@ public abstract class AbstractFileSystem<A extends FileAttributes> implements Fi
    * {@inheritDoc}
    */
   @Override
-  public MediaType getFileMessageMediaType(FileAttributes attributes) {
+  public MediaType getFileMessageMediaType(FtpFileAttributes attributes) {
     return MediaType.parse(mimetypesFileTypeMap.getContentType(attributes.getPath()));
   }
 

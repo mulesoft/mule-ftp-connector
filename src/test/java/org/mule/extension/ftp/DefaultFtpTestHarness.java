@@ -180,17 +180,17 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
    */
   @Override
   public void assertAttributes(String path, Object attributes) throws Exception {
-    FtpFileAttributes fileAttributes = (FtpFileAttributes) attributes;
+    FtpFileAttributes ftpFileAttributes = (FtpFileAttributes) attributes;
     FTPFile file = ftpClient.get(path);
 
-    assertThat(fileAttributes.getName(), equalTo(file.getName()));
-    assertThat(createUri(fileAttributes.getPath()).getPath(),
+    assertThat(ftpFileAttributes.getFileName(), equalTo(file.getName()));
+    assertThat(createUri(ftpFileAttributes.getPath()).getPath(),
                equalTo(createUri(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).getPath()));
-    assertThat(fileAttributes.getSize(), is(file.getSize()));
-    assertTime(fileAttributes.getTimestamp(), file.getTimestamp(), 1);
-    assertThat(fileAttributes.isDirectory(), is(false));
-    assertThat(fileAttributes.isSymbolicLink(), is(false));
-    assertThat(fileAttributes.isRegularFile(), is(true));
+    assertThat(ftpFileAttributes.getSize(), is(file.getSize()));
+    assertTime(ftpFileAttributes.getTimestamp(), file.getTimestamp(), 1);
+    assertThat(ftpFileAttributes.isDirectory(), is(false));
+    assertThat(ftpFileAttributes.isSymbolicLink(), is(false));
+    assertThat(ftpFileAttributes.isRegularFile(), is(true));
   }
 
   private void assertTime(LocalDateTime dateTime, Calendar calendar, long toleranceMicroseconds) {

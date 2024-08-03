@@ -65,7 +65,7 @@ public class FtpFileAttributesTestCase {
   public void allAttributesPopulatedFromFile() {
     FtpFileAttributes ftpAttributes = getFtpFileAttributes();
     assertThat(ftpAttributes.getPath(), is(EXPECTED_PATH));
-    assertThat(ftpAttributes.getName(), is(EXPECTED_FILENAME));
+    assertThat(ftpAttributes.getFileName(), is(EXPECTED_FILENAME));
     assertThat(ftpAttributes.getSize(), is(EXPECTED_SIZE));
     assertThat(ftpAttributes.getTimestamp(), is(expectedTimesTamp));
     assertThat(ftpAttributes.isDirectory(), is(IS_DIRECTORY));

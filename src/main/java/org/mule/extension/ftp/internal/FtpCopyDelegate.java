@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.internal;
 
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 
 import java.net.URI;
@@ -26,5 +26,5 @@ public interface FtpCopyDelegate {
    * @param targetUri the target URI
    * @param overwrite whether to overwrite the target file if it already exists
    */
-  void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite);
+  void doCopy(FileConnectorConfig config, FtpFileAttributes source, URI targetUri, boolean overwrite);
 }

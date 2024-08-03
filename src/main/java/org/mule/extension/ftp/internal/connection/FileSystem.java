@@ -9,7 +9,7 @@ package org.mule.extension.ftp.internal.connection;
 import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.subset.SubsetList;
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
@@ -33,7 +33,7 @@ import java.util.function.Predicate;
  *
  * @since 1.0
  */
-public interface FileSystem<A extends FileAttributes> {
+public interface FileSystem {
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -46,14 +46,14 @@ public interface FileSystem<A extends FileAttributes> {
    * @param config        the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
    * @param recursive     whether to include the contents of sub-directories
-   * @param matcher       a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param matcher       a {@link Predicate} of {@link FtpFileAttributes} used to filter the output list
    * @return a {@link List} of {@link Result} objects, each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<String, A>> list(FileConnectorConfig config,
-                                       String directoryPath,
-                                       boolean recursive,
-                                       Predicate<A> matcher) {
+  default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                       String directoryPath,
+                                                       boolean recursive,
+                                                       Predicate<FtpFileAttributes> matcher) {
     return list(config, directoryPath, recursive, matcher);
   }
 
@@ -68,17 +68,17 @@ public interface FileSystem<A extends FileAttributes> {
    * @param config        the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
    * @param recursive     whether to include the contents of sub-directories
-   * @param matcher       a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param matcher       a {@link Predicate} of {@link FtpFileAttributes} used to filter the output list
    * @param subsetList    parameter group that lets you obtain a subset of the results
    * @return a {@link List} of {@link Result} objects, each one containing each file's content in the payload and metadata in the
    * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<String, A>> list(FileConnectorConfig config,
-                                       String directoryPath,
-                                       boolean recursive,
-                                       Predicate<A> matcher,
-                                       SubsetList subsetList) {
+  default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                       String directoryPath,
+                                                       boolean recursive,
+                                                       Predicate<FtpFileAttributes> matcher,
+                                                       SubsetList subsetList) {
     return list(config, directoryPath, recursive, matcher);
   }
 
@@ -99,11 +99,11 @@ public interface FileSystem<A extends FileAttributes> {
    * @param filePath  the path of the file you want to read
    * @param lock      whether or not to lock the file
    * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a
-   * {@link FileAttributes} object as {@link Message#getAttributes()}
+   * {@link FtpFileAttributes} object as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Deprecated
-  Result<InputStream, A> read(FileConnectorConfig config, String filePath, boolean lock);
+  Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock);
 
   /**
    * Obtains the content and metadata of a file at a given path.
@@ -122,11 +122,12 @@ public interface FileSystem<A extends FileAttributes> {
    * @param filePath              the path of the file you want to read
    * @param lock                  whether or not to lock the file
    * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FileAttributes} object
+   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a {@link FtpFileAttributes} object
    *         as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
-  default Result<InputStream, A> read(FileConnectorConfig config, String filePath, boolean lock, Long timeBetweenSizeCheck) {
+  default Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                      Long timeBetweenSizeCheck) {
     return read(config, filePath, lock, timeBetweenSizeCheck);
   }
 
@@ -161,8 +162,7 @@ public interface FileSystem<A extends FileAttributes> {
    * @param mode a {@link FileWriteMode}
    * @param lock whether or not to lock the file
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *        not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
+   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing.}
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Deprecated
@@ -305,17 +305,17 @@ public interface FileSystem<A extends FileAttributes> {
 
   /**
    * Creates a new {@link DataType} to be associated with a {@link Message} which payload is a {@link InputStream} and the
-   * attributes an instance of {@link FileAttributes}
+   * attributes an instance of {@link FtpFileAttributes}
    * <p>
    * It will try to update the {@link DataType#getMediaType()} with a best guess derived from the given {@code attributes}. If no
    * best-guess is possible, then the {@code originalDataType}'s mimeType is honoured.
    * <p>
    * As for the {@link MediaType#getCharset()}, the {@code dataType} one is respected
    *
-   * @param attributes        the {@link FileAttributes} of the file being processed
+   * @param attributes        the {@link FtpFileAttributes} of the file being processed
    * @return a {@link DataType} the resulting {@link DataType}.
    */
-  MediaType getFileMessageMediaType(FileAttributes attributes);
+  MediaType getFileMessageMediaType(FtpFileAttributes attributes);
 
   /**
    * Verify that the given {@code path} is not locked

@@ -14,7 +14,7 @@ import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.util.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.operation.WriteCommand;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
@@ -110,12 +110,12 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   }
 
   private void validateUri(URI uri, boolean createParentDirectory, FileWriteMode mode) {
-    FileAttributes file = getFile(uri.getPath(), false);
+    FtpFileAttributes file = getFile(uri.getPath(), false);
     if (file == null) {
       if (pathIsDirectory(uri)) {
         throw pathIsADirectoryException(uri);
       }
-      FileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
+      FtpFileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
       if (directory == null) {
         assureParentFolderExists(uri, createParentDirectory);
       }

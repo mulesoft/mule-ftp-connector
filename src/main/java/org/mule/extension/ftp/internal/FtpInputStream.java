@@ -8,7 +8,6 @@ package org.mule.extension.ftp.internal;
 
 import static java.util.Optional.empty;
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.extension.ftp.internal.lock.UriLock;
@@ -89,7 +88,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
     }
 
     @Override
-    protected FileAttributes getUpdatedAttributes(FtpFileSystem fileSystem) {
+    protected FtpFileAttributes getUpdatedAttributes(FtpFileSystem fileSystem) {
       return fileSystem.getFileAttributes(attributes.getPath());
     }
 

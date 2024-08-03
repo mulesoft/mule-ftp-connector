@@ -6,23 +6,27 @@
  */
 package org.mule.extension.ftp.api.ftp;
 
-import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
-
-import org.mule.extension.ftp.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
+import java.io.Serializable;
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.ftp.FTPFile;
+import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 /**
  * Metadata about a file in a FTP server
  *
  * @since 1.0
  */
-public class FtpFileAttributes extends AbstractFileAttributes {
+public class FtpFileAttributes implements Serializable {
+
+  private static final long serialVersionUID = -7637862488391924042L;
 
   @Parameter
   @Optional
@@ -40,6 +44,12 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   @Parameter
   private boolean symbolicLink;
 
+  @Parameter
+  protected final String path;
+
+  @Parameter
+  private final String fileName;
+
   /**
    * Creates a new instance
    *
@@ -49,7 +59,9 @@ public class FtpFileAttributes extends AbstractFileAttributes {
 
 
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
-    super(uri);
+    this.path = uri.getPath();
+    String name = FilenameUtils.getName(uri.getPath());
+    this.fileName = name != null ? name : "";
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
@@ -59,7 +71,10 @@ public class FtpFileAttributes extends AbstractFileAttributes {
 
 
   public FtpFileAttributes() {
-    super(createDefaultUri());
+    URI uri = createDefaultUri();
+    this.path = uri.getPath();
+    String name = FilenameUtils.getName(uri.getPath());
+    this.fileName = name != null ? name : "";
     timestamp = null;
     size = 0;
     regularFile = false;
@@ -82,10 +97,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     this.timestamp = timestamp;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public long getSize() {
     return size;
   }
@@ -94,10 +105,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     this.size = size;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isRegularFile() {
     return regularFile;
   }
@@ -110,10 +117,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     this.regularFile = regularFile;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isDirectory() {
     return directory;
   }
@@ -126,10 +129,6 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     this.directory = directory;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isSymbolicLink() {
     return symbolicLink;
   }
@@ -142,12 +141,16 @@ public class FtpFileAttributes extends AbstractFileAttributes {
     this.symbolicLink = symbolicLink;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getPath() {
-    return normalizePath(super.getPath());
+    return normalizePath(path);
+  }
+
+  public String getFileName() {
+    return fileName;
+  }
+
+  protected LocalDateTime asDateTime(Instant instant) {
+    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 
 }

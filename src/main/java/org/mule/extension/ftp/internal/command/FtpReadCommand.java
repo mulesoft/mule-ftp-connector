@@ -32,7 +32,7 @@ import org.apache.commons.net.ftp.FTPClient;
  *
  * @since 1.0
  */
-public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpFileAttributes> {
+public final class FtpReadCommand extends FtpCommand implements ReadCommand {
 
   /**
    * {@inheritDoc}

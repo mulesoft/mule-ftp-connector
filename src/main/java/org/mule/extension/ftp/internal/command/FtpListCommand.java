@@ -15,7 +15,6 @@ import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.apache.commons.net.ftp.FTPReply.isPositiveCompletion;
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.operation.ListCommand;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -42,7 +41,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpListCommand extends FtpCommand implements ListCommand<FtpFileAttributes> {
+public final class FtpListCommand extends FtpCommand implements ListCommand {
 
   private static final Logger LOGGER = getLogger(FtpListCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
@@ -68,7 +67,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
     if (!tryChangeWorkingDirectory(uri.getPath())) {
 
-      FileAttributes directoryAttributes = getExistingFile(directoryPath);
+      FtpFileAttributes directoryAttributes = getExistingFile(directoryPath);
 
       if (!directoryAttributes.isDirectory()) {
         throw cannotListFileException(uri);
@@ -114,7 +113,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
           final URI fileUri = createUri(uri.getPath(), file.getName());
           FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
 
-          if (isVirtualDirectory(attributes.getName())) {
+          if (isVirtualDirectory(attributes.getFileName())) {
             continue;
           }
 
@@ -124,8 +123,8 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
             }
 
             if (recursive) {
-              URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
-              if (!client.changeWorkingDirectory(attributes.getName())) {
+              URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getFileName()));
+              if (!client.changeWorkingDirectory(attributes.getFileName())) {
                 throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                        recursionUri.getPath()));
               }

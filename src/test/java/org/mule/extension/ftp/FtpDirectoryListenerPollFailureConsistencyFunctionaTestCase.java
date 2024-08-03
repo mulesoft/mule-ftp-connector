@@ -51,7 +51,7 @@ public class FtpDirectoryListenerPollFailureConsistencyFunctionaTestCase extends
     public CoreEvent process(CoreEvent event) throws MuleException {
       synchronized (FILES_PROCESSED) {
         if (FILES_PROCESSED != null) {
-          FILES_PROCESSED.add(((FtpFileAttributes) (event.getMessage().getAttributes().getValue())).getName());
+          FILES_PROCESSED.add(((FtpFileAttributes) (event.getMessage().getAttributes().getValue())).getFileName());
         }
         return event;
       }

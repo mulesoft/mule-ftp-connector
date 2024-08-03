@@ -9,7 +9,6 @@ package org.mule.extension.ftp.internal.command;
 import static java.lang.String.format;
 import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.operation.CopyCommand;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -76,24 +75,24 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
           continue;
         }
 
-        FileAttributes fileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
-        String filePath = fileAttributes.getPath();
+        FtpFileAttributes ftpFileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
+        String filePath = ftpFileAttributes.getPath();
 
-        URI targetFileUri = createUri(targetUri.getPath(), fileAttributes.getName());
-        if (fileAttributes.isDirectory()) {
+        URI targetFileUri = createUri(targetUri.getPath(), ftpFileAttributes.getFileName());
+        if (ftpFileAttributes.isDirectory()) {
           LOGGER.trace("Copy directory {} to {}", filePath, targetUri);
 
           copyDirectory(config, createUri(filePath), targetFileUri, overwrite, writerConnection);
         } else {
           LOGGER.trace("Copy file {} to {}", filePath, targetUri);
 
-          copyFile(config, fileAttributes, targetFileUri, overwrite, writerConnection);
+          copyFile(config, ftpFileAttributes, targetFileUri, overwrite, writerConnection);
         }
       }
     }
 
     @Override
-    protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
+    protected void copyFile(FileConnectorConfig config, FtpFileAttributes source, URI target, boolean overwrite,
                             FtpFileSystem writerConnection) {
       super.copyFile(config, source, target, overwrite, writerConnection);
       fileSystem.awaitCommandCompletion();

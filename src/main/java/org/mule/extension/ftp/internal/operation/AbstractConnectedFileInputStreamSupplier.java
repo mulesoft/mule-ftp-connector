@@ -6,11 +6,11 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.ConnectionSource;
 import org.mule.extension.ftp.internal.connection.ManagerBasedConnectionSource;
 import org.mule.extension.ftp.internal.connection.StaticConnectionSource;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.connection.FileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -40,17 +40,17 @@ public abstract class AbstractConnectedFileInputStreamSupplier<T extends FileSys
   private boolean contentProvided = false;
   private boolean contentConnectionReleased = false;
 
-  public AbstractConnectedFileInputStreamSupplier(FileAttributes attributes, Long timeBetweenSizeCheck,
+  public AbstractConnectedFileInputStreamSupplier(FtpFileAttributes attributes, Long timeBetweenSizeCheck,
                                                   ConnectionSource<T> connectionSource) {
     super(attributes, timeBetweenSizeCheck);
     this.connectionSource = connectionSource;
   }
 
-  public AbstractConnectedFileInputStreamSupplier(FileAttributes attributes, Long timeBetweenSizeCheck, T fileSystem) {
+  public AbstractConnectedFileInputStreamSupplier(FtpFileAttributes attributes, Long timeBetweenSizeCheck, T fileSystem) {
     this(attributes, timeBetweenSizeCheck, new StaticConnectionSource<>(fileSystem));
   }
 
-  public AbstractConnectedFileInputStreamSupplier(FileAttributes attributes, ConnectionManager connectionManager,
+  public AbstractConnectedFileInputStreamSupplier(FtpFileAttributes attributes, ConnectionManager connectionManager,
                                                   Long timeBetweenSizeCheck, FileConnectorConfig config) {
     this(attributes, timeBetweenSizeCheck, new ManagerBasedConnectionSource<>(config, connectionManager));
   }
@@ -59,10 +59,10 @@ public abstract class AbstractConnectedFileInputStreamSupplier<T extends FileSys
    * {@inheritDoc}
    */
   @Override
-  protected final FileAttributes getUpdatedAttributes() {
+  protected final FtpFileAttributes getUpdatedAttributes() {
     try {
       T fileSystem = connectionSource.getConnection();
-      FileAttributes updatedFileAttributes = getUpdatedAttributes(fileSystem);
+      FtpFileAttributes updatedFileAttributes = getUpdatedAttributes(fileSystem);
       releaseConnection();
       if (updatedFileAttributes == null) {
         LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
@@ -125,7 +125,7 @@ public abstract class AbstractConnectedFileInputStreamSupplier<T extends FileSys
    * @param fileSystem the {@link FileSystem} to be used to gather the updated attributes
    * @return the updated attributes according to the path of the variable attributes passed in the constructor
    */
-  protected abstract FileAttributes getUpdatedAttributes(T fileSystem);
+  protected abstract FtpFileAttributes getUpdatedAttributes(T fileSystem);
 
   /**
    * Gets the {@link InputStream} of the file described by the attributes passed to the constructor

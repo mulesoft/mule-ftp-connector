@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
@@ -63,11 +63,11 @@ public abstract class BaseFileSystemOperations {
    * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected List<Result<String, FileAttributes>> doList(FileConnectorConfig config,
-                                                        FileSystem fileSystem,
-                                                        String directoryPath,
-                                                        boolean recursive,
-                                                        FileMatcher matchWith) {
+  protected List<Result<String, FtpFileAttributes>> doList(FileConnectorConfig config,
+                                                           FileSystem fileSystem,
+                                                           String directoryPath,
+                                                           boolean recursive,
+                                                           FileMatcher matchWith) {
     fileSystem.changeToBaseDir();
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith));
   }
@@ -89,11 +89,11 @@ public abstract class BaseFileSystemOperations {
    * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                   String directoryPath,
-                                                                                   boolean recursive,
-                                                                                   FileMatcher matchWith,
-                                                                                   StreamingHelper streamingHelper) {
+  protected PagingProvider<FileSystem, Result<String, FtpFileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                      String directoryPath,
+                                                                                      boolean recursive,
+                                                                                      FileMatcher matchWith,
+                                                                                      StreamingHelper streamingHelper) {
     return doPagedList(config, directoryPath, recursive, matchWith, streamingHelper, null);
   }
 
@@ -114,27 +114,27 @@ public abstract class BaseFileSystemOperations {
    * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected PagingProvider<FileSystem, Result<String, FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                   String directoryPath,
-                                                                                   boolean recursive,
-                                                                                   FileMatcher matchWith,
-                                                                                   StreamingHelper streamingHelper,
-                                                                                   SubsetList subsetList) {
-    return new PagingProvider<FileSystem, Result<String, FileAttributes>>() {
+  protected PagingProvider<FileSystem, Result<String, FtpFileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                      String directoryPath,
+                                                                                      boolean recursive,
+                                                                                      FileMatcher matchWith,
+                                                                                      StreamingHelper streamingHelper,
+                                                                                      SubsetList subsetList) {
+    return new PagingProvider<FileSystem, Result<String, FtpFileAttributes>>() {
 
-      private List<Result<String, FileAttributes>> files;
-      private Iterator<Result<String, FileAttributes>> filesIterator;
+      private List<Result<String, FtpFileAttributes>> files;
+      private Iterator<Result<String, FtpFileAttributes>> filesIterator;
       private final AtomicBoolean initialised = new AtomicBoolean(false);
 
       @Override
-      public List<Result<String, FileAttributes>> getPage(FileSystem connection) {
+      public List<Result<String, FtpFileAttributes>> getPage(FileSystem connection) {
         if (initialised.compareAndSet(false, true)) {
           initializePagingProvider(connection);
         }
-        List<Result<String, FileAttributes>> page = new LinkedList<>();
+        List<Result<String, FtpFileAttributes>> page = new LinkedList<>();
         for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
-          Result<String, FileAttributes> result = filesIterator.next();
-          page.add((Result.<String, FileAttributes>builder().attributes(result.getAttributes().get())
+          Result<String, FtpFileAttributes> result = filesIterator.next();
+          page.add((Result.<String, FtpFileAttributes>builder().attributes(result.getAttributes().get())
               .output(result.getOutput())
               .mediaType(result.getMediaType().orElse(null))
               .attributesMediaType(result.getAttributesMediaType().orElse(null))
@@ -162,7 +162,7 @@ public abstract class BaseFileSystemOperations {
 
   /**
    * Obtains the content and metadata of a file at a given path. The operation itself returns a {@link Message} which payload is a
-   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FileAttributes} object that's placed
+   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FtpFileAttributes} object that's placed
    * as the message {@link Message#getAttributes() attributes}.
    * <p>
    * If the {@code lock} parameter is set to {@code true}, then a file system level lock will be placed on the file until the
@@ -178,22 +178,22 @@ public abstract class BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path       the path to the file to be read
    * @param lock       whether or not to lock the file. Defaults to false.
-   * @return the file's content and metadata on a {@link FileAttributes} instance
+   * @return the file's content and metadata on a {@link FtpFileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Deprecated
-  protected Result<InputStream, FileAttributes> doRead(@Config FileConnectorConfig config,
-                                                       @Connection FileSystem fileSystem,
-                                                       @DisplayName("File Path") String path,
-                                                       @Optional(defaultValue = "false") @Placement(
-                                                           tab = ADVANCED_TAB) boolean lock) {
+  protected Result<InputStream, FtpFileAttributes> doRead(@Config FileConnectorConfig config,
+                                                          @Connection FileSystem fileSystem,
+                                                          @DisplayName("File Path") String path,
+                                                          @Optional(defaultValue = "false") @Placement(
+                                                              tab = ADVANCED_TAB) boolean lock) {
     fileSystem.changeToBaseDir();
     return fileSystem.read(config, path, lock);
   }
 
   /**
    * Obtains the content and metadata of a file at a given path. The operation itself returns a {@link Message} which payload is a
-   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FileAttributes} object that's placed
+   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FtpFileAttributes} object that's placed
    * as the message {@link Message#getAttributes() attributes}.
    * <p>
    * If the {@code lock} parameter is set to {@code true}, then a file system level lock will be placed on the file until the
@@ -210,59 +210,17 @@ public abstract class BaseFileSystemOperations {
    * @param path                  the path to the file to be read
    * @param lock                  whether or not to lock the file. Defaults to false.
    * @param timeBetweenSizeCheck  wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return the file's content and metadata on a {@link FileAttributes} instance
+   * @return the file's content and metadata on a {@link FtpFileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
-  protected Result<InputStream, FileAttributes> doRead(@Config FileConnectorConfig config,
-                                                       @Connection FileSystem fileSystem,
-                                                       @DisplayName("File Path") String path,
-                                                       @Optional(defaultValue = "false") @Placement(
-                                                           tab = ADVANCED_TAB) boolean lock,
-                                                       Long timeBetweenSizeCheck) {
+  protected Result<InputStream, FtpFileAttributes> doRead(@Config FileConnectorConfig config,
+                                                          @Connection FileSystem fileSystem,
+                                                          @DisplayName("File Path") String path,
+                                                          @Optional(defaultValue = "false") @Placement(
+                                                              tab = ADVANCED_TAB) boolean lock,
+                                                          Long timeBetweenSizeCheck) {
     fileSystem.changeToBaseDir();
     return fileSystem.read(config, path, lock, timeBetweenSizeCheck);
-  }
-
-  /**
-   * @deprecated {@link #doWrite(FileConnectorConfig, FileSystem, String, InputStream, boolean, boolean, FileWriteMode)}
-   * must be used instead.
-   *
-   * Writes the {@code content} into the file pointed by {@code path}.
-   * <p>
-   * If the directory on which the file is attempting to be written doesn't exist, then the operation will either throw
-   * {@link IllegalArgumentException} or create such folder depending on the value of the {@code createParentDirectory}.
-   * <p>
-   * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
-   * <p>
-   * This operation also supports locking support depending on the value of the {@code lock} argument, but following the same
-   * rules and considerations as described in the read operation.
-   *
-   * @param config                  the {@link FileConnectorConfig} on which the operation is being executed
-   * @param fileSystem              a reference to the host {@link FileSystem}
-   * @param path                    the path of the file to be written
-   * @param content                 the content to be written into the file. Defaults to the current {@link Message} payload
-   * @param encoding                when {@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *                                not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
-   * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param lock                    whether or not to lock the file. Defaults to false
-   * @param mode                    a {@link FileWriteMode}. Defaults to {@code OVERWRITE}
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
-   */
-  @Deprecated
-  protected void doWrite(FileConnectorConfig config, FileSystem fileSystem, String path, InputStream content, String encoding,
-                         boolean createParentDirectories, boolean lock, FileWriteMode mode) {
-    if (content == null) {
-      throw new IllegalContentException("Cannot write a null content");
-    }
-
-    validatePath(path, "path");
-    fileSystem.changeToBaseDir();
-
-    if (encoding == null) {
-      encoding = config.getDefaultWriteEncoding();
-    }
-
-    fileSystem.write(path, content, mode, lock, createParentDirectories, encoding);
   }
 
   /**
@@ -410,7 +368,7 @@ public abstract class BaseFileSystemOperations {
     }
   }
 
-  private Predicate<FileAttributes> getPredicate(FileMatcher builder) {
+  private Predicate<FtpFileAttributes> getPredicate(FileMatcher builder) {
     return builder != null ? builder.build() : new NullFilePayloadPredicate();
   }
 }

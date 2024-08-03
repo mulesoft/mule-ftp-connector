@@ -77,7 +77,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    attributes.name must equalTo(vars.fileName)
+                                    attributes.fileName must equalTo(vars.fileName)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>

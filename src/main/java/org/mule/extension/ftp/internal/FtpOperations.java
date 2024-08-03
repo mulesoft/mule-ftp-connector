@@ -14,7 +14,6 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
 import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
 import org.mule.extension.ftp.api.FileWriteMode;
@@ -104,7 +103,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path to the file to be read
    * @param lock whether or not to lock the file. Defaults to false.
-   * @return the file's content and metadata on a {@link FileAttributes} instance
+   * @return the file's content and metadata on a {@link FtpFileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Summary("Obtains the content and metadata of a file at a given path")

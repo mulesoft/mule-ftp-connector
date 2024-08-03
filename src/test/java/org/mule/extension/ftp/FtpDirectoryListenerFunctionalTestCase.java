@@ -16,7 +16,6 @@ import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
 
 import org.junit.Ignore;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Startable;
@@ -295,7 +294,7 @@ public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTe
   private Optional<Message> getPicked(File file) {
     return RECEIVED_MESSAGES.stream()
         .filter(message -> {
-          FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
+          FtpFileAttributes attributes = (FtpFileAttributes) message.getAttributes().getValue();
           return attributes.getPath().contains(normalizePath(file.getPath()));
         })
         .findFirst();

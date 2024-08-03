@@ -9,7 +9,7 @@ package org.mule.extension.ftp.internal;
 import static java.lang.String.format;
 import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
 
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.command.FtpCommand;
@@ -50,12 +50,12 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
   /**
    * Performs a recursive copy
    *  @param config the config which is parameterizing this operation
-   * @param source the {@link FileAttributes} for the file to be copied
+   * @param source the {@link FtpFileAttributes} for the file to be copied
    * @param targetUri the {@link URI} to the target destination
    * @param overwrite whether to overwrite existing target paths
    */
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+  public void doCopy(FileConnectorConfig config, FtpFileAttributes source, URI targetUri, boolean overwrite) {
     ConnectionHandler<FtpFileSystem> writerConnectionHandler;
     final FtpFileSystem writerConnection;
     String path = source.getPath();
@@ -102,14 +102,14 @@ public abstract class AbstractFtpCopyDelegate implements FtpCopyDelegate {
   /**
    * Copies one individual file
    *  @param config the config which is parameterizing this operation
-   * @param source the {@link FileAttributes} for the file to be copied
+   * @param source the {@link FtpFileAttributes} for the file to be copied
    * @param target the target path
    * @param overwrite whether to overwrite the target files if they already exists
    * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
    */
-  protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
+  protected void copyFile(FileConnectorConfig config, FtpFileAttributes source, URI target, boolean overwrite,
                           FtpFileSystem writerConnection) {
-    FileAttributes targetFile = command.getFile(target.getPath());
+    FtpFileAttributes targetFile = command.getFile(target.getPath());
     if (targetFile != null) {
       if (overwrite) {
         fileSystem.delete(targetFile.getPath());

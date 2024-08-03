@@ -6,10 +6,10 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.exception.DeletedFileWhileReadException;
 import org.mule.extension.ftp.internal.exception.FileBeingModifiedException;
 import org.mule.extension.ftp.internal.stream.ExceptionInputStream;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.slf4j.Logger;
 
@@ -44,17 +44,17 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
       "Error reading file from path %s. It no longer exists at the time of reading.";
   private static final int MAX_SIZE_CHECK_RETRIES = 2;
 
-  protected FileAttributes attributes;
+  protected FtpFileAttributes attributes;
   private Long timeBetweenSizeCheck;
 
-  protected AbstractFileInputStreamSupplier(FileAttributes attributes, Long timeBetweenSizeCheck) {
+  protected AbstractFileInputStreamSupplier(FtpFileAttributes attributes, Long timeBetweenSizeCheck) {
     this.attributes = attributes;
     this.timeBetweenSizeCheck = timeBetweenSizeCheck;
   }
 
   @Override
   public InputStream get() {
-    FileAttributes updatedAttributes = null;
+    FtpFileAttributes updatedAttributes = null;
     if (timeBetweenSizeCheck != null && timeBetweenSizeCheck > 0) {
       updatedAttributes = getUpdatedStableAttributes();
       if (updatedAttributes == null) {
@@ -68,9 +68,9 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
     }
   }
 
-  private FileAttributes getUpdatedStableAttributes() {
-    FileAttributes oldAttributes;
-    FileAttributes updatedAttributes = attributes;
+  private FtpFileAttributes getUpdatedStableAttributes() {
+    FtpFileAttributes oldAttributes;
+    FtpFileAttributes updatedAttributes = attributes;
     int retries = 0;
     do {
       oldAttributes = updatedAttributes;
@@ -111,7 +111,7 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
    * 
    * @return the updated attributes accourding to the path of the variable attributes passed in the constructor
    */
-  protected abstract FileAttributes getUpdatedAttributes();
+  protected abstract FtpFileAttributes getUpdatedAttributes();
 
   /**
    * Gets the {@link InputStream} of the file described by the attributes passed to the constructor

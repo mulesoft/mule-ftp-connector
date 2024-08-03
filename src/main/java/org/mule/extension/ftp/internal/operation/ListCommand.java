@@ -6,7 +6,6 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
@@ -21,7 +20,7 @@ import java.util.function.Predicate;
  *
  * @since 1.0
  */
-public interface ListCommand<A extends FileAttributes> {
+public interface ListCommand {
 
   /**
    * Lists files under the considerations of {@link FileSystem#list(FileConnectorConfig, String, boolean, Predicate)}
@@ -29,14 +28,14 @@ public interface ListCommand<A extends FileAttributes> {
    * @param config        the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
    * @param recursive     whether to include the contents of sub-directories
-   * @param matcher       a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param matcher       a {@link Predicate} of {@link FtpFileAttributes} used to filter the output list
    * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
                                                        String directoryPath,
                                                        boolean recursive,
-                                                       Predicate<A> matcher) {
+                                                       Predicate<FtpFileAttributes> matcher) {
     return list(config, directoryPath, recursive, matcher);
   }
 
@@ -46,7 +45,7 @@ public interface ListCommand<A extends FileAttributes> {
    * @param config        the config that is parameterizing this operation
    * @param directoryPath the path to the directory to be listed
    * @param recursive     whether to include the contents of sub-directories
-   * @param matcher       a {@link Predicate} of {@link FileAttributes} used to filter the output list
+   * @param matcher       a {@link Predicate} of {@link FtpFileAttributes} used to filter the output list
    * @param subsetList    parameter group that lets you obtain a subset of the results
    * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the
    * attributes
@@ -55,7 +54,7 @@ public interface ListCommand<A extends FileAttributes> {
   default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
                                                        String directoryPath,
                                                        boolean recursive,
-                                                       Predicate<A> matcher,
+                                                       Predicate<FtpFileAttributes> matcher,
                                                        SubsetList subsetList) {
     return list(config, directoryPath, recursive, matcher);
   }

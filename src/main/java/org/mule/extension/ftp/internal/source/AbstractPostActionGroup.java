@@ -6,8 +6,8 @@
  */
 package org.mule.extension.ftp.internal.source;
 
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.AbstractFileSystem;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public abstract class AbstractPostActionGroup {
     }
   }
 
-  public void apply(AbstractFileSystem fileSystem, FileAttributes fileAttributes, FileConnectorConfig config) {
+  public void apply(AbstractFileSystem fileSystem, FtpFileAttributes ftpFileAttributes, FileConnectorConfig config) {
     if (LOGGER.isTraceEnabled()) {
       try {
         validateSelf();
@@ -60,11 +60,11 @@ public abstract class AbstractPostActionGroup {
     boolean movedOrRenamed = false;
     try {
       if (getMoveToDirectory() != null) {
-        fileSystem.move(config, fileAttributes.getPath(), getMoveToDirectory(), getOverwrite(), true,
+        fileSystem.move(config, ftpFileAttributes.getPath(), getMoveToDirectory(), getOverwrite(), true,
                         getRenameTo());
         movedOrRenamed = true;
       } else if (getRenameTo() != null) {
-        fileSystem.rename(fileAttributes.getPath(), getRenameTo(), getOverwrite());
+        fileSystem.rename(ftpFileAttributes.getPath(), getRenameTo(), getOverwrite());
         movedOrRenamed = true;
       }
     } catch (FileAlreadyExistsException e) {
@@ -72,19 +72,19 @@ public abstract class AbstractPostActionGroup {
         if (getMoveToDirectory() == null) {
           LOGGER.warn(format("A file with the same name was found when trying to rename '%s' to '%s'" +
               ". The file '%s' was not renamed and it remains on the poll directory.",
-                             fileAttributes.getName(), getRenameTo(), fileAttributes.getPath()));
+                             ftpFileAttributes.getFileName(), getRenameTo(), ftpFileAttributes.getPath()));
         } else {
-          String moveToFileName = getRenameTo() == null ? fileAttributes.getName() : getRenameTo();
+          String moveToFileName = getRenameTo() == null ? ftpFileAttributes.getFileName() : getRenameTo();
           String moveToPath = Paths.get(getMoveToDirectory()).resolve(moveToFileName).toString();
           LOGGER.warn(format("A file with the same name was found when trying to move '%s' to '%s'" +
               ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",
-                             fileAttributes.getPath(), moveToPath, fileAttributes.getPath()));
+                             ftpFileAttributes.getPath(), moveToPath, ftpFileAttributes.getPath()));
         }
         throw e;
       }
     } finally {
       if (isAutoDelete() && !movedOrRenamed) {
-        fileSystem.delete(fileAttributes.getPath());
+        fileSystem.delete(ftpFileAttributes.getPath());
       }
     }
   }

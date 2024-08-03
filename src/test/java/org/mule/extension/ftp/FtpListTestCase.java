@@ -19,7 +19,6 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
 import org.junit.Ignore;
-import org.mule.extension.ftp.api.FileAttributes;
 import org.mule.extension.ftp.internal.exception.IllegalPathException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
@@ -88,7 +87,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     assertThat(assertListedFiles(messages), is(true));
 
     List<Message> subDirectories = messages.stream()
-        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .filter(message -> ((FtpFileAttributes) message.getAttributes().getValue()).isDirectory())
         .collect(toList());
 
     assertThat(subDirectories, hasSize(1));
@@ -124,7 +123,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     assertThat(assertListedFiles(messages), is(true));
 
     List<Message> subDirectories = messages.stream()
-        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .filter(message -> ((FtpFileAttributes) message.getAttributes().getValue()).isDirectory())
         .collect(toList());
 
     assertThat(subDirectories, hasSize(1));
@@ -158,9 +157,9 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
     assertThat(messages, hasSize(1));
 
-    FileAttributes file = (FileAttributes) messages.get(0).getAttributes().getValue();
+    FtpFileAttributes file = (FtpFileAttributes) messages.get(0).getAttributes().getValue();
     assertThat(file.isDirectory(), is(true));
-    assertThat(file.getName(), equalTo(SUB_DIRECTORY_NAME));
+    assertThat(file.getFileName(), equalTo(SUB_DIRECTORY_NAME));
   }
 
   @Test
@@ -200,13 +199,13 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     boolean directoryWasFound = false;
 
     for (Message message : messages) {
-      FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
+      FtpFileAttributes attributes = (FtpFileAttributes) message.getAttributes().getValue();
       if (attributes.isDirectory()) {
         assertThat("two directories found", directoryWasFound, is(false));
         directoryWasFound = true;
-        assertThat(attributes.getName(), equalTo(SUB_DIRECTORY_NAME));
+        assertThat(attributes.getFileName(), equalTo(SUB_DIRECTORY_NAME));
       } else {
-        assertThat(attributes.getName(), endsWith(".html"));
+        assertThat(attributes.getFileName(), endsWith(".html"));
         assertThat(toString(message.getPayload().getValue()), equalTo(CONTENT));
         assertThat(attributes.getSize(), is(new Long(CONTENT.length())));
       }

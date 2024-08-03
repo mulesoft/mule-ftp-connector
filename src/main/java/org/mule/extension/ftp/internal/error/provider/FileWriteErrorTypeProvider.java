@@ -23,7 +23,7 @@ import static org.mule.extension.ftp.internal.error.FileError.*;
 
 /**
  * Errors that can be thrown in the
- * {@link BaseFileSystemOperations#doWrite(FileConnectorConfig, FileSystem, String, InputStream, String, boolean, boolean, FileWriteMode)}
+ * {@link BaseFileSystemOperations#doWrite(FileConnectorConfig, FileSystem, String, InputStream, boolean, boolean, FileWriteMode)}
  * operation.
  *
  * @since 1.0

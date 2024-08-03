@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.ftp.internal.connection.AbstractFileSystem;
-import org.mule.extension.ftp.api.FileAttributes;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.operation.CopyCommand;
 import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
@@ -68,25 +68,25 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Test(expected = FileAlreadyExistsException.class)
   @Description("verifies that move file with overwrite flag set to false and exceptiopn will be thrown")
   public void testMoveWithoutOverwriteWhenFileExists() {
-    FileAttributes fileAttributes = mock(FileAttributes.class);
-    when(fileAttributes.getName()).thenReturn("");
+    FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
+    when(ftpFileAttributes.getFileName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
     ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
 
-    new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, fileAttributes, fileConnectorConfig);
+    new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
 
   @Test
   @Description("verifies that move file with overwrite flag set to true and no exception")
   public void testMoveWithOverwriteWhenFileExists() {
-    FileAttributes fileAttributes = mock(FileAttributes.class);
-    when(fileAttributes.getName()).thenReturn("");
+    FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
+    when(ftpFileAttributes.getFileName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
     ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
     fileSystem.setCanMove(true);
-    new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, fileAttributes, fileConnectorConfig);
+    new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
 
   private class PostActionGroupChild extends AbstractPostActionGroup {
