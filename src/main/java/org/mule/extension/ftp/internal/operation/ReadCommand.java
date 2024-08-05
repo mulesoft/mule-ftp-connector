@@ -22,20 +22,7 @@ import java.io.InputStream;
 public interface ReadCommand {
 
   /**
-   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)}
-   *
-   * @param config the config that is parameterizing this operation
-   * @param filePath the path of the file you want to read
-   * @param lock whether or not to lock the file
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a
-   *         {@link FtpFileAttributes} object as {@link Message#getAttributes()}
-   * @throws IllegalArgumentException if the file at the given path doesn't exist
-   */
-  @Deprecated
-  Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock);
-
-  /**
-   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)}
+   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean, Long)}
    *
    * @param config the config that is parameterizing this operation
    * @param filePath the path of the file you want to read
@@ -47,11 +34,11 @@ public interface ReadCommand {
    */
   default Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
                                                       Long timeBetweenSizeCheck) {
-    return read(config, filePath, lock);
+    return read(config, filePath, lock, timeBetweenSizeCheck);
   }
 
   /**
-   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean)} This method can be used
+   * Reads files under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean, Long)} This method can be used
    * instead of {@link ReadCommand#read(FileConnectorConfig, String, boolean, Long)} to avoid extra processing to get the file
    * attributes again if that information is already collected (this is important if the attributes are gathered from a remote
    * server).

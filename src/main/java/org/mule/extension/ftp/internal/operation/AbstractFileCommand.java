@@ -140,7 +140,7 @@ public abstract class AbstractFileCommand<F extends FileSystem, I> {
 
   /**
    * Returns an {@link IllegalPathException} explaining that a
-   * {@link FileSystem#read(FileConnectorConfig, String, boolean)} operation was attempted on a {@code path} pointing to
+   * {@link FileSystem#read(FileConnectorConfig, String, boolean, Long)} operation was attempted on a {@code path} pointing to
    * a directory
    *
    * @param path the path on which a read was attempted

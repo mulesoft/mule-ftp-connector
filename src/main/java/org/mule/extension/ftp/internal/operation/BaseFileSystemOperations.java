@@ -174,37 +174,6 @@ public abstract class BaseFileSystemOperations {
    * be used to make an educated guess on the file's mime type. The user also has the chance to force the output encoding and
    * mimeType through the {@code outputEncoding} and {@code outputMimeType} optional parameters.
    *
-   * @param config     the config that is parameterizing this operation
-   * @param fileSystem a reference to the host {@link FileSystem}
-   * @param path       the path to the file to be read
-   * @param lock       whether or not to lock the file. Defaults to false.
-   * @return the file's content and metadata on a {@link FtpFileAttributes} instance
-   * @throws IllegalArgumentException if the file at the given path doesn't exist
-   */
-  @Deprecated
-  protected Result<InputStream, FtpFileAttributes> doRead(@Config FileConnectorConfig config,
-                                                          @Connection FileSystem fileSystem,
-                                                          @DisplayName("File Path") String path,
-                                                          @Optional(defaultValue = "false") @Placement(
-                                                              tab = ADVANCED_TAB) boolean lock) {
-    fileSystem.changeToBaseDir();
-    return fileSystem.read(config, path, lock);
-  }
-
-  /**
-   * Obtains the content and metadata of a file at a given path. The operation itself returns a {@link Message} which payload is a
-   * {@link InputStream} with the file's content, and the metadata is represent as a {@link FtpFileAttributes} object that's placed
-   * as the message {@link Message#getAttributes() attributes}.
-   * <p>
-   * If the {@code lock} parameter is set to {@code true}, then a file system level lock will be placed on the file until the
-   * input stream this operation returns is closed or fully consumed. Because the lock is actually provided by the host file
-   * system, its behavior might change depending on the mounted drive and the operation system on which mule is running. Take that
-   * into consideration before blindly relying on this lock.
-   * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. A {@link MimetypesFileTypeMap} will
-   * be used to make an educated guess on the file's mime type. The user also has the chance to force the output encoding and
-   * mimeType through the {@code outputEncoding} and {@code outputMimeType} optional parameters.
-   *
    * @param config                the config that is parameterizing this operation
    * @param fileSystem            a reference to the host {@link FileSystem}
    * @param path                  the path to the file to be read

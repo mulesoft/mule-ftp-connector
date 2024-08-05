@@ -22,24 +22,6 @@ public interface WriteCommand {
   String IS_A_DIRECTORY_MESSAGE = "Is a directory";
 
   /**
-   * @deprecated @{@link #write(String, InputStream, FileWriteMode, boolean, boolean)} must be used instead.
-   *
-   * Writes a file under the considerations of
-   * {@link FileSystem#write(String, InputStream, FileWriteMode, boolean, boolean, String)}
-   *
-   * @param filePath the path of the file to be written
-   * @param content the content to be written into the file
-   * @param mode a {@link FileWriteMode}
-   * @param lock whether or not to lock the file
-   * @param createParentDirectory whether or not to attempt creating the parent directory if it doesn't exist.
-   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing.}
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
-   */
-  @Deprecated
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
-             String encoding);
-
-  /**
    * Writes a file under the considerations of {@link FileSystem#write(String, InputStream, FileWriteMode, boolean, boolean)}
    *
    * @param filePath the path of the file to be written
@@ -50,6 +32,6 @@ public interface WriteCommand {
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   default void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory) {
-    write(filePath, content, mode, lock, createParentDirectory, null);
+    write(filePath, content, mode, lock, createParentDirectory);
   }
 }

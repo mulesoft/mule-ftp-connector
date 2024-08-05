@@ -45,14 +45,6 @@ public final class FtpReadCommand extends FtpCommand implements ReadCommand {
    * {@inheritDoc}
    */
   @Override
-  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
-    return read(config, filePath, lock, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
                                                      Long timeBetweenSizeCheck) {
     FtpFileAttributes attributes = getExistingFile(filePath);

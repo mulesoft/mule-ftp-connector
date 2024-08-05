@@ -111,31 +111,10 @@ public abstract class AbstractFileSystem implements FileSystem {
   /**
    * {@inheritDoc}
    */
-  @Deprecated
-  @Override
-  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath,
-                                                     boolean lock) {
-    return getReadCommand().read(config, filePath, lock);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath,
                                                      boolean lock, Long timeBetweenSizeCheck) {
     return getReadCommand().read(config, filePath, lock, timeBetweenSizeCheck);
-  }
-
-  /**
-   * @deprecated  {@link #write(String, InputStream, FileWriteMode, boolean, boolean)} must be used instead.
-   * {@inheritDoc}
-   */
-  @Deprecated
-  @Override
-  public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectories, String encoding) {
-    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, encoding);
   }
 
   /**

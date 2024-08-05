@@ -87,29 +87,6 @@ public interface FileSystem {
    * <p>
    * Locking can be actually enabled through the {@code lock} argument, however, the extent of such lock will depend on the
    * implementation. What is guaranteed by passing {@code true} on the {@code lock} argument is that {@code this} instance will
-   * not attempt to modify this file until the {@link InputStream} returned by {@link Result#getOutput()} this method
-   * returns is closed or fully consumed. Some implementation might actually perform a file system level locking which goes beyond
-   * the extend of {@code this} instance or even mule. For some other file systems that might be simply not possible and no extra
-   * assumptions are to be taken.
-   * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. a {@link MimetypesFileTypeMap} will
-   * be used to make an educated guess on the file's mime type
-   *
-   * @param config    the config that is parameterizing this operation
-   * @param filePath  the path of the file you want to read
-   * @param lock      whether or not to lock the file
-   * @return An {@link Result} with an {@link InputStream} with the file's content as payload and a
-   * {@link FtpFileAttributes} object as {@link Message#getAttributes()}
-   * @throws IllegalArgumentException if the file at the given path doesn't exist
-   */
-  @Deprecated
-  Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock);
-
-  /**
-   * Obtains the content and metadata of a file at a given path.
-   * <p>
-   * Locking can be actually enabled through the {@code lock} argument, however, the extent of such lock will depend on the
-   * implementation. What is guaranteed by passing {@code true} on the {@code lock} argument is that {@code this} instance will
    * not attempt to modify this file until the {@link InputStream} returned by {@link Result#getOutput()} this method returns is
    * closed or fully consumed. Some implementation might actually perform a file system level locking which goes beyond the extend
    * of {@code this} instance or even mule. For some other file systems that might be simply not possible and no extra assumptions
@@ -132,8 +109,6 @@ public interface FileSystem {
   }
 
   /**
-   * @deprecated {@link #write(String, InputStream, FileWriteMode, boolean, boolean)} must be used instead.
-   *
    * Writes the {@code content} into the file pointed by {@code filePath}.
    * <p>
    * The {@code content} can be of any of the given types:
@@ -155,43 +130,7 @@ public interface FileSystem {
    * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
    * <p>
    * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
-   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean)} method
-   *
-   * @param filePath the path of the file to be written
-   * @param content the content to be written into the file
-   * @param mode a {@link FileWriteMode}
-   * @param lock whether or not to lock the file
-   * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @param encoding when {@@code content} is a {@link String}, this attribute specifies the encoding to be used when writing.}
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
-   */
-  @Deprecated
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,
-             String encoding);
-
-  /**
-   * Writes the {@code content} into the file pointed by {@code filePath}.
-   * <p>
-   * The {@code content} can be of any of the given types:
-   * <ul>
-   * <li>{@link String}</li>
-   * <li>{@code String[]}</li>
-   * <li>{@code byte}</li>
-   * <li>{@code byte[]}</li>
-   * <li>{@link OutputHandler}</li>
-   * <li>{@link Iterable}</li>
-   * <li>{@link Iterator}</li>
-   * </ul>
-   * <p>
-   * {@code null} contents are not allowed and will result in an {@link IllegalArgumentException}.
-   * <p>
-   * If the directory on which the file is attempting to be written doesn't exist, then the operation will either throw
-   * {@link IllegalArgumentException} or create such folder depending on the value of the {@code createParentDirectory}.
-   * <p>
-   * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
-   * <p>
-   * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
-   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean)} method
+   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} method
    *
    * @param filePath the path of the file to be written
    * @param content the content to be written into the file
@@ -202,7 +141,7 @@ public interface FileSystem {
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   default void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories) {
-    write(filePath, content, mode, lock, createParentDirectories, null);
+    write(filePath, content, mode, lock, createParentDirectories);
   }
 
 
