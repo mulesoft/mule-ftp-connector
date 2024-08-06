@@ -341,6 +341,11 @@
                                     <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64,linux/arm64</platform>
+                                            </platforms>
+                                        </buildx>
                                     </build>
                                     <run>
                                         <ports>

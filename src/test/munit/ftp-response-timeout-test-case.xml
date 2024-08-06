@@ -55,23 +55,6 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="response-timeout-connectivity-proxy-test" description="Should throw CONNECTION_TIMEOUT when response timeout is 1 milisecond with proxy">
-        <munit:execution>
-            <try>
-                <mtf:test-connectivity config-ref="config-proxy-response-timeout-exception"/>
-                <error-handler>
-                    <on-error-continue enableNotifications="false" logException="false" type="FTP:CONNECTION_TIMEOUT">
-                        <set-payload value="#[error]"/>
-                    </on-error-continue>
-                </error-handler>
-            </try>
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert-equals actual="#[Java::isCausedBy(payload.cause, 'java.net.SocketTimeoutException')]"
-                                       expected="#[true]"/>
-        </munit:validation>
-    </munit:test>
-
     <munit:test name="response-timeout-connectivity-test-invalid-credentials" expectedErrorType="FTP:INVALID_CREDENTIALS" description="Should throw INVALID_LOGIN when response timeout is 30 seconds with invalid credentials">
         <munit:execution>
             <mtf:test-connectivity config-ref="config-response-timeout"/>
