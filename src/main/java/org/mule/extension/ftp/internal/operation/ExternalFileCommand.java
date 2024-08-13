@@ -6,7 +6,7 @@
  */
 package org.mule.extension.ftp.internal.operation;
 
-import org.mule.extension.ftp.internal.connection.ExternalFileSystem;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.slf4j.Logger;
 
 import java.net.URI;
@@ -19,20 +19,20 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Extension of {@link AbstractFileCommand} for local file systems which use {@link URI} to identify and manage
  * files and directories.
  *
- * @param <F> the generic type of the {@link ExternalFileSystem} on which the operation is performed
+ * @param <F> the generic type of the {@link FtpFileSystem} on which the operation is performed
  * @since 1.3.0
  */
-public abstract class ExternalFileCommand<F extends ExternalFileSystem> extends AbstractFileCommand<F, URI> {
+public abstract class ExternalFileCommand<F extends FtpFileSystem> extends AbstractFileCommand<F, URI> {
 
   private static final Logger LOGGER = getLogger(ExternalFileCommand.class);
 
   /**
    * Creates a new instance
    *
-   * @param externalFileSystem the {@link ExternalFileSystem} on which the operation is performed
+   * @param ftpFileSystem the {@link FtpFileSystem} on which the operation is performed
    */
-  protected ExternalFileCommand(F externalFileSystem) {
-    super(externalFileSystem);
+  protected ExternalFileCommand(F ftpFileSystem) {
+    super(ftpFileSystem);
   }
 
   /**

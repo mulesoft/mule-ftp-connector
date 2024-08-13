@@ -7,7 +7,7 @@
 package org.mule.extension.ftp.internal.source;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
-import org.mule.extension.ftp.internal.connection.AbstractFileSystem;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public abstract class AbstractPostActionGroup {
     }
   }
 
-  public void apply(AbstractFileSystem fileSystem, FtpFileAttributes ftpFileAttributes, FileConnectorConfig config) {
+  public void apply(FtpFileSystem fileSystem, FtpFileAttributes ftpFileAttributes, FileConnectorConfig config) {
     if (LOGGER.isTraceEnabled()) {
       try {
         validateSelf();

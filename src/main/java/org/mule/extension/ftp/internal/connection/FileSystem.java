@@ -8,6 +8,15 @@ package org.mule.extension.ftp.internal.connection;
 
 import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.lock.UriLock;
+import org.mule.extension.ftp.internal.operation.CopyCommand;
+import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.ftp.internal.operation.DeleteCommand;
+import org.mule.extension.ftp.internal.operation.ListCommand;
+import org.mule.extension.ftp.internal.operation.MoveCommand;
+import org.mule.extension.ftp.internal.operation.ReadCommand;
+import org.mule.extension.ftp.internal.operation.RenameCommand;
+import org.mule.extension.ftp.internal.operation.WriteCommand;
 import org.mule.extension.ftp.internal.subset.SubsetList;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
@@ -19,6 +28,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
@@ -270,4 +280,66 @@ public interface FileSystem {
   void changeToBaseDir();
 
   String getBasePath();
+
+  /**
+   * @return a {@link ListCommand}
+   */
+  ListCommand getListCommand();
+
+  /**
+   * @return a {@link ReadCommand}
+   */
+  ReadCommand getReadCommand();
+
+  /**
+   * @return a {@link WriteCommand}
+   */
+  WriteCommand getWriteCommand();
+
+  /**
+   * @return a {@link CopyCommand}
+   */
+  CopyCommand getCopyCommand();
+
+  /**
+   * @return a {@link MoveCommand}
+   */
+  MoveCommand getMoveCommand();
+
+  /**
+   * @return a {@link DeleteCommand}
+   */
+  DeleteCommand getDeleteCommand();
+
+  /**
+   * @return a {@link RenameCommand}
+   */
+  RenameCommand getRenameCommand();
+
+  /**
+   * @return a {@link CreateDirectoryCommand}
+   */
+  CreateDirectoryCommand getCreateDirectoryCommand();
+
+  /**
+   * Acquires and returns lock over the given {@code uri}.
+   * <p>
+   * Depending on the underlying filesystem, the extent of the lock will depend on the implementation. If a lock can not be
+   * acquired, then an {@link IllegalStateException} is thrown.
+   * <p>
+   * Whoever request the lock <b>MUST</b> release it as soon as possible.
+   *
+   * @param uri   the uri to the file you want to lock
+   * @return an acquired {@link UriLock}
+   * @throws IllegalArgumentException if a lock could not be acquired
+   */
+  UriLock lock(URI uri);
+
+  /**
+   * Verify that the given {@code uri} is not locked
+   *
+   * @param uri the uri to test
+   * @throws IllegalStateException if the {@code uri} is indeed locked
+   */
+  void verifyNotLocked(URI uri);
 }

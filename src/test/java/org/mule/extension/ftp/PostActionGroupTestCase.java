@@ -6,13 +6,15 @@
  */
 package org.mule.extension.ftp;
 
+import org.apache.commons.net.ftp.FTPClient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
-import org.mule.extension.ftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
 import org.mule.extension.ftp.internal.operation.CopyCommand;
 import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
 import org.mule.extension.ftp.internal.operation.DeleteCommand;
@@ -25,6 +27,7 @@ import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.internal.source.AbstractPostActionGroup;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
+import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
@@ -72,7 +75,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(ftpFileAttributes.getFileName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
-    ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
+    ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
 
     new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
@@ -84,7 +87,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(ftpFileAttributes.getFileName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
-    ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
+    ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
     fileSystem.setCanMove(true);
     new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
@@ -142,15 +145,16 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     }
   }
 
-  private class ConcreteFileSystem extends AbstractFileSystem {
+  private class ConcreteFileSystem extends FtpFileSystem {
 
     private Queue<String> actions;
     private boolean canRename = false;
     private boolean canMove = false;
     private Command success;
 
-    public ConcreteFileSystem(String basePath) {
-      super(basePath);
+    public ConcreteFileSystem(FTPClient client, String basePath, LockFactory lockFactory,
+                              SingleFileListingMode singleFileListingMode) {
+      super(client, basePath, lockFactory, singleFileListingMode);
       this.actions = new LinkedList<>();
       this.success = new Success(actions);
     }
@@ -172,42 +176,42 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     }
 
     @Override
-    protected ListCommand getListCommand() {
+    public ListCommand getListCommand() {
       return null;
     }
 
     @Override
-    protected ReadCommand getReadCommand() {
+    public ReadCommand getReadCommand() {
       return null;
     }
 
     @Override
-    protected WriteCommand getWriteCommand() {
+    public WriteCommand getWriteCommand() {
       return null;
     }
 
     @Override
-    protected CopyCommand getCopyCommand() {
+    public CopyCommand getCopyCommand() {
       return null;
     }
 
     @Override
-    protected MoveCommand getMoveCommand() {
+    public MoveCommand getMoveCommand() {
       return new ConcreteCommand(canMove, success);
     }
 
     @Override
-    protected DeleteCommand getDeleteCommand() {
+    public DeleteCommand getDeleteCommand() {
       return new ConcreteCommand(true, success);
     }
 
     @Override
-    protected RenameCommand getRenameCommand() {
+    public RenameCommand getRenameCommand() {
       return new ConcreteCommand(canRename, success);
     }
 
     @Override
-    protected CreateDirectoryCommand getCreateDirectoryCommand() {
+    public CreateDirectoryCommand getCreateDirectoryCommand() {
       return null;
     }
 
