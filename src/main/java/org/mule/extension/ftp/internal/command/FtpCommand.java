@@ -20,8 +20,7 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.ExternalFileCommand;
-import org.mule.extension.ftp.internal.operation.FileCommand;
+import org.mule.extension.ftp.internal.exception.IllegalPathException;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
@@ -35,6 +34,8 @@ import java.net.URI;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.function.Predicate;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.MalformedServerReplyException;
@@ -46,11 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for {@link FileCommand} implementations that target a FTP/SFTP server
+ * Base class for implementations that target a FTP/SFTP server and performs operations on a file system
  *
  * @since 1.0
  */
-public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
+public abstract class FtpCommand {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
@@ -59,6 +60,8 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   public static final String UNSUPPORTED_SPECIAL_CHARACTERS_SINGLEFILELISTING = ".*\\[.*";
 
   protected final FTPClient client;
+
+  protected final FtpFileSystem fileSystem;
 
   protected FtpCommand(FtpFileSystem fileSystem) {
     this(fileSystem, fileSystem.getClient());
@@ -71,7 +74,7 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
    * @param client a ready to use {@link FTPClient} to perform the operations
    */
   protected FtpCommand(FtpFileSystem fileSystem, FTPClient client) {
-    super(fileSystem);
+    this.fileSystem = fileSystem;
     this.client = client;
   }
 
@@ -131,9 +134,11 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * {@inheritDoc}
+   * Returns true if the given {@code path} exists
+   *
+   * @param uri the path to test
+   * @return whether the {@code path} exists
    */
-  @Override
   protected boolean exists(URI uri) {
     return ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
@@ -434,9 +439,10 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * {@inheritDoc}
+   * Creates the directory pointed by {@code directoryPath}.
+   *
+   * @param directoryUri the path to the directory you want to create
    */
-  @Override
   protected void doMkDirs(URI directoryUri) {
     String cwd = getCurrentWorkingDirectory();
     Stack<URI> fragments = new Stack<>();
@@ -476,14 +482,17 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * {@inheritDoc} Same as the super method but adding the FTP reply code
+   * Returns a properly formatted {@link MuleRuntimeException} for the given {@code message} and {@code cause}
+   *
+   * @param message the exception's message
+   * @param cause the exception's cause
+   * @return {@link RuntimeException}
    */
-  @Override
   public RuntimeException exception(String message, Exception cause) {
     if (cause instanceof FTPConnectionClosedException) {
       cause = new ConnectionException(cause);
     }
-    return super.exception(enrichExceptionMessage(message), cause);
+    return new MuleRuntimeException(createStaticMessage(message), cause);
   }
 
   private String enrichExceptionMessage(String message) {
@@ -513,10 +522,226 @@ public abstract class FtpCommand extends ExternalFileCommand<FtpFileSystem> {
   }
 
   /**
-   * {@inheritDoc}
+   * Returns a path to which all non absolute paths are relative to
+   *
+   * @param fileSystem the file system that we're connecting to
+   * @return a not {@code null} base path for the filesystem
    */
   protected URI getBasePath(FileSystem fileSystem) {
     return createUri(fileSystem.getBasePath());
   }
 
+  /**
+   * @return the path identified by {@code <URI>} as a String.
+   */
+  protected String pathToString(URI uri) {
+    return uri.getPath();
+  }
+
+  /**
+   * Returns an object representing the absolute path for the given path.
+   *
+   * <p> If the given path is already absolute then this method simply returns
+   * it. Otherwise, this method resolves the path in an implementation dependent
+   * manner, typically by resolving the path against a file system default directory.
+   * Depending on the implementation, this method may throw an I/O error if the file
+   * system is not accessible.
+   *
+   * @param uri the given path
+   *
+   * @return the absolute path
+   */
+  protected URI getAbsolutePath(URI uri) {
+    return uri;
+  }
+
+  /**
+   * Returns the <em>parent path</em>, or {@code null} if this path does not
+   * have a parent.
+   *
+   * <p> The parent of this path object consists of this path's root
+   * component, if any, and each element in the path except for the
+   * <em>farthest</em> from the root in the directory hierarchy. This method
+   * does not access the file system; the path or its parent may not exist.
+   * Furthermore, this method does not eliminate special names such as "."
+   * and ".." that may be used in some implementations. On UNIX for example,
+   * the parent of "{@code /a/b/c}" is "{@code /a/b}", and the parent of
+   * {@code "x/y/.}" is "{@code x/y}".
+   *
+   * @return a path representing the path's parent
+   */
+  protected URI getParent(URI uri) {
+    return trimLastFragment(uri);
+  }
+
+  /**
+   * Resolve the given basePath against the filePath.
+   *
+   * <p> If the {@code filePath} parameter is an absolute
+   * path then this method trivially returns {@code filePath}. If {@code filePath}
+   * is an <i>empty path</i> then this method trivially returns basePath.
+   * Otherwise this method considers the basePath to be a directory and resolves
+   * the given filePath against the basePath. In the simplest case, the given filePath
+   * does not have a root component, in which case this method
+   * <em>joins</em> both paths and returns a resulting path
+   * that ends with the given filePath. Where the given filePath has
+   * a root component then resolution is highly implementation dependent and
+   * therefore unspecified.
+   *
+   * @param baseUri the base path considered as a directory
+   * @param filePath the path to resolve against the basePath
+   *
+   * @return the resulting path
+   *
+   */
+  protected URI resolvePath(URI baseUri, String filePath) {
+    return createUri(baseUri.getPath(), filePath);
+  }
+
+  /**
+   * Method that, given a path, checks if its parent folder exists. If it exists, this method returns {@code void}.
+   * Otherwise, this method allows to create such parent by setting the the createParentFolder parameter to true. If it
+   * is set to false and the parent folder does not exist, this method throws {@link IllegalPathException}.
+   *
+   * @param path the path to test
+   * @param createParentFolder indicates whether to create the parent folder or not.
+   *
+   * @return {@code void} if the method completed correctly.
+   * @throws {@link IllegalPathException} if the parent path does not exists and createParentFolder is set to false.
+   */
+  protected void assureParentFolderExists(URI path, boolean createParentFolder) {
+    if (exists(path)) {
+      return;
+    }
+
+    URI parentFolder = getParent(path);
+    if (!exists(parentFolder)) {
+      if (createParentFolder) {
+        mkdirs(parentFolder);
+      } else {
+        throw new IllegalPathException(format("Cannot write to file '%s' because path to it doesn't exist. Consider setting the 'createParentDirectories' attribute to 'true'",
+                                              pathToString(path)));
+      }
+    }
+  }
+
+  /**
+   * Creates the directory pointed by {@code directoryPath} also creating any missing parent directories
+   *
+   * @param directoryPath the path to the directory you want to create
+   */
+  protected void mkdirs(URI directoryPath) {
+    Lock lock = fileSystem.createMuleLock(format("%s-mkdirs-%s", getClass().getName(), directoryPath));
+    lock.lock();
+    try {
+      // verify no other thread beat us to it
+      if (exists(directoryPath)) {
+        return;
+      }
+      doMkDirs(directoryPath);
+    } finally {
+      lock.unlock();
+    }
+
+    LOGGER.debug("Directory '{}' created", directoryPath);
+  }
+
+  /**
+   * Returns an absolute path for the given {@code filePath}
+   *
+   * @param filePath the relative path to a file or directory
+   * @return an absolute path
+   */
+  protected URI resolvePath(String filePath) {
+    URI path = getBasePath(fileSystem);
+    if (filePath != null) {
+      path = resolvePath(path, filePath);
+    }
+    return getAbsolutePath(path);
+  }
+
+  /**
+   * Similar to {@link #resolvePath(String)} only that it throws a {@link IllegalArgumentException} if the
+   * given path doesn't exist.
+   * <p>
+   * The existence of the obtained path is verified by delegating into {@link #exists(URI)}
+   *
+   * @param filePath the path to a file or directory
+   * @return an absolute path
+   */
+  protected URI resolveExistingPath(String filePath) {
+    URI path = resolvePath(filePath);
+    if (!exists(path)) {
+      throw pathNotFoundException(path);
+    }
+
+    return path;
+  }
+
+  /**
+   * @param fileName the name of a file
+   * @return {@code true} if {@code fileName} equals to &quot;.&quot; or &quot;..&quot;
+   */
+  protected boolean isVirtualDirectory(String fileName) {
+    return ".".equals(fileName) || "..".equals(fileName);
+  }
+
+  /**
+   * Returns an {@link IllegalPathException} explaining that a
+   * {@link FileSystem#read(FileConnectorConfig, String, boolean, Long)} operation was attempted on a {@code path} pointing to
+   * a directory
+   *
+   * @param path the path on which a read was attempted
+   * @return {@link IllegalPathException}
+   */
+  protected IllegalPathException cannotReadDirectoryException(URI path) {
+    return new IllegalPathException(format("Cannot read path '%s' since it's a directory", pathToString(path)));
+  }
+
+  /**
+   * Returns a {@link IllegalPathException} explaining that a
+   * {@link FileSystem#list(FileConnectorConfig, String, boolean, Predicate)} operation was attempted on a {@code path}
+   * pointing to a file.
+   *
+   * @param path the path on which a list was attempted
+   * @return {@link IllegalPathException}
+   */
+  protected IllegalPathException cannotListFileException(URI path) {
+    return new IllegalPathException(format("Cannot list path '%s' because it's a file. Only directories can be listed",
+                                           pathToString(path)));
+  }
+
+  /**
+   * Returns a {@link IllegalPathException} explaining that a
+   * {@link FileSystem#list(FileConnectorConfig, String, boolean, Predicate)} operation was attempted on a {@code path}
+   * pointing to a file.
+   *
+   * @param path the on which a list was attempted
+   * @return {@link RuntimeException}
+   */
+  protected IllegalPathException pathNotFoundException(URI path) {
+    return new IllegalPathException(format("Path '%s' doesn't exist", pathToString(path)));
+  }
+
+  /**
+   * Returns a {@link IllegalPathException} explaining that an operation is trying to write to the given {@code path} but it
+   * already exists and no overwrite instruction was provided.
+   *
+   * @param path the that the operation tried to modify
+   * @return {@link IllegalPathException}
+   */
+  public FileAlreadyExistsException alreadyExistsException(URI path) {
+    return new FileAlreadyExistsException(format("'%s' already exists. Set the 'overwrite' parameter to 'true' to perform the operation anyway",
+                                                 pathToString(path)));
+  }
+
+  /**
+   * Returns a properly formatted {@link MuleRuntimeException} for the given {@code message} and {@code cause}
+   *
+   * @param message the exception's message
+   * @return a {@link RuntimeException}
+   */
+  public RuntimeException exception(String message) {
+    return new MuleRuntimeException(createStaticMessage(message));
+  }
 }
