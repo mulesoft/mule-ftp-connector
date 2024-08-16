@@ -25,7 +25,6 @@ import org.mule.extension.ftp.internal.operation.RenameCommand;
 import org.mule.extension.ftp.internal.operation.WriteCommand;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.lock.PathLock;
-import org.mule.extension.ftp.internal.source.AbstractPostActionGroup;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.junit4.AbstractMuleTestCase;
@@ -92,7 +91,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
 
-  private class PostActionGroupChild extends AbstractPostActionGroup {
+  private class PostActionGroupChild extends PostActionGroup {
 
     private String moveToDirectory;
     private String renameTo;
