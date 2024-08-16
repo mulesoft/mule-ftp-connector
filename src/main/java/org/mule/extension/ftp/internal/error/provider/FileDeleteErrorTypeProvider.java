@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.error.provider;
 
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
@@ -20,7 +19,7 @@ import static org.mule.extension.ftp.internal.error.FileError.ACCESS_DENIED;
 import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 
 /**
- * Errors that can be thrown in the {@link BaseFileSystemOperations#delete(FileSystem, String, CoreEvent)} operation.
+ * Errors that can be thrown in the {@link org.mule.extension.ftp.internal.FtpOperations#delete(FileSystem, String)} operation.
  * 
  * @since 1.0
  */

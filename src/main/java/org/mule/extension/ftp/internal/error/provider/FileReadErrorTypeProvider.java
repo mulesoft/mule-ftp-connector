@@ -7,22 +7,23 @@
 package org.mule.extension.ftp.internal.error.provider;
 
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
-import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
-import org.mule.runtime.api.metadata.MediaType;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
-import static org.mule.extension.ftp.internal.error.FileError.*;
+import static org.mule.extension.ftp.internal.error.FileError.ACCESS_DENIED;
+import static org.mule.extension.ftp.internal.error.FileError.FILE_LOCK;
+import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 
 /**
  * Errors that can be thrown in the
- * {@link BaseFileSystemOperations#doRead(FileConnectorConfig, FileSystem, String, MediaType, boolean)} operation.
+ * {@link org.mule.extension.ftp.internal.FtpOperations#read(FileConnectorConfig, FtpFileSystem, String, boolean, Long, TimeUnit)} operation.
  *
  * @since 1.0
  */

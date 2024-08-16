@@ -7,7 +7,6 @@
 package org.mule.extension.ftp.internal.error.provider;
 
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
@@ -19,8 +18,8 @@ import static java.util.Collections.unmodifiableSet;
 import static org.mule.extension.ftp.internal.error.FileError.*;
 
 /**
- * Errors that can be thrown both in the {@link BaseFileSystemOperations#rename(FileSystem, String, String, boolean, CoreEvent)}
- * or the {@link BaseFileSystemOperations#createDirectory(FileSystem, String)} operation.
+ * Errors that can be thrown both in the {@link org.mule.extension.ftp.internal.FtpOperations#rename(FileSystem, String, String, boolean)}
+ * or the {@link org.mule.extension.ftp.internal.FtpOperations#createDirectory(FileSystem, String)} operation.
  *
  * @since 1.0
  */
