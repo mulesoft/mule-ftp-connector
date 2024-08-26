@@ -45,7 +45,7 @@ public class FtpFileAttributes implements Serializable {
   private boolean symbolicLink;
 
   @Parameter
-  private final String path;
+  protected final String path;
 
   @Parameter
   private final String fileName;
@@ -232,7 +232,7 @@ public class FtpFileAttributes implements Serializable {
    * @param instant the instant to convert
    * @return the corresponding {@link LocalDateTime}
    */
-  private LocalDateTime asDateTime(Instant instant) {
+  protected LocalDateTime asDateTime(Instant instant) {
     return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 
