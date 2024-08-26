@@ -21,7 +21,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.exception.FileLockedException;
-import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.internal.operation.CopyCommand;
 import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
 import org.mule.extension.ftp.internal.operation.DeleteCommand;
@@ -58,7 +57,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -353,14 +351,6 @@ public class FtpFileSystem implements FileSystem {
   }
 
   @Override
-  public synchronized PathLock lock(Path path) {
-    PathLock lock = createLock(path);
-    acquireLock(lock);
-
-    return lock;
-  }
-
-  @Override
   public Lock createMuleLock(String id) {
     return lockFactory.createLock(id);
   }
@@ -368,44 +358,6 @@ public class FtpFileSystem implements FileSystem {
   @Override
   public MediaType getFileMessageMediaType(FtpFileAttributes attributes) {
     return MediaType.parse(mimetypesFileTypeMap.getContentType(attributes.getPath()));
-  }
-
-  @Override
-  public void verifyNotLocked(Path path) {
-    if (isLocked(path)) {
-      throw new FileLockedException(format("File '%s' is locked by another process", path));
-    }
-  }
-
-  protected PathLock createLock(Path path) {
-    throw new UnsupportedOperationException("This method is not supported for an External File System. Use createLock(URI uri) instead.");
-  }
-
-  /**
-   * Attempts to lock the given {@code lock} and throws {@link FileLockedException} if already locked
-   *
-   * @param lock the {@link PathLock} to be acquired
-   * @throws FileLockedException if the {@code lock} is already acquired
-   */
-  private void acquireLock(PathLock lock) {
-    if (!lock.tryLock()) {
-      throw new FileLockedException(
-                                    format("Could not lock file '%s' because it's already owned by another process",
-                                           lock.getPath()));
-    }
-  }
-
-  /**
-   * Try to acquire a lock on a file and release it immediately. Usually used as a quick check to see if another process is still
-   * holding onto the file, e.g. a large file (more than 100MB) is still being written to.
-   */
-  private boolean isLocked(Path path) {
-    PathLock lock = createLock(path);
-    try {
-      return !lock.tryLock();
-    } finally {
-      lock.release();
-    }
   }
 
   /**

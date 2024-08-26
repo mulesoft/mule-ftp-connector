@@ -362,6 +362,9 @@ public final class FtpOperations {
 
       @Override
       public java.util.Optional<Integer> getTotalResults(FileSystem connection) {
+        if (files == null) {
+          return java.util.Optional.empty();
+        }
         return java.util.Optional.of(files.size());
       }
 

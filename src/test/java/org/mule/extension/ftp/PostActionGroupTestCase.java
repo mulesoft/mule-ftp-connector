@@ -215,11 +215,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     }
 
     @Override
-    protected PathLock createLock(Path path) {
-      return null;
-    }
-
-    @Override
     public void changeToBaseDir() {
 
     }

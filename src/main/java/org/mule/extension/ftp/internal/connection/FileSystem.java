@@ -228,20 +228,6 @@ public interface FileSystem {
    */
   void createDirectory(String directoryPath);
 
-  /**
-   * Acquires and returns lock over the given {@code path}.
-   * <p>
-   * Depending on the underlying filesystem, the extent of the lock will depend on the implementation. If a lock can not be
-   * acquired, then an {@link IllegalStateException} is thrown.
-   * <p>
-   * Whoever request the lock <b>MUST</b> release it as soon as possible.
-   *
-   * @param path   the path to the file you want to lock
-   * @return an acquired {@link PathLock}
-   * @throws IllegalArgumentException if a lock could not be acquired
-   */
-  PathLock lock(Path path);
-
   Lock createMuleLock(String id);
 
   /**
@@ -257,14 +243,6 @@ public interface FileSystem {
    * @return a {@link DataType} the resulting {@link DataType}.
    */
   MediaType getFileMessageMediaType(FtpFileAttributes attributes);
-
-  /**
-   * Verify that the given {@code path} is not locked
-   *
-   * @param path the path to test
-   * @throws IllegalStateException if the {@code path} is indeed locked
-   */
-  void verifyNotLocked(Path path);
 
   /**
    * Changes the current working directory to the user base
