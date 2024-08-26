@@ -32,6 +32,7 @@ import org.mule.extension.ftp.internal.operation.RenameCommand;
 import org.mule.extension.ftp.internal.operation.WriteCommand;
 import org.mule.extension.ftp.internal.lock.URLPathLock;
 import org.mule.extension.ftp.internal.lock.UriLock;
+import org.mule.extension.ftp.internal.subset.SubsetList;
 import org.mule.extension.ftp.internal.util.UriUtils;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -165,7 +166,7 @@ public class FtpFileSystem implements FileSystem {
   /**
    * {@inheritDoc}
    */
-  protected boolean isConnected() {
+  private boolean isConnected() {
     return client.isConnected();
   }
 
@@ -286,7 +287,7 @@ public class FtpFileSystem implements FileSystem {
     }
   }
 
-  protected UriLock createLock(URI uri) {
+  private UriLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
   }
 
@@ -302,6 +303,13 @@ public class FtpFileSystem implements FileSystem {
   @Override
   public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config, String directoryPath,
                                                       boolean recursive, Predicate<FtpFileAttributes> matcher) {
+    return getListCommand().list(config, directoryPath, recursive, matcher);
+  }
+
+  @Override
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config, String directoryPath,
+                                                      boolean recursive, Predicate<FtpFileAttributes> matcher,
+                                                      SubsetList subsetList) {
     return getListCommand().list(config, directoryPath, recursive, matcher);
   }
 
@@ -379,7 +387,7 @@ public class FtpFileSystem implements FileSystem {
    * @param lock the {@link PathLock} to be acquired
    * @throws FileLockedException if the {@code lock} is already acquired
    */
-  protected void acquireLock(PathLock lock) {
+  private void acquireLock(PathLock lock) {
     if (!lock.tryLock()) {
       throw new FileLockedException(
                                     format("Could not lock file '%s' because it's already owned by another process",
@@ -391,7 +399,7 @@ public class FtpFileSystem implements FileSystem {
    * Try to acquire a lock on a file and release it immediately. Usually used as a quick check to see if another process is still
    * holding onto the file, e.g. a large file (more than 100MB) is still being written to.
    */
-  protected boolean isLocked(Path path) {
+  private boolean isLocked(Path path) {
     PathLock lock = createLock(path);
     try {
       return !lock.tryLock();
@@ -537,7 +545,7 @@ public class FtpFileSystem implements FileSystem {
    * @param lock the {@link UriLock} to be acquired
    * @throws FileLockedException if the {@code lock} is already acquired
    */
-  protected void acquireLock(UriLock lock) {
+  private void acquireLock(UriLock lock) {
     if (!lock.tryLock()) {
       throw new FileLockedException(
                                     format("Could not lock file '%s' because it's already owned by another process",
@@ -561,7 +569,7 @@ public class FtpFileSystem implements FileSystem {
    * Try to acquire a lock on a file and release it immediately. Usually used as a quick check to see if another process is still
    * holding onto the file, e.g. a large file (more than 100MB) is still being written to.
    */
-  protected boolean isLocked(URI uri) {
+  private boolean isLocked(URI uri) {
     UriLock lock = createLock(uri);
     try {
       return !lock.tryLock();

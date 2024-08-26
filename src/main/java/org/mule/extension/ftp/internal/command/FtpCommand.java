@@ -110,7 +110,7 @@ public abstract class FtpCommand {
     return getFileFromAbsoluteUri(uri, requireExistence);
   }
 
-  protected FtpFileAttributes getFileFromAbsoluteUri(URI uri, boolean requireExistence) {
+  private FtpFileAttributes getFileFromAbsoluteUri(URI uri, boolean requireExistence) {
     Optional<FTPFile> ftpFile;
     try {
       ftpFile = doGetFileFromAbsoluteUri(uri);
@@ -163,7 +163,7 @@ public abstract class FtpCommand {
    * @param filePath the path to a file or directory
    * @return a relative {@link URI}
    */
-  protected URI resolveUri(String filePath) {
+  private URI resolveUri(String filePath) {
     URI uri = getBasePath(fileSystem);
     if (filePath != null) {
       uri = createUri(uri.getPath(), filePath);
@@ -191,7 +191,7 @@ public abstract class FtpCommand {
    *
    * @param directoryName the name of the directory you want to create
    */
-  protected void makeDirectory(String directoryName) {
+  private void makeDirectory(String directoryName) {
     try {
       if (!client.makeDirectory(normalizePath(directoryName))) {
         throw exception("Failed to create directory " + directoryName);
@@ -302,7 +302,7 @@ public abstract class FtpCommand {
   /**
    * @return the path of the current working directory
    */
-  protected String getCurrentWorkingDirectory() {
+  private String getCurrentWorkingDirectory() {
     try {
       return client.printWorkingDirectory();
     } catch (Exception e) {
@@ -379,7 +379,7 @@ public abstract class FtpCommand {
     return hasSpecialCharacters;
   }
 
-  protected Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
+  private Optional<FTPFile> tryEfficientListingFirst(String filePath) throws IOException {
     Optional<FTPFile> file = getFtpFileByList(filePath);
     if (file.isPresent()) {
       fileSystem.setSingleFileListingMode(SingleFileListingMode.SUPPORTED);
@@ -443,7 +443,7 @@ public abstract class FtpCommand {
    *
    * @param directoryUri the path to the directory you want to create
    */
-  protected void doMkDirs(URI directoryUri) {
+  private void doMkDirs(URI directoryUri) {
     String cwd = getCurrentWorkingDirectory();
     Stack<URI> fragments = new Stack<>();
     String[] subPaths = directoryUri.getPath().split(SEPARATOR);
@@ -534,7 +534,7 @@ public abstract class FtpCommand {
   /**
    * @return the path identified by {@code <URI>} as a String.
    */
-  protected String pathToString(URI uri) {
+  private String pathToString(URI uri) {
     return uri.getPath();
   }
 
@@ -551,7 +551,7 @@ public abstract class FtpCommand {
    *
    * @return the absolute path
    */
-  protected URI getAbsolutePath(URI uri) {
+  private URI getAbsolutePath(URI uri) {
     return uri;
   }
 
@@ -570,7 +570,7 @@ public abstract class FtpCommand {
    *
    * @return a path representing the path's parent
    */
-  protected URI getParent(URI uri) {
+  private URI getParent(URI uri) {
     return trimLastFragment(uri);
   }
 
@@ -594,7 +594,7 @@ public abstract class FtpCommand {
    * @return the resulting path
    *
    */
-  protected URI resolvePath(URI baseUri, String filePath) {
+  private URI resolvePath(URI baseUri, String filePath) {
     return createUri(baseUri.getPath(), filePath);
   }
 
@@ -630,7 +630,7 @@ public abstract class FtpCommand {
    *
    * @param directoryPath the path to the directory you want to create
    */
-  protected void mkdirs(URI directoryPath) {
+  private void mkdirs(URI directoryPath) {
     Lock lock = fileSystem.createMuleLock(format("%s-mkdirs-%s", getClass().getName(), directoryPath));
     lock.lock();
     try {
@@ -669,7 +669,7 @@ public abstract class FtpCommand {
    * @param filePath the path to a file or directory
    * @return an absolute path
    */
-  protected URI resolveExistingPath(String filePath) {
+  private URI resolveExistingPath(String filePath) {
     URI path = resolvePath(filePath);
     if (!exists(path)) {
       throw pathNotFoundException(path);
@@ -719,7 +719,7 @@ public abstract class FtpCommand {
    * @param path the on which a list was attempted
    * @return {@link RuntimeException}
    */
-  protected IllegalPathException pathNotFoundException(URI path) {
+  private IllegalPathException pathNotFoundException(URI path) {
     return new IllegalPathException(format("Path '%s' doesn't exist", pathToString(path)));
   }
 

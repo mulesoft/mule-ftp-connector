@@ -60,12 +60,10 @@ public interface FileSystem {
    * @return a {@link List} of {@link Result} objects, each one containing each file's content in the payload and metadata in the attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                       String directoryPath,
-                                                       boolean recursive,
-                                                       Predicate<FtpFileAttributes> matcher) {
-    return list(config, directoryPath, recursive, matcher);
-  }
+  List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                               String directoryPath,
+                                               boolean recursive,
+                                               Predicate<FtpFileAttributes> matcher);
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -84,13 +82,11 @@ public interface FileSystem {
    * attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                       String directoryPath,
-                                                       boolean recursive,
-                                                       Predicate<FtpFileAttributes> matcher,
-                                                       SubsetList subsetList) {
-    return list(config, directoryPath, recursive, matcher);
-  }
+  List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                               String directoryPath,
+                                               boolean recursive,
+                                               Predicate<FtpFileAttributes> matcher,
+                                               SubsetList subsetList);
 
   /**
    * Obtains the content and metadata of a file at a given path.
@@ -113,10 +109,8 @@ public interface FileSystem {
    *         as {@link Message#getAttributes()}
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
-  default Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
-                                                      Long timeBetweenSizeCheck) {
-    return read(config, filePath, lock, timeBetweenSizeCheck);
-  }
+  Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                              Long timeBetweenSizeCheck);
 
   /**
    * Writes the {@code content} into the file pointed by {@code filePath}.
@@ -150,9 +144,7 @@ public interface FileSystem {
    * 
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
-  default void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories) {
-    write(filePath, content, mode, lock, createParentDirectories);
-  }
+  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories);
 
 
 
@@ -282,42 +274,222 @@ public interface FileSystem {
   String getBasePath();
 
   /**
-   * @return a {@link ListCommand}
+   * Retrieves the command responsible for listing files within the file system.
+   *
+   * <p>
+   * The returned {@link ListCommand} allows the execution of file listing operations
+   * under the considerations of {@link FileSystem#list(FileConnectorConfig, String, boolean, Predicate)}.
+   * It provides methods to list files in a specified directory, optionally including subdirectories,
+   * and filter the files based on a provided {@link Predicate}.
+   * </p>
+   *
+   * <p>
+   * There are two default implementations provided by the {@link ListCommand} interface:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link ListCommand#list(FileConnectorConfig, String, boolean, Predicate)}:
+   *   Lists files in the specified directory path, optionally including subdirectories, and filters the output using the provided {@link Predicate}.</li>
+   *
+   *   <li>{@link ListCommand#list(FileConnectorConfig, String, boolean, Predicate, SubsetList)}:
+   *   Similar to the previous method but also allows obtaining a subset of the results using a {@link SubsetList}.</li>
+   * </ul>
+   *
+   * @return a {@link ListCommand} that can be used to list files in the file system.
    */
   ListCommand getListCommand();
 
   /**
-   * @return a {@link ReadCommand}
+   * Retrieves the command responsible for reading files from the file system.
+   *
+   * <p>
+   * The returned {@link ReadCommand} enables the execution of file reading operations
+   * under the considerations of {@link FileSystem#read(FileConnectorConfig, String, boolean, Long)}.
+   * This command provides methods to read files with options for locking the file during the read operation
+   * and waiting between size checks to determine if the file is ready to be read.
+   * </p>
+   *
+   * <p>
+   * There are two default implementations provided by the {@link ReadCommand} interface:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link ReadCommand#read(FileConnectorConfig, String, boolean, Long)}:
+   *   Reads the file at the specified path, optionally locking the file and checking its size at intervals before reading.</li>
+   *
+   *   <li>{@link ReadCommand#read(FileConnectorConfig, FtpFileAttributes, boolean, Long)}:
+   *   Similar to the previous method, but uses pre-collected file attributes to avoid redundant processing, which is particularly useful for remote servers.</li>
+   * </ul>
+   *
+   * @return a {@link ReadCommand} that can be used to read files from the file system.
    */
   ReadCommand getReadCommand();
 
   /**
-   * @return a {@link WriteCommand}
+   * Retrieves the command responsible for writing files to the file system.
+   *
+   * <p>
+   * The returned {@link WriteCommand} facilitates file writing operations under the
+   * considerations of {@link FileSystem#write(String, InputStream, FileWriteMode, boolean, boolean)}.
+   * This command allows you to write content to a specified file path with options for
+   * setting the write mode, locking the file during the write operation, and optionally
+   * creating the parent directory if it doesn't exist.
+   * </p>
+   *
+   * <p>
+   * The {@link WriteCommand} interface provides a default implementation for writing a file with
+   * the following parameters:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code filePath}: The path where the file will be written.</li>
+   *   <li>{@code content}: The {@link InputStream} containing the content to be written into the file.</li>
+   *   <li>{@code mode}: The {@link FileWriteMode} determining how the file will be written (e.g., overwrite or append).</li>
+   *   <li>{@code lock}: A boolean indicating whether or not to lock the file during the write operation.</li>
+   *   <li>{@code createParentDirectory}: A boolean indicating whether or not to attempt creating the parent directory if it doesn't exist.</li>
+   * </ul>
+   *
+   * <p>
+   * If an illegal combination of arguments is provided, the {@link WriteCommand#write(String, InputStream, FileWriteMode, boolean, boolean)}
+   * method will throw an {@link IllegalArgumentException}.
+   * </p>
+   *
+   * @return a {@link WriteCommand} that can be used to write files to the file system.
    */
   WriteCommand getWriteCommand();
 
   /**
-   * @return a {@link CopyCommand}
+   * Retrieves the command responsible for copying files within the file system.
+   *
+   * <p>
+   * The returned {@link CopyCommand} allows for performing file copy operations under the
+   * considerations of {@link FileSystem#copy(FileConnectorConfig, String, String, boolean, boolean, String)}.
+   * This command is used to copy a file from a source path to a target directory, with options for
+   * overwriting existing files, creating parent directories, and optionally renaming the file.
+   * </p>
+   *
+   * <p>
+   * The {@link CopyCommand} interface provides a method for executing a copy operation with the following parameters:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code config}: The configuration that parameterizes the copy operation.</li>
+   *   <li>{@code sourcePath}: The path of the file that needs to be copied.</li>
+   *   <li>{@code targetPath}: The path of the target directory where the file will be copied.</li>
+   *   <li>{@code overwrite}: A boolean indicating whether to overwrite the file if it already exists at the target destination.</li>
+   *   <li>{@code createParentDirectories}: A boolean indicating whether to attempt creating any non-existent parent directories.</li>
+   *   <li>{@code renameTo}: The new name for the copied file. If this is {@code null}, the file will retain its original name.</li>
+   * </ul>
+   *
+   * <p>
+   * If an illegal combination of arguments is provided, the {@link CopyCommand#copy(FileConnectorConfig, String, String, boolean, boolean, String)}
+   * method will throw an {@link IllegalArgumentException}.
+   * </p>
+   *
+   * @return a {@link CopyCommand} that can be used to copy files within the file system.
    */
   CopyCommand getCopyCommand();
 
   /**
-   * @return a {@link MoveCommand}
+   * Retrieves the command responsible for moving files within the file system.
+   *
+   * <p>
+   * The returned {@link MoveCommand} facilitates file move operations under the
+   * considerations of {@link FileSystem#move(FileConnectorConfig, String, String, boolean, boolean, String)}.
+   * This command is used to move a file from a source path to a target directory, with options for
+   * overwriting existing files, creating parent directories, and optionally renaming the file during the move.
+   * </p>
+   *
+   * <p>
+   * The {@link MoveCommand} interface provides a method for executing a move operation with the following parameters:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code config}: The configuration that parameterizes the move operation.</li>
+   *   <li>{@code sourcePath}: The path of the file that needs to be moved.</li>
+   *   <li>{@code targetPath}: The path of the target directory where the file will be moved.</li>
+   *   <li>{@code overwrite}: A boolean indicating whether to overwrite the file if it already exists at the target destination.</li>
+   *   <li>{@code createParentDirectories}: A boolean indicating whether to attempt creating any non-existent parent directories.</li>
+   *   <li>{@code renameTo}: The new name for the moved file. If this is {@code null}, the file will retain its original name.</li>
+   * </ul>
+   *
+   * <p>
+   * If an illegal combination of arguments is provided, the {@link MoveCommand#move(FileConnectorConfig, String, String, boolean, boolean, String)}
+   * method will throw an {@link IllegalArgumentException}.
+   * </p>
+   *
+   * @return a {@link MoveCommand} that can be used to move files within the file system.
    */
   MoveCommand getMoveCommand();
 
   /**
-   * @return a {@link DeleteCommand}
+   * Retrieves the command responsible for deleting files within the file system.
+   *
+   * <p>
+   * The returned {@link DeleteCommand} facilitates file deletion operations under the
+   * considerations of {@link FileSystem#delete(String)}.
+   * This command is used to delete a file at a specified path within the file system.
+   * </p>
+   *
+   * <p>
+   * The {@link DeleteCommand} interface provides a method for executing a delete operation with the following parameter:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code filePath}: The path of the file that needs to be deleted.</li>
+   * </ul>
+   *
+   * <p>
+   * If the specified file path does not exist or is locked, the {@link DeleteCommand#delete(String)} method will throw an
+   * {@link IllegalArgumentException}.
+   * </p>
+   *
+   * @return a {@link DeleteCommand} that can be used to delete files within the file system.
    */
   DeleteCommand getDeleteCommand();
 
+
   /**
-   * @return a {@link RenameCommand}
+   * Retrieves the command responsible for renaming files within the file system.
+   *
+   * <p>
+   * The returned {@link RenameCommand} facilitates file renaming operations under the
+   * considerations of {@link FileSystem#rename(String, String, boolean)}.
+   * This command is used to rename a file located at the specified path within the file system.
+   * </p>
+   *
+   * <p>
+   * The {@link RenameCommand} interface provides a method for executing a rename operation with the following parameters:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code filePath}: The path of the file that needs to be renamed.</li>
+   *   <li>{@code newName}: The new name for the file.</li>
+   *   <li>{@code overwrite}: Whether or not to overwrite the target file if it already exists.</li>
+   * </ul>
+   *
+   * @return a {@link RenameCommand} that can be used to rename files within the file system.
    */
   RenameCommand getRenameCommand();
 
   /**
-   * @return a {@link CreateDirectoryCommand}
+   * Retrieves the command responsible for creating directories within the file system.
+   *
+   * <p>
+   * The returned {@link CreateDirectoryCommand} facilitates the creation of new directories under the
+   * considerations of {@link FileSystem#createDirectory(String)}. This command is used to create a directory with
+   * the specified name within the file system.
+   * </p>
+   *
+   * <p>
+   * The {@link CreateDirectoryCommand} interface provides a method for executing the directory creation operation with the following parameter:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@code directoryName}: The name of the directory to be created.</li>
+   * </ul>
+   *
+   * @return a {@link CreateDirectoryCommand} that can be used to create directories within the file system.
    */
   CreateDirectoryCommand getCreateDirectoryCommand();
 

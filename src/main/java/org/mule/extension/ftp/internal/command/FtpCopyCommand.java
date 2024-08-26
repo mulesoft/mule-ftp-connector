@@ -82,8 +82,8 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
      * @param overwrite whether to overwrite the target files if they already exists
      * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
      */
-    protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI targetUri, boolean overwrite,
-                                 FtpFileSystem writerConnection) {
+    private void copyDirectory(FileConnectorConfig config, URI sourceUri, URI targetUri, boolean overwrite,
+                               FtpFileSystem writerConnection) {
       changeWorkingDirectory(sourceUri.getPath());
       FTPFile[] files;
       try {
@@ -123,8 +123,8 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
      * @param overwrite whether to overwrite the target files if they already exists
      * @param writerConnection the {@link FtpFileSystem} which connects to the target endpoint
      */
-    protected void copyFile(FileConnectorConfig config, FtpFileAttributes source, URI target, boolean overwrite,
-                            FtpFileSystem writerConnection) {
+    private void copyFile(FileConnectorConfig config, FtpFileAttributes source, URI target, boolean overwrite,
+                          FtpFileSystem writerConnection) {
       FtpFileAttributes targetFile = command.getFile(target.getPath());
       if (targetFile != null) {
         if (overwrite) {

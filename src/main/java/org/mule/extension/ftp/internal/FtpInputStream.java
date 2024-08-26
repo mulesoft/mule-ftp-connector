@@ -102,7 +102,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
 
     private static final Logger LOGGER = getLogger(FtpFileInputStreamSupplier.class);
     private static final String STARTING_WAIT_MESSAGE = "Starting wait to check if the file size of the file %s is stable.";
-    protected static final String FILE_NO_LONGER_EXISTS_MESSAGE =
+    private static final String FILE_NO_LONGER_EXISTS_MESSAGE =
         "Error reading file from path %s. It no longer exists at the time of reading.";
     private static final int MAX_SIZE_CHECK_RETRIES = 2;
     private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
@@ -136,7 +136,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
      * @param fileSystem the {@link FileSystem} to be used to gather the updated attributes
      * @return the updated attributes according to the path of the variable attributes passed in the constructor
      */
-    protected FtpFileAttributes getUpdatedAttributes(FtpFileSystem fileSystem) {
+    private FtpFileAttributes getUpdatedAttributes(FtpFileSystem fileSystem) {
       return fileSystem.getFileAttributes(attributes.getPath());
     }
 
@@ -146,7 +146,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
      * @param fileSystem the {@link FileSystem} to be used to get the content of the file
      * @return the {@link InputStream} of the file
      */
-    protected InputStream getContentInputStream(FtpFileSystem fileSystem) {
+    private InputStream getContentInputStream(FtpFileSystem fileSystem) {
       return fileSystem.retrieveFileContent(attributes);
     }
 
@@ -157,7 +157,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
      * @param e the thrown {@link MuleRuntimeException}
      * @return whether the exception implies that the file to be read was deleted
      */
-    protected boolean fileWasDeleted(MuleRuntimeException e) {
+    private boolean fileWasDeleted(MuleRuntimeException e) {
       return e.getCause() instanceof FileNotFoundException;
     }
 
@@ -166,7 +166,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
      *
      * @return the updated attributes accourding to the path of the variable attributes passed in the constructor
      */
-    protected final FtpFileAttributes getUpdatedAttributes() {
+    private FtpFileAttributes getUpdatedAttributes() {
       try {
         FtpFileSystem fileSystem = connectionSource.getConnection();
         FtpFileAttributes updatedFileAttributes = getUpdatedAttributes(fileSystem);
@@ -186,7 +186,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
      *
      * @return the {@link InputStream} of the file
      */
-    protected final InputStream getContentInputStream() {
+    private InputStream getContentInputStream() {
       try {
         InputStream content = getContentInputStream(connectionSource.getConnection());
         contentProvided = true;
@@ -271,12 +271,12 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
       return updatedAttributes;
     }
 
-    protected void onFileDeleted() {
+    private void onFileDeleted() {
       throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
           + " was read but does not exist anymore."));
     }
 
-    protected void onFileDeleted(Exception e) {
+    private void onFileDeleted(Exception e) {
       throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
           + " was read but does not exist anymore."), e);
     }

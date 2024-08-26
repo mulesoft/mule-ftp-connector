@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
 @DisplayName("FTP Connection")
 @Summary("Connection to connect against an FTP server")
 public class FtpConnectionProvider implements
-    PoolingConnectionProvider<FtpFileSystem>, Initialisable, ConnectionProvider<FtpFileSystem> {
+    PoolingConnectionProvider<FtpFileSystem>, Initialisable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpConnectionProvider.class);
 
@@ -113,7 +113,7 @@ public class FtpConnectionProvider implements
     initialiseIfNeeded(proxy);
   }
 
-  protected FTPClient createClient() {
+  private FTPClient createClient() {
     FTPClient client;
     if (proxy == null)
       client = new FTPClient();
@@ -299,7 +299,7 @@ public class FtpConnectionProvider implements
    * @param cause the cause exception
    * @return A {@link FTPConnectionException} specifying the error cause with a {@link FileError}
    */
-  protected ConnectionException handleClientReplyCode(int replyCode, Throwable cause) {
+  private ConnectionException handleClientReplyCode(int replyCode, Throwable cause) {
     switch (replyCode) {
       case 501:
       case 530:
@@ -321,24 +321,24 @@ public class FtpConnectionProvider implements
     return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
   }
 
-  protected String getErrorMessage(int replyCode, String message) {
+  private String getErrorMessage(int replyCode, String message) {
     return format(FTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(),
                   format(ERROR_CODE_MASK, replyCode, message));
   }
 
-  protected Integer getConnectionTimeout() {
+  private Integer getConnectionTimeout() {
     return timeoutSettings.getConnectionTimeout();
   }
 
-  protected TimeUnit getConnectionTimeoutUnit() {
+  private TimeUnit getConnectionTimeoutUnit() {
     return timeoutSettings.getConnectionTimeoutUnit();
   }
 
-  protected Integer getResponseTimeout() {
+  private Integer getResponseTimeout() {
     return timeoutSettings.getResponseTimeout();
   }
 
-  protected TimeUnit getResponseTimeoutUnit() {
+  private TimeUnit getResponseTimeoutUnit() {
     return timeoutSettings.getResponseTimeoutUnit();
   }
 
@@ -391,7 +391,7 @@ public class FtpConnectionProvider implements
   /**
    * @return the name that this config has on the mule registry
    */
-  protected String getConfigName() {
+  private String getConfigName() {
     return configName;
   }
 
