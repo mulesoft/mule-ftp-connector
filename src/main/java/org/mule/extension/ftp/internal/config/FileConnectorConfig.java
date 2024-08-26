@@ -31,7 +31,7 @@ public abstract class FileConnectorConfig {
   /**
    * @return the name that this config has on the mule registry
    */
-  protected String getConfigName() {
+  private String getConfigName() {
     return configName;
   }
 

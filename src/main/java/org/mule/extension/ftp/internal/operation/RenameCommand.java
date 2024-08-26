@@ -17,7 +17,7 @@ import org.mule.extension.ftp.internal.connection.FileSystem;
 public interface RenameCommand {
 
   /**
-   * Renames a file under the considerations of {@link FileSystem#rename(FileConnectorConfig, String, String, boolean)}
+   * Renames a file under the considerations of {@link FileSystem#rename(String, String, boolean)}
    *
    * @param filePath the path to the file to be renamed
    * @param newName the file's new name

@@ -17,7 +17,7 @@ import org.mule.extension.ftp.internal.connection.FileSystem;
 public interface DeleteCommand {
 
   /**
-   * Deletes a file under the considerations of {@link FileSystem#delete(FileConnectorConfig, String)}
+   * Deletes a file under the considerations of {@link FileSystem#delete(String)}
    *
    * @param filePath the path to the file to be deleted
    * @throws IllegalArgumentException if {@code filePath} doesn't exist or is locked

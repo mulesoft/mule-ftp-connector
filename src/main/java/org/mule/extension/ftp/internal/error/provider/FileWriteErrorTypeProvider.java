@@ -9,7 +9,6 @@ package org.mule.extension.ftp.internal.error.provider;
 import org.mule.extension.ftp.api.FileWriteMode;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
@@ -23,7 +22,7 @@ import static org.mule.extension.ftp.internal.error.FileError.*;
 
 /**
  * Errors that can be thrown in the
- * {@link BaseFileSystemOperations#doWrite(FileConnectorConfig, FileSystem, String, InputStream, boolean, boolean, FileWriteMode)}
+ * {@link org.mule.extension.ftp.internal.FtpOperations#write(FileConnectorConfig, FileSystem, String, InputStream, boolean, boolean, FileWriteMode)}
  * operation.
  *
  * @since 1.0

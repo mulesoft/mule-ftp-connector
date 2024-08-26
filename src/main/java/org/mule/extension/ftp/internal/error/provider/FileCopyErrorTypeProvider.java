@@ -8,7 +8,6 @@ package org.mule.extension.ftp.internal.error.provider;
 
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
@@ -21,8 +20,8 @@ import static org.mule.extension.ftp.internal.error.FileError.*;
 
 /**
  * Errors that can be thrown both in
- * {@link BaseFileSystemOperations#copy(FileConnectorConfig, FileSystem, String, String, boolean, boolean, CoreEvent)} or
- * {@link BaseFileSystemOperations#move(FileConnectorConfig, FileSystem, String, String, boolean, boolean, CoreEvent)} operation.
+ * {@link org.mule.extension.ftp.internal.FtpOperations#copy(FileConnectorConfig, FileSystem, String, String, boolean, boolean, String)} or
+ * {@link org.mule.extension.ftp.internal.FtpOperations#move(FileConnectorConfig, FileSystem, String, String, boolean, boolean, String)} operation.
  *
  * @since 1.0
  */

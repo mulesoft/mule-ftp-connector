@@ -6,13 +6,11 @@
  */
 package org.mule.extension.ftp.internal.error.provider;
 
-import org.mule.extension.ftp.api.matchers.FileMatcher;
+import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
-import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.extension.ftp.internal.operation.BaseFileSystemOperations;
-import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +22,7 @@ import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
 
 /**
  * Errors that can be thrown in the
- * {@link BaseFileSystemOperations#list(FileConnectorConfig, FileSystem, String, boolean, Message, FileMatcher)} operation.
+ * {@link org.mule.extension.ftp.internal.FtpOperations#list(FileConnectorConfig, String, boolean, FtpFileMatcher, StreamingHelper)} operation.
  *
  * @since 1.0
  */
