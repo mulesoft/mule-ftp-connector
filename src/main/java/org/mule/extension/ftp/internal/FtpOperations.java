@@ -64,7 +64,7 @@ import java.util.function.Predicate;
  */
 public final class FtpOperations {
 
-  private static final Integer LIST_PAGE_SIZE = 10;
+  private static final Integer LIST_PAGE_SIZE = 10000;
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
