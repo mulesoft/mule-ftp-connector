@@ -70,7 +70,6 @@ import org.slf4j.LoggerFactory;
 @DisplayName("On New or Updated File")
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
-// TODO: MULE-13940 - add mimeType here too
 public class FtpDirectoryListener extends PollingSource<String, FtpFileAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FtpDirectoryListener.class);
