@@ -40,8 +40,10 @@ import org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -192,8 +194,6 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       List<Result<String, FtpFileAttributes>> files =
           ftpFileSystemConnection
               .list(config, directoryUri.getPath(), recursive, matcher);
-      Long timeBetweenSizeCheckInMillis =
-          config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
       if (files.isEmpty()) {
         return;
       }
@@ -212,8 +212,11 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
           return;
         }
 
+        InputStream contentStream = new ByteArrayInputStream(file.getOutput().getBytes(StandardCharsets.UTF_8));
         Result<InputStream, FtpFileAttributes> result =
-            ftpFileSystemConnection.read(config, file.getOutput(), true, timeBetweenSizeCheckInMillis);
+            Result.<InputStream, FtpFileAttributes>builder().output(contentStream)
+                .mediaType(ftpFileSystemConnection.getFileMessageMediaType(attributes))
+                .attributes(attributes).build();
         if (!processFile(result, pollContext)) {
           break;
         }
