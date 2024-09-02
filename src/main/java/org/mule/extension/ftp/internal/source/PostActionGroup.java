@@ -141,9 +141,9 @@ public class PostActionGroup {
         if (getMoveToDirectory() == null) {
           LOGGER.warn(format("A file with the same name was found when trying to rename '%s' to '%s'" +
               ". The file '%s' was not renamed and it remains on the poll directory.",
-                             ftpFileAttributes.getFileName(), getRenameTo(), ftpFileAttributes.getPath()));
+                             ftpFileAttributes.getName(), getRenameTo(), ftpFileAttributes.getPath()));
         } else {
-          String moveToFileName = getRenameTo() == null ? ftpFileAttributes.getFileName() : getRenameTo();
+          String moveToFileName = getRenameTo() == null ? ftpFileAttributes.getName() : getRenameTo();
           String moveToPath = Paths.get(getMoveToDirectory()).resolve(moveToFileName).toString();
           LOGGER.warn(format("A file with the same name was found when trying to move '%s' to '%s'" +
               ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",

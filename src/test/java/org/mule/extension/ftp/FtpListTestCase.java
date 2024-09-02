@@ -159,7 +159,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
     FtpFileAttributes file = (FtpFileAttributes) messages.get(0).getAttributes().getValue();
     assertThat(file.isDirectory(), is(true));
-    assertThat(file.getFileName(), equalTo(SUB_DIRECTORY_NAME));
+    assertThat(file.getName(), equalTo(SUB_DIRECTORY_NAME));
   }
 
   @Test
@@ -203,9 +203,9 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
       if (attributes.isDirectory()) {
         assertThat("two directories found", directoryWasFound, is(false));
         directoryWasFound = true;
-        assertThat(attributes.getFileName(), equalTo(SUB_DIRECTORY_NAME));
+        assertThat(attributes.getName(), equalTo(SUB_DIRECTORY_NAME));
       } else {
-        assertThat(attributes.getFileName(), endsWith(".html"));
+        assertThat(attributes.getName(), endsWith(".html"));
         assertThat(toString(message.getPayload().getValue()), equalTo(CONTENT));
         assertThat(attributes.getSize(), is(new Long(CONTENT.length())));
       }

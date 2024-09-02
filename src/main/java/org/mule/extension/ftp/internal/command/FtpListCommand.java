@@ -113,7 +113,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
           final URI fileUri = createUri(uri.getPath(), file.getName());
           FtpFileAttributes attributes = new FtpFileAttributes(fileUri, file);
 
-          if (isVirtualDirectory(attributes.getFileName())) {
+          if (isVirtualDirectory(attributes.getName())) {
             continue;
           }
 
@@ -123,8 +123,8 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
             }
 
             if (recursive) {
-              URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getFileName()));
-              if (!client.changeWorkingDirectory(attributes.getFileName())) {
+              URI recursionUri = createUri(uri.getPath(), normalizePath(attributes.getName()));
+              if (!client.changeWorkingDirectory(attributes.getName())) {
                 throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                        recursionUri.getPath()));
               }

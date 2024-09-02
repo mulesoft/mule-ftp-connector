@@ -102,7 +102,7 @@ public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
         FtpFileAttributes ftpFileAttributes = new FtpFileAttributes(createUri(sourceUri.getPath(), file.getName()), file);
         String filePath = ftpFileAttributes.getPath();
 
-        URI targetFileUri = createUri(targetUri.getPath(), ftpFileAttributes.getFileName());
+        URI targetFileUri = createUri(targetUri.getPath(), ftpFileAttributes.getName());
         if (ftpFileAttributes.isDirectory()) {
           LOGGER.trace("Copy directory {} to {}", filePath, targetUri);
 

@@ -183,7 +183,7 @@ public class DefaultFtpTestHarness extends AbstractFtpTestHarness {
     FtpFileAttributes ftpFileAttributes = (FtpFileAttributes) attributes;
     FTPFile file = ftpClient.get(path);
 
-    assertThat(ftpFileAttributes.getFileName(), equalTo(file.getName()));
+    assertThat(ftpFileAttributes.getName(), equalTo(file.getName()));
     assertThat(createUri(ftpFileAttributes.getPath()).getPath(),
                equalTo(createUri(String.format("/%s/%s", WORKING_DIR, HELLO_PATH)).getPath()));
     assertThat(ftpFileAttributes.getSize(), is(file.getSize()));

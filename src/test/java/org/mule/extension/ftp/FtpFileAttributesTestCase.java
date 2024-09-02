@@ -7,7 +7,6 @@
 package org.mule.extension.ftp;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.lenient;
@@ -65,7 +64,7 @@ public class FtpFileAttributesTestCase {
   public void allAttributesPopulatedFromFile() {
     FtpFileAttributes ftpAttributes = getFtpFileAttributes();
     assertThat(ftpAttributes.getPath(), is(EXPECTED_PATH));
-    assertThat(ftpAttributes.getFileName(), is(EXPECTED_FILENAME));
+    assertThat(ftpAttributes.getName(), is(EXPECTED_FILENAME));
     assertThat(ftpAttributes.getSize(), is(EXPECTED_SIZE));
     assertThat(ftpAttributes.getTimestamp(), is(expectedTimesTamp));
     assertThat(ftpAttributes.isDirectory(), is(IS_DIRECTORY));

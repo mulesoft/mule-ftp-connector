@@ -24,13 +24,11 @@ import org.mule.extension.ftp.internal.operation.ReadCommand;
 import org.mule.extension.ftp.internal.operation.RenameCommand;
 import org.mule.extension.ftp.internal.operation.WriteCommand;
 import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
-import org.mule.extension.ftp.internal.lock.PathLock;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -71,7 +69,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Description("verifies that move file with overwrite flag set to false and exceptiopn will be thrown")
   public void testMoveWithoutOverwriteWhenFileExists() {
     FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
-    when(ftpFileAttributes.getFileName()).thenReturn("");
+    when(ftpFileAttributes.getName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
     ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
@@ -83,7 +81,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Description("verifies that move file with overwrite flag set to true and no exception")
   public void testMoveWithOverwriteWhenFileExists() {
     FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
-    when(ftpFileAttributes.getFileName()).thenReturn("");
+    when(ftpFileAttributes.getName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
     ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);

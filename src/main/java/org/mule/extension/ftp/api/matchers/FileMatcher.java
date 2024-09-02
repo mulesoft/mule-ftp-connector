@@ -122,7 +122,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FtpFileAttrib
     Predicate<A> predicate = payload -> true;
     if (filenamePattern != null) {
       PathMatcherPredicate pathMatcher = new PathMatcherPredicate(filenamePattern, predicateType, caseSensitive);
-      predicate = predicate.and(payload -> pathMatcher.test(payload.getFileName()));
+      predicate = predicate.and(payload -> pathMatcher.test(payload.getName()));
     }
 
     if (pathPattern != null) {

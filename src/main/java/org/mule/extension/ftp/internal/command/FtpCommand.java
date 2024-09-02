@@ -270,7 +270,7 @@ public abstract class FtpCommand {
     String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
     if (targetPathIsDirectory || targetFile != null) {
       if (targetPathIsDirectory || targetFile.isDirectory()) {
-        if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getFileName().equals(targetFile.getFileName()))
+        if (sourceFile.isDirectory() && (targetFile != null && sourceFile.getName().equals(targetFile.getName()))
             && !overwrite) {
           throw alreadyExistsException(targetUri);
         } else {

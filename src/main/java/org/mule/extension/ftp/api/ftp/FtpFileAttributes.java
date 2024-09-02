@@ -48,7 +48,7 @@ public class FtpFileAttributes implements Serializable {
   protected final String path;
 
   @Parameter
-  private final String fileName;
+  private final String name;
 
   /**
    * Creates a new instance of FtpFileAttributes with the specified URI and FTPFile.
@@ -59,7 +59,7 @@ public class FtpFileAttributes implements Serializable {
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
     this.path = uri.getPath();
     String name = FilenameUtils.getName(uri.getPath());
-    this.fileName = name != null ? name : "";
+    this.name = name != null ? name : "";
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
@@ -74,7 +74,7 @@ public class FtpFileAttributes implements Serializable {
     URI uri = createDefaultUri();
     this.path = uri.getPath();
     String name = FilenameUtils.getName(uri.getPath());
-    this.fileName = name != null ? name : "";
+    this.name = name != null ? name : "";
     timestamp = null;
     size = 0;
     regularFile = false;
@@ -222,8 +222,8 @@ public class FtpFileAttributes implements Serializable {
    *
    * @return the name of the file
    */
-  public String getFileName() {
-    return fileName;
+  public String getName() {
+    return name;
   }
 
   /**
