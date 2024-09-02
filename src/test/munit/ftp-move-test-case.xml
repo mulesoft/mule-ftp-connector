@@ -160,7 +160,7 @@
         <munit:validation >
             <ftp:list config-ref="config" directoryPath="target"/>
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
-            <munit-tools:assert-equals actual="#[payload[0].attributes.fileName]" expected='#["second-level-subDirectory"]'/>
+            <munit-tools:assert-equals actual="#[payload[0].attributes.name]" expected='#["second-level-subDirectory"]'/>
         </munit:validation>
     </munit:test>
 

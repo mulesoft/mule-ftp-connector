@@ -115,7 +115,7 @@
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
-        <set-payload value="#[attributes.fileName]"/>
+        <set-payload value="#[attributes.name]"/>
         <munit-tools:queue/>
     </flow>
 

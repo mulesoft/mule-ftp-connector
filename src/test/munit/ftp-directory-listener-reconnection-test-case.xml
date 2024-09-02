@@ -92,7 +92,7 @@
                 <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </ftp:listener>
-        <set-payload value="attributes.fileName"/>
+        <set-payload value="attributes.name"/>
         <munit-tools:queue/>
         <logger message="#[%dw 2.0
                             import * from dw::Runtime

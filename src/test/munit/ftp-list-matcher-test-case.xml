@@ -54,7 +54,7 @@
         <try>
             <ftp:list config-ref="${config}" directoryPath="/" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
         </try>
         <flow-ref name="write-file"/>

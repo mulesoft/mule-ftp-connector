@@ -107,7 +107,7 @@
         </ftp:listener>
 
         <try>
-            <set-variable variableName="fileName" value="#[attributes.fileName]" />
+            <set-variable variableName="fileName" value="#[attributes.name]" />
 
             <flow-ref name="calculateMD5" />
 

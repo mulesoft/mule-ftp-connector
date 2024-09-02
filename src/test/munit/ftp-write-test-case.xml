@@ -148,7 +148,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    attributes.fileName must equalTo(vars.fileName)
+                                    attributes.name must equalTo(vars.fileName)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
@@ -169,7 +169,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    attributes.fileName must equalTo(vars.fileName)
+                                    attributes.name must equalTo(vars.fileName)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
@@ -205,7 +205,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    attributes.fileName must equalTo(vars.fileName)
+                                    attributes.name must equalTo(vars.fileName)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
@@ -228,7 +228,7 @@
         <munit:validation>
             <ftp:list config-ref="config-with-UTF8-control-encoding" directoryPath="." />
             <foreach>
-                <logger level="ERROR" message="#[output application/json --- attributes.fileName]"/>
+                <logger level="ERROR" message="#[output application/json --- attributes.name]"/>
                 <logger level="ERROR" message="#[output application/json --- payload]"/>
             </foreach>
             <munit-tools:assert>

@@ -57,7 +57,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload[0].attributes.fileName must equalTo('created-dir-test')
+                                    payload[0].attributes.name must equalTo('created-dir-test')
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
@@ -80,7 +80,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload[0].attributes.fileName must equalTo('subDirectory')
+                                    payload[0].attributes.name must equalTo('subDirectory')
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
@@ -113,7 +113,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload[0].attributes.fileName must equalTo("?1*@|#")
+                                    payload[0].attributes.name must equalTo("?1*@|#")
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>

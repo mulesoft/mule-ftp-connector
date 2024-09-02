@@ -56,7 +56,7 @@
         <munit:validation >
             <ftp:list config-ref="config" directoryPath="source"/>
             <munit-tools:assert-that  expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
-            <munit-tools:assert-that expression="#[payload[0].attributes.fileName]" is="#[MunitTools::equalTo('file-renamed')]"/>
+            <munit-tools:assert-that expression="#[payload[0].attributes.name]" is="#[MunitTools::equalTo('file-renamed')]"/>
         </munit:validation>
     </munit:test>
 
@@ -111,7 +111,7 @@
         <munit:validation >
             <ftp:list config-ref="config" directoryPath="source"/>
             <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(0)]"/>
-            <munit-tools:assert-that expression="#[payload[0].attributes.fileName]" is="#[MunitTools::equalTo('directory-renamed-@#!%!@=')]"/>
+            <munit-tools:assert-that expression="#[payload[0].attributes.name]" is="#[MunitTools::equalTo('directory-renamed-@#!%!@=')]"/>
         </munit:validation>
     </munit:test>
 
