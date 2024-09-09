@@ -17,6 +17,7 @@ import org.mule.extension.ftp.api.matchers.NullFilePayloadPredicate;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.FtpConnector;
+import org.mule.extension.ftp.internal.command.FtpReadCommand;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -197,6 +198,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
       if (files.isEmpty()) {
         return;
       }
+      FtpReadCommand ftpReadCommand = new FtpReadCommand(ftpFileSystemConnection, ftpFileSystemConnection.getClient());
       for (Result<String, FtpFileAttributes> file : files) {
 
         FtpFileAttributes attributes = file.getAttributes().orElse(null);
@@ -211,12 +213,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
           }
           return;
         }
-
-        InputStream contentStream = new ByteArrayInputStream(file.getOutput().getBytes(StandardCharsets.UTF_8));
         Result<InputStream, FtpFileAttributes> result =
-            Result.<InputStream, FtpFileAttributes>builder().output(contentStream)
-                .mediaType(ftpFileSystemConnection.getFileMessageMediaType(attributes))
-                .attributes(attributes).build();
+            ftpReadCommand.read(config, attributes, false,
+                                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit)
+                                    .orElse(null));
         if (!processFile(result, pollContext)) {
           break;
         }
@@ -236,6 +236,7 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   public void onRejectedItem(Result<InputStream, FtpFileAttributes> result, SourceCallbackContext callbackContext) {
+    LOGGER.debug("File processing was rejected for path: {}", result.getOutput());
     closeQuietly(result.getOutput());
   }
 
