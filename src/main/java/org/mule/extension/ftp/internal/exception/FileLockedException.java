@@ -8,7 +8,7 @@ package org.mule.extension.ftp.internal.exception;
 
 import org.mule.runtime.extension.api.exception.ModuleException;
 
-import static org.mule.extension.ftp.internal.error.FileError.FILE_LOCK;
+import static org.mule.extension.ftp.api.FileError.FILE_LOCK;
 
 /**
  * {@link ModuleException} for the cases in which a lock cannot be acquired over a file.

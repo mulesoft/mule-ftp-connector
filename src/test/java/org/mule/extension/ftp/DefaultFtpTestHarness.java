@@ -12,7 +12,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 import org.mule.extension.AbstractFtpTestHarness;

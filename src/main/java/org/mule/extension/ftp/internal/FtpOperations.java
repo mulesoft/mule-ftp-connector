@@ -27,7 +27,7 @@ import org.mule.extension.ftp.internal.error.provider.FileReadErrorTypeProvider;
 import org.mule.extension.ftp.internal.error.provider.FileRenameErrorTypeProvider;
 import org.mule.extension.ftp.internal.error.provider.FileWriteErrorTypeProvider;
 import org.mule.extension.ftp.internal.exception.IllegalContentException;
-import org.mule.extension.ftp.internal.exception.IllegalPathException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;

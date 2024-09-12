@@ -7,7 +7,7 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.ftp.internal.operation.DeleteCommand;

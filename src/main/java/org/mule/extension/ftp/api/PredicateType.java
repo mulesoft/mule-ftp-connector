@@ -7,8 +7,6 @@
 package org.mule.extension.ftp.api;
 
 
-import org.mule.extension.ftp.internal.util.UriUtils;
-
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;

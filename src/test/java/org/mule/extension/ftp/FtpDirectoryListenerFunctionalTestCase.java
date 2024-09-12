@@ -15,7 +15,6 @@ import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
 
-import org.junit.Ignore;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Startable;
@@ -36,7 +35,6 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
-@Ignore
 public class FtpDirectoryListenerFunctionalTestCase extends CommonFtpConnectorTestCase {
 
   private static final String MATCHERLESS_LISTENER_FOLDER_NAME = "matcherless";

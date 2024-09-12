@@ -9,9 +9,9 @@ package org.mule.extension.ftp;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -53,7 +53,7 @@ public class FtpFileAttributesTestCase {
     expectedTimesTamp = LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault());
 
     when(ftpFile.getTimestamp()).thenReturn(currentDate);
-    lenient().when(ftpFile.getName()).thenReturn(EXPECTED_FILENAME);
+    doReturn(EXPECTED_FILENAME).when(ftpFile).getName();
     when(ftpFile.getSize()).thenReturn(EXPECTED_SIZE);
     when(ftpFile.isFile()).thenReturn(IS_FILE);
     when(ftpFile.isDirectory()).thenReturn(IS_DIRECTORY);

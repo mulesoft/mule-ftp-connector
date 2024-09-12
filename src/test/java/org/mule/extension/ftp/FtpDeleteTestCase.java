@@ -13,11 +13,9 @@ import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import io.qameta.allure.Feature;
-import org.junit.Ignore;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
-@Ignore
 public class FtpDeleteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String SUB_FOLDER = "files/subfolder";

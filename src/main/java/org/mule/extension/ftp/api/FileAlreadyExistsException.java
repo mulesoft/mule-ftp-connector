@@ -4,27 +4,26 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.exception;
+package org.mule.extension.ftp.api;
 
-import org.mule.extension.ftp.internal.error.FileError;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
- * {@link ModuleException} to be thrown in the cases in which a given path is invalid. For instance, if the path is {@code null}
- * or doesn't exist.
+ * {@link ModuleException} to be thrown in the cases in which a given file already exists. For example, when trying to create a
+ * new file with a {@link FileWriteMode#CREATE_NEW} write mode and the file already existed.
  *
  * @since 1.0
  */
-public final class IllegalPathException extends ModuleException {
+public final class FileAlreadyExistsException extends ModuleException {
 
-  private static final FileError ERROR = FileError.ILLEGAL_PATH;
+  private static final FileError ERROR = FileError.FILE_ALREADY_EXISTS;
 
   /**
    * Creates a new instance with the specified detail {@code message}
    *
    * @param message the detail message
    */
-  public IllegalPathException(String message) {
+  public FileAlreadyExistsException(String message) {
     super(message, ERROR);
   }
 
@@ -34,7 +33,7 @@ public final class IllegalPathException extends ModuleException {
    * @param message the detail message
    * @param exception cause of this exception
    */
-  public IllegalPathException(String message, Exception exception) {
+  public FileAlreadyExistsException(String message, Exception exception) {
     super(message, ERROR, exception);
   }
 }

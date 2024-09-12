@@ -15,22 +15,21 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.rules.ExpectedException.none;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.ftp.api.FileWriteMode.APPEND;
 import static org.mule.extension.ftp.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.ftp.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.ftp.internal.error.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.mule.extension.ftp.api.FileWriteMode;
-import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
-import org.mule.extension.ftp.internal.exception.IllegalPathException;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.runtime.core.api.event.CoreEvent;
 
 import java.io.IOException;
@@ -43,7 +42,6 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
-@Ignore
 public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   private static final String TEMP_DIRECTORY = "files";
@@ -170,7 +168,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     Method methodGetErrorType = error.getClass().getMethod("getErrorType");
     methodGetErrorType.setAccessible(true);
     Object fileError = methodGetErrorType.invoke(error);
-    assertThat(fileError.toString(), is("FILE:FILE_LOCK"));
+    assertThat(fileError.toString(), is("FTP:FILE_LOCK"));
   }
 
   @Test

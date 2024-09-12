@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
-import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Path;

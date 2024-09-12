@@ -16,7 +16,7 @@ import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
 import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.connection.FtpConnectionProvider;
-import org.mule.extension.ftp.internal.error.FileError;
+import org.mule.extension.ftp.api.FileError;
 import org.mule.extension.ftp.internal.source.FtpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 

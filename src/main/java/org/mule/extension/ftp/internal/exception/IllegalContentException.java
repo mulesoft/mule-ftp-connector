@@ -8,7 +8,7 @@ package org.mule.extension.ftp.internal.exception;
 
 import org.mule.runtime.extension.api.exception.ModuleException;
 
-import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_CONTENT;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_CONTENT;
 
 /**
  * {@link ModuleException} to be thrown in the cases in which the received content to be written is invalid.

@@ -17,8 +17,8 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
-import static org.mule.extension.ftp.internal.error.FileError.ACCESS_DENIED;
-import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.ACCESS_DENIED;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 
 /**
  * Errors that can be thrown in the

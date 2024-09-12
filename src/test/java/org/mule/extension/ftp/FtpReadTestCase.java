@@ -12,17 +12,16 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.rules.ExpectedException.none;
-import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.extension.ftp.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 
-import org.junit.Ignore;
-import org.mule.extension.ftp.internal.exception.DeletedFileWhileReadException;
-import org.mule.extension.ftp.internal.exception.FileBeingModifiedException;
-import org.mule.extension.ftp.internal.exception.IllegalPathException;
+import org.mule.extension.ftp.api.DeletedFileWhileReadException;
+import org.mule.extension.ftp.api.FileBeingModifiedException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.extension.ftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
@@ -42,7 +41,6 @@ import org.junit.rules.ExpectedException;
 import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
-@Ignore
 public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   private static String DELETED_FILE_NAME = "deleted.txt";

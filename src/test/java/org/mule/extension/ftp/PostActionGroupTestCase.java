@@ -23,7 +23,7 @@ import org.mule.extension.ftp.internal.operation.MoveCommand;
 import org.mule.extension.ftp.internal.operation.ReadCommand;
 import org.mule.extension.ftp.internal.operation.RenameCommand;
 import org.mule.extension.ftp.internal.operation.WriteCommand;
-import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.junit4.AbstractMuleTestCase;

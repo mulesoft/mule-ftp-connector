@@ -8,18 +8,17 @@ package org.mule.extension.ftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
-import static org.mule.extension.ftp.internal.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_FILE_NAME;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
 import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
-import static org.mule.extension.ftp.internal.error.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.ftp.internal.error.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
-import org.junit.Ignore;
-import org.mule.extension.ftp.internal.exception.FileAlreadyExistsException;
-import org.mule.extension.ftp.internal.exception.IllegalPathException;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.IllegalPathException;
 
 import java.net.URI;
 
@@ -27,7 +26,6 @@ import io.qameta.allure.Feature;
 import org.junit.Test;
 
 @Feature(FTP_EXTENSION)
-@Ignore
 
 public class FtpRenameTestCase extends CommonFtpConnectorTestCase {
 

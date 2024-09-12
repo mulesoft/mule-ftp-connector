@@ -4,8 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.ftp.internal.exception;
+package org.mule.extension.ftp.api;
 
+import org.mule.extension.ftp.internal.exception.FileReadException;
 import org.mule.runtime.api.i18n.I18nMessage;
 
 /**

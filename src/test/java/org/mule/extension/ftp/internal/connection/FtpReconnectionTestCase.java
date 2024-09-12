@@ -9,7 +9,7 @@ package org.mule.extension.ftp.internal.connection;
 import static org.apache.commons.io.FileUtils.getTempDirectory;
 import static org.hamcrest.core.Is.isA;
 import static org.mockito.Matchers.anyString;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mockito.Mockito.when;
 import org.mockito.Mockito;
 import org.mule.extension.ftp.internal.command.FtpCommand;

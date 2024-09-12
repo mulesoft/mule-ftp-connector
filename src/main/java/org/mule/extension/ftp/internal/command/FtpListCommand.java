@@ -8,8 +8,8 @@ package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.net.ftp.FTPCmd.MLST;
-import static org.mule.extension.ftp.internal.util.UriUtils.createUri;
-import static org.mule.extension.ftp.internal.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;

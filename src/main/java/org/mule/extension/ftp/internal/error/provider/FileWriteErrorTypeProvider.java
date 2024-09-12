@@ -18,7 +18,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
-import static org.mule.extension.ftp.internal.error.FileError.*;
+import static org.mule.extension.ftp.api.FileError.*;
 
 /**
  * Errors that can be thrown in the
