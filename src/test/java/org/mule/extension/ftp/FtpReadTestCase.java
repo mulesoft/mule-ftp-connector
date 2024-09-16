@@ -77,16 +77,14 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
   public void readBinary() throws Exception {
     testHarness.createBinaryFile();
 
-    Message response = readPath(BINARY_FILE_NAME, false);
+    Message response = readPath(BINARY_FILE_NAME);
 
     assertThat(response.getPayload().getDataType().getMediaType().getPrimaryType(), is(MediaType.BINARY.getPrimaryType()));
     assertThat(response.getPayload().getDataType().getMediaType().getSubType(), is(MediaType.BINARY.getSubType()));
 
-    InputStream payload = (InputStream) response.getPayload().getValue();
+    String content = toString(response.getPayload().getValue());
 
-    byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
-    org.apache.commons.io.IOUtils.read(payload, readContent);
-    assertThat(new String(readContent), is(HELLO_WORLD));
+    assertThat(content, is(HELLO_WORLD));
   }
 
   @Test

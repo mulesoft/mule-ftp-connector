@@ -184,9 +184,9 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
     doWrite("write", filename, HELLO_WORLD, CREATE_NEW, false, customEncoding);
     String path = createUri(testHarness.getWorkingDirectory(), filename).getPath();
-    InputStream content = (InputStream) readPath(path, false).getPayload().getValue();
+    String content = toString(readPath(path).getPayload().getValue());
 
-    assertThat(Arrays.equals(toByteArray(content), HELLO_WORLD.getBytes(customEncoding)), is(true));
+    assertThat(Arrays.equals(content.getBytes(), HELLO_WORLD.getBytes(customEncoding)), is(true));
   }
 
   @Test
