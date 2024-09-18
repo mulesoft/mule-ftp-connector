@@ -48,11 +48,11 @@
         <try>
             <ftp:list config-ref="${config}" directoryPath="/" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
             <ftp:list config-ref="${config}" directoryPath="/processed" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
             <error-handler >
                 <on-error-continue/>
@@ -70,11 +70,11 @@
         <try>
             <ftp:list config-ref="${config}" directoryPath="/" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
             <ftp:list config-ref="${config}" directoryPath="/processed" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
             <error-handler >
                 <on-error-continue/>
@@ -247,7 +247,7 @@
             </scheduling-strategy>
             <ftp:matcher filenamePattern="*.txt" />
         </ftp:listener>
-        <logger level="INFO" message="#[attributes.fileName]"/>
+        <logger level="INFO" message="#[attributes.name]"/>
     </flow>
 
     <flow name="renameToAndAutoDeleteFlow">
@@ -257,7 +257,7 @@
             </scheduling-strategy>
             <ftp:matcher filenamePattern="*.txt" />
         </ftp:listener>
-        <logger level="INFO" message="#[attributes.fileName]"/>
+        <logger level="INFO" message="#[attributes.name]"/>
     </flow>
 
     <flow name="file-exists">
@@ -278,7 +278,7 @@
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </ftp:listener>
-        <logger level="INFO" message="#[attributes.fileName]"/>
+        <logger level="INFO" message="#[attributes.name]"/>
     </flow>
 
 </mule>

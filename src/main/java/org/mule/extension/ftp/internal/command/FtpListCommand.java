@@ -8,22 +8,21 @@ package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.net.ftp.FTPCmd.MLST;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.apache.commons.net.ftp.FTPReply.isPositiveCompletion;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.command.ListCommand;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.operation.ListCommand;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,7 +41,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class FtpListCommand extends FtpCommand implements ListCommand<FtpFileAttributes> {
+public final class FtpListCommand extends FtpCommand implements ListCommand {
 
   private static final Logger LOGGER = getLogger(FtpListCommand.class);
   private static final int FTP_LIST_PAGE_SIZE = 25;
@@ -59,30 +58,16 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
   /**
    * {@inheritDoc}
    */
-  @Deprecated
   @Override
-  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                           String directoryPath,
-                                                           boolean recursive,
-                                                           Predicate<FtpFileAttributes> matcher) {
-    return list(config, directoryPath, recursive, matcher, null);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<Result<InputStream, FtpFileAttributes>> list(FileConnectorConfig config,
-                                                           String directoryPath,
-                                                           boolean recursive,
-                                                           Predicate<FtpFileAttributes> matcher,
-                                                           Long timeBetweenSizeCheck) {
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config,
+                                                      String directoryPath,
+                                                      boolean recursive,
+                                                      Predicate<FtpFileAttributes> matcher) {
     URI uri = resolvePath(normalizePath(directoryPath));
 
     if (!tryChangeWorkingDirectory(uri.getPath())) {
 
-      FileAttributes directoryAttributes = getExistingFile(directoryPath);
+      FtpFileAttributes directoryAttributes = getExistingFile(directoryPath);
 
       if (!directoryAttributes.isDirectory()) {
         throw cannotListFileException(uri);
@@ -91,10 +76,10 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
       throw exception(format("Could not change working directory to '%s' while trying to list that directory", uri.getPath()));
     }
 
-    List<Result<InputStream, FtpFileAttributes>> accumulator = new LinkedList<>();
+    List<Result<String, FtpFileAttributes>> accumulator = new LinkedList<>();
 
     try {
-      doList(config, uri, accumulator, recursive, matcher, timeBetweenSizeCheck);
+      doList(config, uri, accumulator, recursive, matcher);
 
       if (!isPositiveCompletion(client.getReplyCode())) {
         throw exception(format("Failed to list files on directory '%s'", uri.getPath()));
@@ -110,10 +95,9 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
   private void doList(FileConnectorConfig config,
                       URI uri,
-                      List<Result<InputStream, FtpFileAttributes>> accumulator,
+                      List<Result<String, FtpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<FtpFileAttributes> matcher,
-                      Long timeBetweenSizeCheck)
+                      Predicate<FtpFileAttributes> matcher)
       throws IOException {
     LOGGER.debug("Listing directory {}", uri.getPath());
 
@@ -135,7 +119,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
 
           if (attributes.isDirectory()) {
             if (matcher.test(attributes)) {
-              accumulator.add(Result.<InputStream, FtpFileAttributes>builder().output(null).attributes(attributes).build());
+              accumulator.add(Result.<String, FtpFileAttributes>builder().output(null).attributes(attributes).build());
             }
 
             if (recursive) {
@@ -144,7 +128,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
                 throw exception(format("Could not change working directory to '%s' while performing recursion on list operation",
                                        recursionUri.getPath()));
               }
-              doList(config, recursionUri, accumulator, recursive, matcher, timeBetweenSizeCheck);
+              doList(config, recursionUri, accumulator, recursive, matcher);
               if (!client.changeToParentDirectory()) {
                 throw exception(format("Could not return to parent working directory '%s' while performing recursion on list operation",
                                        trimLastFragment(recursionUri).getPath()));
@@ -152,12 +136,18 @@ public final class FtpListCommand extends FtpCommand implements ListCommand<FtpF
             }
           } else {
             if (matcher.test(attributes)) {
-              accumulator.add(ftpReadCommand.read(config, attributes, false, timeBetweenSizeCheck));
+              accumulator.add(getFilePath(fileUri, attributes));
             }
           }
         }
       }
     }
+  }
+
+  private Result<String, FtpFileAttributes> getFilePath(URI fileUri, FtpFileAttributes attributes) {
+    return Result.<String, FtpFileAttributes>builder().output(fileUri.getPath())
+        .mediaType(MediaType.TEXT)
+        .attributes(attributes).build();
   }
 
   private Iterator<FTPFile[]> getFtpFileIterator() throws IOException {

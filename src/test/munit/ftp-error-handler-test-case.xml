@@ -107,7 +107,7 @@
         </ftp:listener>
 
         <try>
-            <set-variable variableName="fileName" value="#[attributes.fileName]" />
+            <set-variable variableName="fileName" value="#[attributes.name]" />
 
             <flow-ref name="calculateMD5" />
 
@@ -122,7 +122,7 @@
     </flow>
 
     <flow name="calculateMD5">
-        <java:invoke-static class="org.mule.extension.ftp.internal.utils.MD5Calculator" method="calculateMD5(InputStream)" >
+        <java:invoke-static class="org.mule.extension.ftp.internal.util.MD5Calculator" method="calculateMD5(InputStream)" >
             <java:args>
                 #[{
                 arg0: payload

@@ -7,8 +7,8 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
 import org.mule.extension.ftp.internal.FtpCopyDelegate;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
@@ -29,7 +29,7 @@ public class MoveFtpDelegate implements FtpCopyDelegate {
   }
 
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+  public void doCopy(FileConnectorConfig config, FtpFileAttributes source, URI targetUri, boolean overwrite) {
     String path = source.getPath();
     try {
       if (command.exists(targetUri)) {

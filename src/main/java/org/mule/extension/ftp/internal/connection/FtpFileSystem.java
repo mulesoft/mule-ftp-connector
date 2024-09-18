@@ -8,8 +8,8 @@ package org.mule.extension.ftp.internal.connection;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.FileError.DISCONNECTED;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.internal.FtpUtils.createUrl;
 import static org.mule.extension.ftp.internal.FtpUtils.getReplyCodeErrorMessage;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
@@ -18,20 +18,21 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.success
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.AbstractExternalFileSystem;
-import org.mule.extension.file.common.api.AbstractFileSystem;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.command.CopyCommand;
-import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
-import org.mule.extension.file.common.api.command.DeleteCommand;
-import org.mule.extension.file.common.api.command.ListCommand;
-import org.mule.extension.file.common.api.command.MoveCommand;
-import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.command.RenameCommand;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.lock.URLPathLock;
-import org.mule.extension.file.common.api.lock.UriLock;
-import org.mule.extension.file.common.api.util.UriUtils;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.exception.FileLockedException;
+import org.mule.extension.ftp.internal.operation.CopyCommand;
+import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.ftp.internal.operation.DeleteCommand;
+import org.mule.extension.ftp.internal.operation.ListCommand;
+import org.mule.extension.ftp.internal.operation.MoveCommand;
+import org.mule.extension.ftp.internal.operation.ReadCommand;
+import org.mule.extension.ftp.internal.operation.RenameCommand;
+import org.mule.extension.ftp.internal.operation.WriteCommand;
+import org.mule.extension.ftp.internal.lock.URLPathLock;
+import org.mule.extension.ftp.internal.lock.UriLock;
+import org.mule.extension.ftp.internal.subset.SubsetList;
+import org.mule.extension.ftp.api.UriUtils;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
@@ -47,6 +48,8 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lock.LockFactory;
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,21 +57,28 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.function.Predicate;
+
+import javax.activation.MimetypesFileTypeMap;
+import javax.inject.Inject;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.slf4j.Logger;
 
 /**
- * Implementation of {@link AbstractFileSystem} for files residing on a FTP server
+ * Implementation of {@link FileSystem} for files residing on a FTP server
  *
  * @since 1.0
  */
-public class FtpFileSystem extends AbstractExternalFileSystem {
+public class FtpFileSystem implements FileSystem {
 
   private static final Logger LOGGER = getLogger(FtpFileSystem.class);
   private SingleFileListingMode singleFileListingMode = SingleFileListingMode.UNSET;
+  private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 
   private static String resolveBasePath(String basePath, FTPClient client) {
     if (isBlank(basePath)) {
@@ -92,7 +102,9 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   private final ReadCommand readCommand;
   private final RenameCommand renameCommand;
   private final WriteCommand writeCommand;
+  @Inject
   private final LockFactory lockFactory;
+  private final String basePath;
 
   /**
    * Creates a new instance
@@ -100,7 +112,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * @param client a ready to use {@link FTPClient}
    */
   public FtpFileSystem(FTPClient client, String basePath, LockFactory lockFactory, SingleFileListingMode singleFileListingMode) {
-    super(resolveBasePath(basePath, client));
+    this.basePath = resolveBasePath(basePath, client);
     this.client = client;
     this.lockFactory = lockFactory;
     this.singleFileListingMode = singleFileListingMode;
@@ -152,7 +164,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   /**
    * {@inheritDoc}
    */
-  protected boolean isConnected() {
+  private boolean isConnected() {
     return client.isConnected();
   }
 
@@ -230,10 +242,10 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * <p>
    * The invoked <b>MUST</b> make sure that the returned stream is closed in order for the underlying connection to be closed.
    *
-   * @param filePayload a {@link FileAttributes} referencing to a FTP file
+   * @param filePayload a {@link FtpFileAttributes} referencing to a FTP file
    * @return an {@link InputStream}
    */
-  public InputStream retrieveFileContent(FileAttributes filePayload) {
+  public InputStream retrieveFileContent(FtpFileAttributes filePayload) {
     try {
       InputStream inputStream = client.retrieveFileStream(normalizePath(filePayload.getPath()));
       if (inputStream == null) {
@@ -273,7 +285,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     }
   }
 
-  protected UriLock createLock(URI uri) {
+  private UriLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
   }
 
@@ -284,6 +296,68 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
       LOGGER.error(format("Could not get URL for FTP server %s", uri.getHost()), e);
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for FTP server"), e);
     }
+  }
+
+  @Override
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config, String directoryPath,
+                                                      boolean recursive, Predicate<FtpFileAttributes> matcher) {
+    return getListCommand().list(config, directoryPath, recursive, matcher);
+  }
+
+  @Override
+  public List<Result<String, FtpFileAttributes>> list(FileConnectorConfig config, String directoryPath,
+                                                      boolean recursive, Predicate<FtpFileAttributes> matcher,
+                                                      SubsetList subsetList) {
+    return getListCommand().list(config, directoryPath, recursive, matcher);
+  }
+
+  @Override
+  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath,
+                                                     boolean lock, Long timeBetweenSizeCheck) {
+    return getReadCommand().read(config, filePath, lock, timeBetweenSizeCheck);
+  }
+
+  @Override
+  public void write(String filePath, InputStream content, FileWriteMode mode,
+                    boolean lock, boolean createParentDirectories) {
+    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories);
+  }
+
+  @Override
+  public void copy(FileConnectorConfig config, String sourcePath, String targetPath, boolean overwrite,
+                   boolean createParentDirectories, String renameTo) {
+    getCopyCommand().copy(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo);
+  }
+
+  @Override
+  public void move(FileConnectorConfig config, String sourcePath, String targetPath, boolean overwrite,
+                   boolean createParentDirectories, String renameTo) {
+    getMoveCommand().move(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo);
+  }
+
+  @Override
+  public void delete(String filePath) {
+    getDeleteCommand().delete(filePath);
+  }
+
+  @Override
+  public void rename(String filePath, String newName, boolean overwrite) {
+    getRenameCommand().rename(filePath, newName, overwrite);
+  }
+
+  @Override
+  public void createDirectory(String directoryPath) {
+    getCreateDirectoryCommand().createDirectory(directoryPath);
+  }
+
+  @Override
+  public Lock createMuleLock(String id) {
+    return lockFactory.createLock(id);
+  }
+
+  @Override
+  public MediaType getFileMessageMediaType(FtpFileAttributes attributes) {
+    return MediaType.parse(mimetypesFileTypeMap.getContentType(attributes.getPath()));
   }
 
   /**
@@ -305,6 +379,11 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
     }
   }
 
+  @Override
+  public String getBasePath() {
+    return basePath;
+  }
+
   public FTPClient getClient() {
     return client;
   }
@@ -313,7 +392,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected ReadCommand getReadCommand() {
+  public ReadCommand getReadCommand() {
     return readCommand;
   }
 
@@ -321,7 +400,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected ListCommand getListCommand() {
+  public ListCommand getListCommand() {
     return listCommand;
   }
 
@@ -329,7 +408,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected WriteCommand getWriteCommand() {
+  public WriteCommand getWriteCommand() {
     return writeCommand;
   }
 
@@ -337,7 +416,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected CopyCommand getCopyCommand() {
+  public CopyCommand getCopyCommand() {
     return copyCommand;
   }
 
@@ -345,7 +424,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected MoveCommand getMoveCommand() {
+  public MoveCommand getMoveCommand() {
     return moveCommand;
   }
 
@@ -353,7 +432,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected DeleteCommand getDeleteCommand() {
+  public DeleteCommand getDeleteCommand() {
     return deleteCommand;
   }
 
@@ -361,7 +440,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected RenameCommand getRenameCommand() {
+  public RenameCommand getRenameCommand() {
     return renameCommand;
   }
 
@@ -369,7 +448,7 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
    * {@inheritDoc}
    */
   @Override
-  protected CreateDirectoryCommand getCreateDirectoryCommand() {
+  public CreateDirectoryCommand getCreateDirectoryCommand() {
     return createDirectoryCommand;
   }
 
@@ -391,5 +470,63 @@ public class FtpFileSystem extends AbstractExternalFileSystem {
   public SingleFileListingMode getSingleFileListingMode() {
     LOGGER.debug("Current singleFileListingMode = {}", singleFileListingMode);
     return this.singleFileListingMode;
+  }
+
+  /**
+   * Acquires and returns lock over the given {@code uri}.
+   * <p>
+   * Depending on the underlying filesystem, the extent of the lock will depend on the implementation. If a lock can not be
+   * acquired, then an {@link IllegalStateException} is thrown.
+   * <p>
+   * Whoever request the lock <b>MUST</b> release it as soon as possible.
+   *
+   * @param uri   the uri to the file you want to lock
+   * @return an acquired {@link UriLock}
+   * @throws IllegalArgumentException if a lock could not be acquired
+   */
+  public final synchronized UriLock lock(URI uri) {
+    UriLock lock = createLock(uri);
+    acquireLock(lock);
+
+    return lock;
+  }
+
+  /**
+   * Attempts to lock the given {@code lock} and throws {@link FileLockedException} if already locked
+   *
+   * @param lock the {@link UriLock} to be acquired
+   * @throws FileLockedException if the {@code lock} is already acquired
+   */
+  private void acquireLock(UriLock lock) {
+    if (!lock.tryLock()) {
+      throw new FileLockedException(
+                                    format("Could not lock file '%s' because it's already owned by another process",
+                                           lock.getUri().getPath()));
+    }
+  }
+
+  /**
+   * Verify that the given {@code uri} is not locked
+   *
+   * @param uri the uri to test
+   * @throws IllegalStateException if the {@code uri} is indeed locked
+   */
+  public void verifyNotLocked(URI uri) {
+    if (isLocked(uri)) {
+      throw new FileLockedException(format("File '%s' is locked by another process", uri));
+    }
+  }
+
+  /**
+   * Try to acquire a lock on a file and release it immediately. Usually used as a quick check to see if another process is still
+   * holding onto the file, e.g. a large file (more than 100MB) is still being written to.
+   */
+  private boolean isLocked(URI uri) {
+    UriLock lock = createLock(uri);
+    try {
+      return !lock.tryLock();
+    } finally {
+      lock.release();
+    }
   }
 }

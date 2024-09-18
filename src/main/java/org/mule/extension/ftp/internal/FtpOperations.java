@@ -6,6 +6,8 @@
  */
 package org.mule.extension.ftp.internal;
 
+import static java.lang.String.format;
+import static java.nio.file.Paths.get;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
@@ -13,22 +15,24 @@ import static org.mule.runtime.core.api.util.StringUtils.isBlank;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
-import org.mule.extension.file.common.api.BaseFileSystemOperations;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.exceptions.FileCopyErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileDeleteErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileRenameErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.FileWriteErrorTypeProvider;
-import org.mule.extension.file.common.api.exceptions.IllegalContentException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.extension.ftp.api.matchers.FileMatcher;
+import org.mule.extension.ftp.api.matchers.NullFilePayloadPredicate;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.connection.FileSystem;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.error.provider.FileCopyErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileDeleteErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileListErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileReadErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileRenameErrorTypeProvider;
+import org.mule.extension.ftp.internal.error.provider.FileWriteErrorTypeProvider;
+import org.mule.extension.ftp.internal.exception.IllegalContentException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.subset.SubsetList;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -46,15 +50,21 @@ import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 /**
  * Ftp connector operations
  *
  * @since 1.0
  */
-public final class FtpOperations extends BaseFileSystemOperations {
+public final class FtpOperations {
+
+  private static final Integer LIST_PAGE_SIZE = 10000;
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -67,28 +77,22 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
-   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Message messages} each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Summary("List all the files from given directory")
   @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<FtpFileSystem, Result<Object, FtpFileAttributes>> list(@Config FileConnectorConfig config,
+  public PagingProvider<FtpFileSystem, Result<String, FtpFileAttributes>> list(@Config FileConnectorConfig config,
                                                                                @Path(type = DIRECTORY,
                                                                                    location = EXTERNAL) String directoryPath,
                                                                                @Optional(
                                                                                    defaultValue = "false") boolean recursive,
                                                                                @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") FtpFileMatcher matcher,
-                                                                               @ConfigOverride @Placement(
-                                                                                   tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
-                                                                               @ConfigOverride @Placement(
-                                                                                   tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
                                                                                StreamingHelper streamingHelper) {
     PagingProvider result =
-        doPagedList(config, directoryPath, recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
-                    streamingHelper);
+        doPagedList(config, directoryPath, recursive, matcher, streamingHelper);
     return result;
   }
 
@@ -110,7 +114,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path to the file to be read
    * @param lock whether or not to lock the file. Defaults to false.
-   * @return the file's content and metadata on a {@link FileAttributes} instance
+   * @return the file's content and metadata on a {@link FtpFileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
   @Summary("Obtains the content and metadata of a file at a given path")
@@ -126,9 +130,10 @@ public final class FtpOperations extends BaseFileSystemOperations {
                                                          tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
                                                      @ConfigOverride @Placement(
                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
-    Result result =
-        doRead(config, fileSystem, path, lock,
-               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+    fileSystem.changeToBaseDir();
+    Result result = fileSystem.read(config, path, lock,
+                                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit)
+                                        .orElse(null));
     return (Result<InputStream, FtpFileAttributes>) result;
   }
 
@@ -164,9 +169,8 @@ public final class FtpOperations extends BaseFileSystemOperations {
       throw new IllegalContentException("Cannot write a null content");
     }
 
-    if (isBlank(path)) {
-      throw new IllegalPathException("path cannot be null nor blank");
-    }
+    validatePath(path, "path");
+    fileSystem.changeToBaseDir();
 
     fileSystem.write(path, content, mode, lock, createParentDirectories);
   }
@@ -200,7 +204,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
                    @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,
                    @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
-    super.doCopy(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
+    doCopy(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
 
   /**
@@ -232,7 +236,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
                    @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,
                    @Optional(defaultValue = "true") boolean createParentDirectories,
                    @Optional(defaultValue = "false") boolean overwrite, @Optional String renameTo) {
-    super.doMove(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
+    doMove(config, fileSystem, sourcePath, targetPath, createParentDirectories, overwrite, renameTo);
   }
 
 
@@ -246,7 +250,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Summary("Deletes a file")
   @Throws(FileDeleteErrorTypeProvider.class)
   public void delete(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String path) {
-    super.doDelete(fileSystem, path);
+    doDelete(fileSystem, path);
   }
 
   /**
@@ -264,7 +268,7 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Throws(FileRenameErrorTypeProvider.class)
   public void rename(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String path,
                      @DisplayName("New Name") String to, @Optional(defaultValue = "false") boolean overwrite) {
-    super.doRename(fileSystem, path, to, overwrite);
+    doRename(fileSystem, path, to, overwrite);
   }
 
   /**
@@ -277,6 +281,213 @@ public final class FtpOperations extends BaseFileSystemOperations {
   @Throws(FileRenameErrorTypeProvider.class)
   public void createDirectory(@Connection FileSystem fileSystem,
                               @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath) {
-    super.doCreateDirectory(fileSystem, directoryPath);
+    doCreateDirectory(fileSystem, directoryPath);
+  }
+
+  /**
+   * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
+   * <p>
+   * If the listing encounters a directory, the output list will include its contents depending on the value of the
+   * {@code recursive} parameter. If {@code recursive} is enabled, then all the files in that directory will be listed immediately
+   * after their parent directory.
+   * <p>
+   *
+   * @param config        the config that is parameterizing this operation
+   * @param directoryPath the path to the directory to be listed
+   * @param recursive     whether to include the contents of sub-directories. Defaults to false.
+   * @param matchWith     a matcher used to filter the output list
+   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and metadata in the
+   * attributes
+   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
+   */
+  private PagingProvider<FileSystem, Result<String, FtpFileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                    String directoryPath,
+                                                                                    boolean recursive,
+                                                                                    FileMatcher matchWith,
+                                                                                    StreamingHelper streamingHelper) {
+    return doPagedList(config, directoryPath, recursive, matchWith, streamingHelper, null);
+  }
+
+  /**
+   * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
+   * <p>
+   * If the listing encounters a directory, the output list will include its contents depending on the value of the
+   * {@code recursive} parameter. If {@code recursive} is enabled, then all the files in that directory will be listed immediately
+   * after their parent directory.
+   * <p>
+   *
+   * @param config        the config that is parameterizing this operation
+   * @param directoryPath the path to the directory to be listed
+   * @param recursive     whether to include the contents of sub-directories. Defaults to false.
+   * @param matchWith     a matcher used to filter the output list
+   * @param subsetList    parameter group that lets you obtain a subset of the results
+   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and metadata in the
+   * attributes
+   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
+   */
+  private PagingProvider<FileSystem, Result<String, FtpFileAttributes>> doPagedList(FileConnectorConfig config,
+                                                                                    String directoryPath,
+                                                                                    boolean recursive,
+                                                                                    FileMatcher matchWith,
+                                                                                    StreamingHelper streamingHelper,
+                                                                                    SubsetList subsetList) {
+    return new PagingProvider<FileSystem, Result<String, FtpFileAttributes>>() {
+
+      private List<Result<String, FtpFileAttributes>> files;
+      private Iterator<Result<String, FtpFileAttributes>> filesIterator;
+      private final AtomicBoolean initialised = new AtomicBoolean(false);
+
+      @Override
+      public List<Result<String, FtpFileAttributes>> getPage(FileSystem connection) {
+        if (initialised.compareAndSet(false, true)) {
+          initializePagingProvider(connection);
+        }
+        List<Result<String, FtpFileAttributes>> page = new LinkedList<>();
+        for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
+          Result<String, FtpFileAttributes> result = filesIterator.next();
+          page.add((Result.<String, FtpFileAttributes>builder().attributes(result.getAttributes().get())
+              .output(result.getOutput())
+              .mediaType(result.getMediaType().orElse(null))
+              .attributesMediaType(result.getAttributesMediaType().orElse(null))
+              .build()));
+        }
+        return page;
+      }
+
+      private void initializePagingProvider(FileSystem connection) {
+        connection.changeToBaseDir();
+        files = connection.list(config, directoryPath, recursive, getPredicate(matchWith), subsetList);
+        filesIterator = files.iterator();
+      }
+
+      @Override
+      public java.util.Optional<Integer> getTotalResults(FileSystem connection) {
+        if (files == null) {
+          return java.util.Optional.empty();
+        }
+        return java.util.Optional.of(files.size());
+      }
+
+      @Override
+      public void close(FileSystem connection) throws MuleException {}
+
+    };
+  }
+
+  private Predicate<FtpFileAttributes> getPredicate(FileMatcher builder) {
+    return builder != null ? builder.build() : new NullFilePayloadPredicate();
+  }
+
+  private void validatePath(String path, String pathName) {
+    if (isBlank(path)) {
+      throw new IllegalPathException(format("%s cannot be null nor blank", pathName));
+    }
+  }
+
+  /**
+   * Copies the file at the {@code sourcePath} into the {@code targetPath}.
+   * <p>
+   * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
+   * value of the {@code createParentFolder} argument. If such argument is {@false}, then an {@link IllegalArgumentException} will
+   * be thrown.
+   * <p>
+   * If the target file already exists, then it will be overwritten if the {@code overwrite} argument is {@code true}. Otherwise,
+   * {@link IllegalArgumentException} will be thrown.
+   * <p>
+   * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be copied
+   * recursively.
+   *
+   * @param config                  the config that is parameterizing this operation
+   * @param fileSystem              a reference to the host {@link FileSystem}
+   * @param sourcePath              the path to the file to be copied
+   * @param targetPath              the target directory where the file is going to be copied
+   * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
+   * @param overwrite               whether or not overwrite the file if the target destination already exists.
+   * @param renameTo                the new file name, {@code null} if the file doesn't need to be renamed
+   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   */
+  private void doCopy(FileConnectorConfig config, FileSystem fileSystem, String sourcePath,
+                      String targetPath, boolean createParentDirectories, boolean overwrite, String renameTo) {
+    fileSystem.changeToBaseDir();
+    validatePath(targetPath, "target path");
+    validatePath(sourcePath, "source path");
+    fileSystem.copy(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo);
+  }
+
+  /**
+   * Moves the file at the {@code sourcePath} into the {@code targetPath}.
+   * <p>
+   * If {@code targetPath} doesn't exist, and neither does its parent, then an attempt will be made to create depending on the
+   * value of the {@code createParentFolder} argument. If such argument is {@code false}, then an {@link IllegalArgumentException}
+   * will be thrown.
+   * <p>
+   * If the target file already exists, then it will be overwritten if the {@code overwrite} argument is {@code true}. Otherwise,
+   * {@link IllegalArgumentException} will be thrown.
+   * <p>
+   * As for the {@code sourcePath}, it can either be a file or a directory. If it points to a directory, then it will be moved
+   * recursively.
+   *
+   * @param config                  the config that is parameterizing this operation
+   * @param fileSystem              a reference to the host {@link FileSystem}
+   * @param sourcePath              the path to the file to be copied
+   * @param targetPath              the target directory
+   * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
+   * @param overwrite               whether or not overwrite the file if the target destination already exists.
+   * @param renameTo                the new file name, {@code null} if the file doesn't need to be renamed
+   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   */
+  private void doMove(FileConnectorConfig config, FileSystem fileSystem, String sourcePath,
+                      String targetPath, boolean createParentDirectories, boolean overwrite, String renameTo) {
+    fileSystem.changeToBaseDir();
+    validatePath(targetPath, "target path");
+    validatePath(sourcePath, "source path");
+    fileSystem.move(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo);
+  }
+
+  /**
+   * Deletes the file pointed by {@code path}, provided that it's not locked
+   *
+   * @param fileSystem a reference to the host {@link FileSystem}
+   * @param path       the path to the file to be deleted
+   * @throws IllegalArgumentException if {@code filePath} doesn't exist or is locked
+   */
+  private void doDelete(FileSystem fileSystem, @Optional String path) {
+    fileSystem.changeToBaseDir();
+    fileSystem.delete(path);
+  }
+
+  /**
+   * Renames the file pointed by {@code path} to the name provided on the {@code to} parameter
+   * <p>
+   * {@code to} argument should not contain any path separator. {@link IllegalArgumentException} will be thrown if this
+   * precondition is not honored.
+   *  @param fileSystem a reference to the host {@link FileSystem}
+   * @param path       the path to the file to be renamed
+   * @param to         the file's new name
+   * @param overwrite  whether or not overwrite the file if the target destination already exists.
+   */
+  private void doRename(@Connection FileSystem fileSystem, @Optional String path,
+                        @DisplayName("New Name") String to, @Optional(defaultValue = "false") boolean overwrite) {
+    if (get(to).getNameCount() != 1) {
+      throw new IllegalPathException(
+                                     format("'to' parameter of rename operation should not contain any file separator character but '%s' was received",
+                                            to));
+    }
+
+    fileSystem.changeToBaseDir();
+    fileSystem.rename(path, to, overwrite);
+  }
+
+  /**
+   * Creates a new directory on {@code directoryPath}
+   *
+   * @param fileSystem    a reference to the host {@link FileSystem}
+   * @param directoryPath the new directory's name
+   */
+
+  private void doCreateDirectory(@Connection FileSystem fileSystem, String directoryPath) {
+    validatePath(directoryPath, "directory path");
+    fileSystem.changeToBaseDir();
+    fileSystem.createDirectory(directoryPath);
   }
 }

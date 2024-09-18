@@ -9,14 +9,15 @@ package org.mule.extension.ftp;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
-import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
+import static org.mule.extension.ftp.api.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.IllegalPathException;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;

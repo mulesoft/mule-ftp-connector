@@ -15,22 +15,21 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.rules.ExpectedException.none;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
-import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
-import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
-import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
+import static org.mule.extension.ftp.api.FileWriteMode.APPEND;
+import static org.mule.extension.ftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.ftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.ftp.api.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.runtime.core.api.event.CoreEvent;
 
 import java.io.IOException;
@@ -156,9 +155,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     assertThat(content, is(HELLO_WORLD));
   }
 
-  //TODO: MULE-16515 ignore this test until issue is fixed.
   @Test
-  @Ignore
   public void writeOnLockedFile() throws Exception {
     final String path = "file";
     testHarness.write(path, HELLO_WORLD);
@@ -171,7 +168,7 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     Method methodGetErrorType = error.getClass().getMethod("getErrorType");
     methodGetErrorType.setAccessible(true);
     Object fileError = methodGetErrorType.invoke(error);
-    assertThat(fileError.toString(), is("FILE:FILE_LOCK"));
+    assertThat(fileError.toString(), is("FTP:FILE_LOCK"));
   }
 
   @Test
@@ -187,9 +184,9 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
     doWrite("write", filename, HELLO_WORLD, CREATE_NEW, false, customEncoding);
     String path = createUri(testHarness.getWorkingDirectory(), filename).getPath();
-    InputStream content = (InputStream) readPath(path, false).getPayload().getValue();
+    String content = toString(readPath(path).getPayload().getValue());
 
-    assertThat(Arrays.equals(toByteArray(content), HELLO_WORLD.getBytes(customEncoding)), is(true));
+    assertThat(Arrays.equals(content.getBytes(), HELLO_WORLD.getBytes(customEncoding)), is(true));
   }
 
   @Test
@@ -204,9 +201,6 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void writeOnAPathWithColon() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
-    // removed when the test server always runs in an external Linux container.
-    assumeTrue(!IS_OS_WINDOWS);
     final String filePath = "folder/fi:le.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);

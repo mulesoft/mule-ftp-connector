@@ -6,8 +6,7 @@
  */
 package org.mule.extension.ftp.internal;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.ftp.internal.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -27,7 +26,7 @@ public class ClassicFtpInputStream extends FtpInputStream {
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
    * @param config     the {@link FtpConnector} which is configuring the connection
-   * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param attributes a {@link FtpFileAttributes} referencing the file which contents are to be fetched
    * @param lock       the {@link UriLock} to be used
    * @return a new {@link FtpInputStream}
    * @throws ConnectionException if a connection could not be established
@@ -47,7 +46,7 @@ public class ClassicFtpInputStream extends FtpInputStream {
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
    * @param fileSystem            the {@link FtpFileSystem} to be used to connect to the FTP server
-   * @param attributes            a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param attributes            a {@link FtpFileAttributes} referencing the file which contents are to be fetched
    * @param lock                  the {@link UriLock} to be used
    * @param timeBetweenSizeCheck  the time to be waited between size checks if configured.
    * @return a mew {@link FtpInputStream}

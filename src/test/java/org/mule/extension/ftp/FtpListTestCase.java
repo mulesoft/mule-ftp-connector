@@ -14,20 +14,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,6 +40,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
   private static final String TEST_FILE_PATTERN = "test-file-%d.html";
   private static final String SUB_DIRECTORY_NAME = "subDirectory";
   private static final String CONTENT = "foo";
+  private static final String FILE_PATH = "/base/test-file-2.html";
   private static final String LONG_CONTENT = "longcontentlongcontentlongcontentlongcontent";
   private static final String LONG_CONTENT_FILE_NAME = "longContent.txt";
   private static int WRITE_DELAY = 1000;
@@ -85,7 +84,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     assertThat(assertListedFiles(messages), is(true));
 
     List<Message> subDirectories = messages.stream()
-        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .filter(message -> ((FtpFileAttributes) message.getAttributes().getValue()).isDirectory())
         .collect(toList());
 
     assertThat(subDirectories, hasSize(1));
@@ -121,7 +120,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     assertThat(assertListedFiles(messages), is(true));
 
     List<Message> subDirectories = messages.stream()
-        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .filter(message -> ((FtpFileAttributes) message.getAttributes().getValue()).isDirectory())
         .collect(toList());
 
     assertThat(subDirectories, hasSize(1));
@@ -155,7 +154,7 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
     assertThat(messages, hasSize(1));
 
-    FileAttributes file = (FileAttributes) messages.get(0).getAttributes().getValue();
+    FtpFileAttributes file = (FtpFileAttributes) messages.get(0).getAttributes().getValue();
     assertThat(file.isDirectory(), is(true));
     assertThat(file.getName(), equalTo(SUB_DIRECTORY_NAME));
   }
@@ -166,10 +165,10 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
     assertThat(messages, hasSize(1));
 
-    ArrayList<String> contents = TestProcessor.getFileContents();
+    ArrayList<String> contents = TestProcessor.getFilePaths();
     assertThat(contents, hasSize(2));
-    assertThat(contents.get(0), is(CONTENT));
-    assertThat(contents.get(1), is(CONTENT));
+    assertThat(contents.get(0), is(FILE_PATH));
+    assertThat(contents.get(1), is(FILE_PATH));
   }
 
   @Test
@@ -197,15 +196,20 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
     boolean directoryWasFound = false;
 
     for (Message message : messages) {
-      FileAttributes attributes = (FileAttributes) message.getAttributes().getValue();
+      FtpFileAttributes attributes = (FtpFileAttributes) message.getAttributes().getValue();
+      String filePath = attributes.getPath();
+      String fileName = attributes.getName();
       if (attributes.isDirectory()) {
         assertThat("two directories found", directoryWasFound, is(false));
         directoryWasFound = true;
-        assertThat(attributes.getName(), equalTo(SUB_DIRECTORY_NAME));
+        assertThat(fileName, equalTo(SUB_DIRECTORY_NAME));
       } else {
-        assertThat(attributes.getName(), endsWith(".html"));
-        assertThat(toString(message.getPayload().getValue()), equalTo(CONTENT));
-        assertThat(attributes.getSize(), is(new Long(CONTENT.length())));
+        assertThat(fileName, endsWith(".html"));
+        if (filePath.contains(SUB_DIRECTORY_NAME)) {
+          assertThat(filePath, is(equalTo(format("/base/%s/%s", SUB_DIRECTORY_NAME, fileName))));
+        } else {
+          assertThat(filePath, is(equalTo(format("/base/%s", fileName))));
+        }
       }
     }
 
@@ -259,14 +263,14 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
   public static class TestProcessor implements Processor {
 
-    private static ArrayList<String> fileContents = new ArrayList<>();
+    private static ArrayList<String> filePaths = new ArrayList<>();
 
-    static ArrayList<String> getFileContents() {
-      return fileContents;
+    static ArrayList<String> getFilePaths() {
+      return filePaths;
     }
 
     static void clear() {
-      fileContents.clear();
+      filePaths.clear();
     }
 
     @Override
@@ -280,8 +284,8 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
       }
 
       for (Message message : messageList) {
-        InputStream inputStream = (InputStream) ((CursorProvider) message.getPayload().getValue()).openCursor();
-        fileContents.add(new String(toByteArray(inputStream)));
+        String filePath = message.getPayload().getValue().toString();
+        filePaths.add(filePath);
       }
 
       return event;
@@ -303,7 +307,11 @@ public class FtpListTestCase extends CommonFtpConnectorTestCase {
 
     @Override
     public CoreEvent process(CoreEvent event) throws MuleException {
-      filePaths.add(((FtpFileAttributes) event.getMessage().getAttributes().getValue()).getPath());
+      String filePath = event.getMessage().getPayload().getValue().toString();
+      filePaths.add(filePath);
+      if (filePath.equals("/base/" + LONG_CONTENT_FILE_NAME)) {
+        throw new RuntimeException("Error trying to write in file: " + LONG_CONTENT_FILE_NAME);
+      }
       return event;
     }
   }

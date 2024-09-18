@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-rename-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="before-ftp-rename-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-ftp-rename-test-case">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-ftp-rename-test-case">
+        <try>
+            <ftp:delete config-ref="config" path="source"/>
+            <error-handler >
+                <on-error-continue type="FTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="ftp-rename-directory-success"
+                description="A directory is created to be renamed, it is expected that listing will only return the renamed directory">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/created-to-rename"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:rename config-ref="config" path="source/created-to-rename" to="file-renamed"/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:list config-ref="config" directoryPath="source"/>
+            <munit-tools:assert-that  expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
+            <munit-tools:assert-that expression="#[payload[0].attributes.name]" is="#[MunitTools::equalTo('file-renamed')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-rename-directory-exists" description="An attempt is made to rename a file but the name already exists in the target."
+                expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/created-to-rename"/>
+            <ftp:create-directory config-ref="config" directoryPath="source/file-renamed"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:rename config-ref="config" path="source/created-to-rename" to="file-renamed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-rename-directory-already-exists-with-overwrite-enable"
+                description="A file with an existing name is renamed, with overwriting enabled, the source path is renamed and the existing one is lost.">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/created-to-rename"/>
+            <ftp:create-directory config-ref="config" directoryPath="source/file-renamed"/>
+            <ftp:write  config-ref="config" path="source/created-to-rename/file.txt">
+                <ftp:content ><![CDATA[#['Document for test rename']]]></ftp:content>
+            </ftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:list config-ref="config" directoryPath="source/file-renamed" />
+            <set-variable value="#[sizeOf(payload)]" variableName="size-directory-before-rename"/>
+            <ftp:rename config-ref="config" path="source/created-to-rename" to="file-renamed" overwrite="true"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:list config-ref="config" directoryPath="source/file-renamed" />
+            <munit-tools:assert-that expression='#[vars."size-directory-before-rename"]' is="#[MunitTools::lessThan(sizeOf(payload))]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-rename-directory-non-exists" description="Trying to rename a non-existent directory" expectedErrorType="FTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:rename config-ref="config" path="source/directory-non-exists" to="directory-renamed"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-rename-directory-with-special-characters"
+                description="A directory is renamed by assigning a name that contains special characters.">
+        <munit:behavior>
+            <ftp:create-directory config-ref="config" directoryPath="source/directory-to-rename"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:rename config-ref="config" path="source/directory-to-rename" to="directory-renamed-@#!%!@="/>
+        </munit:execution>
+        <munit:validation >
+            <ftp:list config-ref="config" directoryPath="source"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(0)]"/>
+            <munit-tools:assert-that expression="#[payload[0].attributes.name]" is="#[MunitTools::equalTo('directory-renamed-@#!%!@=')]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

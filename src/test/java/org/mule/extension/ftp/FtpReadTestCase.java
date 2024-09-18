@@ -12,17 +12,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.rules.ExpectedException.none;
-import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.ftp.api.FileError.ILLEGAL_PATH;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
-import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+import static org.mule.extension.ftp.api.FileTestHarness.BINARY_FILE_NAME;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.ftp.api.FileTestHarness.HELLO_WORLD;
 
-import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
-import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.ftp.api.DeletedFileWhileReadException;
+import org.mule.extension.ftp.api.FileBeingModifiedException;
+import org.mule.extension.ftp.api.IllegalPathException;
+import org.mule.extension.ftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -77,16 +77,14 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
   public void readBinary() throws Exception {
     testHarness.createBinaryFile();
 
-    Message response = readPath(BINARY_FILE_NAME, false);
+    Message response = readPath(BINARY_FILE_NAME);
 
     assertThat(response.getPayload().getDataType().getMediaType().getPrimaryType(), is(MediaType.BINARY.getPrimaryType()));
     assertThat(response.getPayload().getDataType().getMediaType().getSubType(), is(MediaType.BINARY.getSubType()));
 
-    InputStream payload = (InputStream) response.getPayload().getValue();
+    String content = toString(response.getPayload().getValue());
 
-    byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
-    org.apache.commons.io.IOUtils.read(payload, readContent);
-    assertThat(new String(readContent), is(HELLO_WORLD));
+    assertThat(content, is(HELLO_WORLD));
   }
 
   @Test
@@ -111,8 +109,8 @@ public class FtpReadTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void getProperties() throws Exception {
-    FtpFileAttributes fileAttributes = (FtpFileAttributes) readHelloWorld().getMessage().getAttributes().getValue();
-    testHarness.assertAttributes(HELLO_PATH, fileAttributes);
+    FtpFileAttributes ftpFileAttributes = (FtpFileAttributes) readHelloWorld().getMessage().getAttributes().getValue();
+    testHarness.assertAttributes(HELLO_PATH, ftpFileAttributes);
   }
 
   public static class StreamCloserTestMessageProcessor implements Processor {

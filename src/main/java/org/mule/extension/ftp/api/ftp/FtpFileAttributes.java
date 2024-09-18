@@ -6,31 +6,31 @@
  */
 package org.mule.extension.ftp.api.ftp;
 
-import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
-import org.mule.extension.file.common.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
+import java.io.Serializable;
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.ftp.FTPFile;
+import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
 /**
  * Metadata about a file in a FTP server
  *
  * @since 1.0
  */
-public class FtpFileAttributes extends AbstractFileAttributes {
+public class FtpFileAttributes implements Serializable {
+
+  private static final long serialVersionUID = -7637862488391924042L;
 
   @Parameter
   @Optional
   private LocalDateTime timestamp;
-
-  @Parameter
-  // TODO MULE-15337: Remove redundant 'name' attribute in next major version,
-  // since it represents the same that 'fileName' from AbstractFileAttributes.
-  private String name;
 
   @Parameter
   private long size;
@@ -44,130 +44,196 @@ public class FtpFileAttributes extends AbstractFileAttributes {
   @Parameter
   private boolean symbolicLink;
 
+  @Parameter
+  protected final String path;
+
+  @Parameter
+  private final String name;
+
   /**
-   * Creates a new instance
+   * Creates a new instance of FtpFileAttributes with the specified URI and FTPFile.
    *
-   * @param uri the file's {@link URI}
+   * @param uri     the file's {@link URI}
    * @param ftpFile the {@link FTPFile} which represents the file on the FTP server
    */
-
-
-
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
-    super(uri);
+    this.path = uri.getPath();
+    String name = FilenameUtils.getName(uri.getPath());
+    this.name = name != null ? name : "";
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
-    // TODO MULE-15337: Remove redundant 'name' attribute in next major version
-    name = ftpFile.getName() != null ? ftpFile.getName() : "";
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
     directory = ftpFile.isDirectory();
     symbolicLink = ftpFile.isSymbolicLink();
   }
 
-
+  /**
+   * Creates a new instance of FtpFileAttributes with default values.
+   */
   public FtpFileAttributes() {
-    super(createDefaultUri());
+    URI uri = createDefaultUri();
+    this.path = uri.getPath();
+    String name = FilenameUtils.getName(uri.getPath());
+    this.name = name != null ? name : "";
     timestamp = null;
-    name = "";
     size = 0;
     regularFile = false;
     directory = false;
     symbolicLink = false;
   }
 
+  /**
+   * Creates a default URI.
+   *
+   * @return the default {@link URI}
+   */
   private static URI createDefaultUri() {
     return URI.create("file:///defaultPath");
   }
 
   /**
+   * Returns the last time the file was modified.
+   *
    * @return The last time the file was modified, or {@code null} if such information is not available.
    */
   public LocalDateTime getTimestamp() {
     return timestamp;
   }
 
+  /**
+   * Sets the last time the file was modified.
+   *
+   * @param timestamp the timestamp to set
+   */
   public void setTimestamp(LocalDateTime timestamp) {
     this.timestamp = timestamp;
   }
 
   /**
-   * {@inheritDoc}
+   * Returns the size of the file.
+   *
+   * @return the size of the file
    */
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public long getSize() {
     return size;
   }
 
+  /**
+   * Sets the size of the file.
+   *
+   * @param size the size to set
+   */
   public void setSize(long size) {
     this.size = size;
   }
 
   /**
-   * {@inheritDoc}
+   * Returns whether the file is a regular file.
+   *
+   * @return {@code true} if the file is a regular file, {@code false} otherwise
    */
-  @Override
   public boolean isRegularFile() {
     return regularFile;
   }
 
+  /**
+   * Returns whether the file is a regular file.
+   *
+   * @return {@code true} if the file is a regular file, {@code false} otherwise
+   */
   public boolean getRegularFile() {
     return regularFile;
   }
 
+  /**
+   * Sets whether the file is a regular file.
+   *
+   * @param regularFile the value to set
+   */
   public void setRegularFile(boolean regularFile) {
     this.regularFile = regularFile;
   }
 
   /**
-   * {@inheritDoc}
+   * Returns whether the file is a directory.
+   *
+   * @return {@code true} if the file is a directory, {@code false} otherwise
    */
-  @Override
   public boolean isDirectory() {
     return directory;
   }
 
+  /**
+   * Returns whether the file is a directory.
+   *
+   * @return {@code true} if the file is a directory, {@code false} otherwise
+   */
   public boolean getDirectory() {
     return directory;
   }
 
+  /**
+   * Sets whether the file is a directory.
+   *
+   * @param directory the value to set
+   */
   public void setDirectory(boolean directory) {
     this.directory = directory;
   }
 
   /**
-   * {@inheritDoc}
+   * Returns whether the file is a symbolic link.
+   *
+   * @return {@code true} if the file is a symbolic link, {@code false} otherwise
    */
-  @Override
   public boolean isSymbolicLink() {
     return symbolicLink;
   }
 
+  /**
+   * Returns whether the file is a symbolic link.
+   *
+   * @return {@code true} if the file is a symbolic link, {@code false} otherwise
+   */
   public boolean getSymbolicLink() {
     return symbolicLink;
   }
 
+  /**
+   * Sets whether the file is a symbolic link.
+   *
+   * @param symbolicLink the value to set
+   */
   public void setSymbolicLink(boolean symbolicLink) {
     this.symbolicLink = symbolicLink;
   }
 
   /**
-   * {@inheritDoc}
+   * Returns the normalized path of the file.
+   *
+   * @return the normalized path of the file
    */
-  @Override
   public String getPath() {
-    return normalizePath(super.getPath());
+    return normalizePath(path);
+  }
+
+  /**
+   * Returns the name of the file.
+   *
+   * @return the name of the file
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Converts an {@link Instant} to a {@link LocalDateTime}.
+   *
+   * @param instant the instant to convert
+   * @return the corresponding {@link LocalDateTime}
+   */
+  protected LocalDateTime asDateTime(Instant instant) {
+    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 
 }

@@ -10,7 +10,7 @@ import static org.mule.functional.api.exception.ExpectedError.none;
 
 import org.mule.functional.api.exception.ExpectedError;
 import org.mule.tck.junit4.rule.SystemProperty;
-import org.mule.test.extension.file.common.api.FileTestHarness;
+import org.mule.extension.ftp.api.FileTestHarness;
 
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;

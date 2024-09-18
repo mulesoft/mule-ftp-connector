@@ -7,20 +7,20 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
-import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
-import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
-import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.ftp.api.FileWriteMode.APPEND;
+import static org.mule.extension.ftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.ftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.trimLastFragment;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
+import org.mule.extension.ftp.api.FileWriteMode;
+import org.mule.extension.ftp.internal.operation.WriteCommand;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.IllegalPathException;
+import org.mule.extension.ftp.internal.lock.NullUriLock;
+import org.mule.extension.ftp.internal.lock.UriLock;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 
 import java.io.Closeable;
@@ -49,16 +49,6 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
    */
   public FtpWriteCommand(FtpFileSystem fileSystem, FTPClient client) {
     super(fileSystem, client);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Deprecated
-  @Override
-  public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
-                    String encoding) {
-    write(filePath, content, mode, lock, createParentDirectory);
   }
 
   /**
@@ -110,12 +100,12 @@ public final class FtpWriteCommand extends FtpCommand implements WriteCommand {
   }
 
   private void validateUri(URI uri, boolean createParentDirectory, FileWriteMode mode) {
-    FileAttributes file = getFile(uri.getPath(), false);
+    FtpFileAttributes file = getFile(uri.getPath(), false);
     if (file == null) {
       if (pathIsDirectory(uri)) {
         throw pathIsADirectoryException(uri);
       }
-      FileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
+      FtpFileAttributes directory = getFile(trimLastFragment(uri).getPath(), false);
       if (directory == null) {
         assureParentFolderExists(uri, createParentDirectory);
       }

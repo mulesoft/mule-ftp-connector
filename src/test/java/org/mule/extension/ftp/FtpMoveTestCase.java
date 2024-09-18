@@ -13,6 +13,7 @@ import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import io.qameta.allure.Feature;
 
 @Feature(FTP_EXTENSION)
+
 public class FtpMoveTestCase extends FtpCopyTestCase {
 
   @Override

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="ftp-create-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="ftp.server.port"/>
+
+    <munit:before-suite name="startFtpTestServer-createTestCase">
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="startFtpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${ftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearFtpTestServer-createTestCase">
+        <ftp:delete config-ref="config" path="/created-dir-test"/>
+        <java:invoke-static class="org.mule.extension.ftp.internal.lifecycle.FtpServerLifecycleManager"
+                            method="stopFtpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <ftp:config name="ftp-config">
+        <ftp:connection username="anonymous" password="password" host="localhost" port="${ftp.server.port}" workingDir="/"/>
+    </ftp:config>
+
+    <munit:test name="ftp-create-directory" description="Perform operation that create a directory">
+        <munit:execution>
+            <ftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:list config-ref="config" directoryPath="/"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.name must equalTo('created-dir-test')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-create-SubDirectory" description="Perform operation that create a subDirectory">
+        <munit:execution>
+            <ftp:create-directory config-ref="config" directoryPath="created-dir-test/subDirectory"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:list config-ref="config" directoryPath="created-dir-test"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.name must equalTo('subDirectory')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="ftp-create-directory-already-exists" description="Perform a create operation but it already exists. Expect FTP:FILE_ALREADY_EXISTS error"
+                expectedErrorType="FTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <ftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:behavior>
+        <munit:execution>
+            <ftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="ftp-create-directory-with-special-name" description="Perform a create operation with special name">
+        <munit:execution>
+            <ftp:create-directory config-ref="config" directoryPath="created-dir-test/?1*@|#"/>
+        </munit:execution>
+        <munit:validation>
+            <ftp:list config-ref="config" directoryPath="created-dir-test"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.name must equalTo("?1*@|#")
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <ftp:delete config-ref="config" path="created-dir-test/?1*@|#"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

@@ -7,13 +7,13 @@
 package org.mule.extension.ftp.internal.command;
 
 import static java.lang.String.format;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.operation.ReadCommand;
+import org.mule.extension.ftp.internal.lock.NullUriLock;
+import org.mule.extension.ftp.internal.lock.UriLock;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import org.mule.extension.ftp.internal.ClassicFtpInputStream;
 import org.mule.extension.ftp.internal.FtpConnector;
@@ -32,21 +32,13 @@ import org.apache.commons.net.ftp.FTPClient;
  *
  * @since 1.0
  */
-public final class FtpReadCommand extends FtpCommand implements ReadCommand<FtpFileAttributes> {
+public final class FtpReadCommand extends FtpCommand implements ReadCommand {
 
   /**
    * {@inheritDoc}
    */
   public FtpReadCommand(FtpFileSystem fileSystem, FTPClient client) {
     super(fileSystem, client);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Result<InputStream, FtpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
-    return read(config, filePath, lock, null);
   }
 
   /**

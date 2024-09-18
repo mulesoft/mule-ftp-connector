@@ -11,12 +11,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
-import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 import static org.mule.extension.ftp.internal.FtpUtils.normalizePath;
 
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -188,9 +188,6 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void createDirectoryWithColon() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
-    // removed when the test server always runs in an external Linux container.
-    assumeTrue(!IS_OS_WINDOWS);
     final String path = "pathWith:Colon";
     doCreateDirectory(path);
     assertThat(testHarness.dirExists("/base/pathWith:Colon"), is(true));
@@ -198,9 +195,6 @@ public class FtpCreateDirectoryTestCase extends CommonFtpConnectorTestCase {
 
   @Test
   public void createDirectoryWithGreaterThan() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
-    // removed when the test server always runs in an external Linux container.
-    assumeTrue(!IS_OS_WINDOWS);
     final String path = "pathWith>";
     doCreateDirectory(path);
     assertThat(testHarness.dirExists("/base/pathWith>"), is(true));

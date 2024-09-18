@@ -8,7 +8,7 @@ package org.mule.extension.ftp.internal.source;
 
 import static java.lang.String.format;
 
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.extension.ftp.api.IllegalPathException;
 import org.mule.extension.ftp.internal.command.FtpCommand;
 import org.mule.extension.ftp.internal.connection.FtpFileSystem;
 

@@ -7,18 +7,18 @@
 package org.mule.extension.ftp.internal.connection;
 
 import static java.lang.String.format;
-import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
-import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
-import static org.mule.extension.file.common.api.exceptions.FileError.SERVICE_NOT_AVAILABLE;
-import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
+import static org.mule.extension.ftp.api.FileError.CANNOT_REACH;
+import static org.mule.extension.ftp.api.FileError.CONNECTION_TIMEOUT;
+import static org.mule.extension.ftp.api.FileError.CONNECTIVITY;
+import static org.mule.extension.ftp.api.FileError.INVALID_CREDENTIALS;
+import static org.mule.extension.ftp.api.FileError.SERVICE_NOT_AVAILABLE;
+import static org.mule.extension.ftp.api.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.FileSystemProvider;
-import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.ftp.internal.connection.provider.FileSystemProvider;
+import org.mule.extension.ftp.api.FileError;
 import org.mule.extension.ftp.api.FTPConnectionException;
 import org.mule.extension.ftp.api.ftp.FtpTransferMode;
 import org.mule.extension.ftp.internal.TimeoutSettings;

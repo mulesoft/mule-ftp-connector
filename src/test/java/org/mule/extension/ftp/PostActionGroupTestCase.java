@@ -6,29 +6,29 @@
  */
 package org.mule.extension.ftp;
 
+import org.apache.commons.net.ftp.FTPClient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
-import org.mule.extension.file.common.api.AbstractFileSystem;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.command.CopyCommand;
-import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
-import org.mule.extension.file.common.api.command.DeleteCommand;
-import org.mule.extension.file.common.api.command.ListCommand;
-import org.mule.extension.file.common.api.command.MoveCommand;
-import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.command.RenameCommand;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.lock.PathLock;
-import org.mule.extension.file.common.api.source.AbstractPostActionGroup;
+import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
+import org.mule.extension.ftp.internal.config.FileConnectorConfig;
+import org.mule.extension.ftp.internal.connection.FtpFileSystem;
+import org.mule.extension.ftp.internal.connection.SingleFileListingMode;
+import org.mule.extension.ftp.internal.operation.CopyCommand;
+import org.mule.extension.ftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.ftp.internal.operation.DeleteCommand;
+import org.mule.extension.ftp.internal.operation.ListCommand;
+import org.mule.extension.ftp.internal.operation.MoveCommand;
+import org.mule.extension.ftp.internal.operation.ReadCommand;
+import org.mule.extension.ftp.internal.operation.RenameCommand;
+import org.mule.extension.ftp.internal.operation.WriteCommand;
+import org.mule.extension.ftp.api.FileAlreadyExistsException;
 import org.mule.extension.ftp.internal.source.PostActionGroup;
+import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -68,28 +68,28 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Test(expected = FileAlreadyExistsException.class)
   @Description("verifies that move file with overwrite flag set to false and exceptiopn will be thrown")
   public void testMoveWithoutOverwriteWhenFileExists() {
-    FileAttributes fileAttributes = mock(FileAttributes.class);
-    when(fileAttributes.getName()).thenReturn("");
+    FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
+    when(ftpFileAttributes.getName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
-    ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
+    ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
 
-    new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, fileAttributes, fileConnectorConfig);
+    new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
 
   @Test
   @Description("verifies that move file with overwrite flag set to true and no exception")
   public void testMoveWithOverwriteWhenFileExists() {
-    FileAttributes fileAttributes = mock(FileAttributes.class);
-    when(fileAttributes.getName()).thenReturn("");
+    FtpFileAttributes ftpFileAttributes = mock(FtpFileAttributes.class);
+    when(ftpFileAttributes.getName()).thenReturn("");
     FileConnectorConfig fileConnectorConfig = mock(FileConnectorConfig.class);
 
-    ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
+    ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
     fileSystem.setCanMove(true);
-    new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, fileAttributes, fileConnectorConfig);
+    new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
   }
 
-  private class PostActionGroupChild extends AbstractPostActionGroup {
+  private class PostActionGroupChild extends PostActionGroup {
 
     private String moveToDirectory;
     private String renameTo;
@@ -142,15 +142,16 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     }
   }
 
-  private class ConcreteFileSystem extends AbstractFileSystem {
+  private class ConcreteFileSystem extends FtpFileSystem {
 
     private Queue<String> actions;
     private boolean canRename = false;
     private boolean canMove = false;
     private Command success;
 
-    public ConcreteFileSystem(String basePath) {
-      super(basePath);
+    public ConcreteFileSystem(FTPClient client, String basePath, LockFactory lockFactory,
+                              SingleFileListingMode singleFileListingMode) {
+      super(client, basePath, lockFactory, singleFileListingMode);
       this.actions = new LinkedList<>();
       this.success = new Success(actions);
     }
@@ -172,47 +173,42 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     }
 
     @Override
-    protected ListCommand getListCommand() {
+    public ListCommand getListCommand() {
       return null;
     }
 
     @Override
-    protected ReadCommand getReadCommand() {
+    public ReadCommand getReadCommand() {
       return null;
     }
 
     @Override
-    protected WriteCommand getWriteCommand() {
+    public WriteCommand getWriteCommand() {
       return null;
     }
 
     @Override
-    protected CopyCommand getCopyCommand() {
+    public CopyCommand getCopyCommand() {
       return null;
     }
 
     @Override
-    protected MoveCommand getMoveCommand() {
+    public MoveCommand getMoveCommand() {
       return new ConcreteCommand(canMove, success);
     }
 
     @Override
-    protected DeleteCommand getDeleteCommand() {
+    public DeleteCommand getDeleteCommand() {
       return new ConcreteCommand(true, success);
     }
 
     @Override
-    protected RenameCommand getRenameCommand() {
+    public RenameCommand getRenameCommand() {
       return new ConcreteCommand(canRename, success);
     }
 
     @Override
-    protected CreateDirectoryCommand getCreateDirectoryCommand() {
-      return null;
-    }
-
-    @Override
-    protected PathLock createLock(Path path) {
+    public CreateDirectoryCommand getCreateDirectoryCommand() {
       return null;
     }
 

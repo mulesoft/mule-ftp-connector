@@ -54,7 +54,7 @@
         <try>
             <ftp:list config-ref="${config}" directoryPath="/" />
             <foreach collection="#[payload]">
-                <ftp:delete config-ref="${config}" path="#[attributes.fileName]" />
+                <ftp:delete config-ref="${config}" path="#[attributes.name]" />
             </foreach>
         </try>
         <flow-ref name="write-file"/>
@@ -158,6 +158,23 @@
             </foreach>
         </munit:execution>
     </munit:test>
+
+    <munit:test name="listAllFiles" description="All files are listed">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-all-files"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="list-all-files"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
+            <munit-tools:assert-that expression="#[payload[0].payload]" is="#[MunitTools::equalTo('/random.txt')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="list-all-files">
+        <ftp:list config-ref="${config}" directoryPath="."/>
+    </flow>
 
     <flow name="list-filtering-updated-recently">
         <ftp:list config-ref="${config}" directoryPath=".">

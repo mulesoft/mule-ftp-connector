@@ -7,11 +7,11 @@
 package org.mule.extension.ftp;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.ftp.api.UriUtils.createUri;
 import static org.mule.extension.ftp.AllureConstants.FtpFeature.FTP_EXTENSION;
 
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
@@ -53,7 +53,7 @@ public class FtpFileAttributesTestCase {
     expectedTimesTamp = LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault());
 
     when(ftpFile.getTimestamp()).thenReturn(currentDate);
-    when(ftpFile.getName()).thenReturn(EXPECTED_FILENAME);
+    lenient().when(ftpFile.getName()).thenReturn(EXPECTED_FILENAME);
     when(ftpFile.getSize()).thenReturn(EXPECTED_SIZE);
     when(ftpFile.isFile()).thenReturn(IS_FILE);
     when(ftpFile.isDirectory()).thenReturn(IS_DIRECTORY);
@@ -78,14 +78,6 @@ public class FtpFileAttributesTestCase {
 
     FtpFileAttributes ftpAttributes = getFtpFileAttributes();
     assertThat(ftpAttributes.getTimestamp(), is(nullValue()));
-  }
-
-  @Test
-  public void missingNameFromFtpFile() {
-    when(ftpFile.getName()).thenReturn(null);
-
-    FtpFileAttributes ftpAttributes = getFtpFileAttributes();
-    assertThat(ftpAttributes.getName(), is(isEmptyString()));
   }
 
   private FtpFileAttributes getFtpFileAttributes() {
