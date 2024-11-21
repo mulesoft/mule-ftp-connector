@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.mulesoft.connectors</groupId>
         <artifactId>mule4-connectors-parent</artifactId>
-        <version>1.0.1</version>
+        <version>3.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,9 +57,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>2.26.0</version>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20231013</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -339,6 +339,11 @@
                                     <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64,linux/arm64</platform>
+                                            </platforms>
+                                        </buildx>
                                     </build>
                                     <run>
                                         <ports>
