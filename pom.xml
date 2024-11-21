@@ -52,7 +52,6 @@
         <minRangePort>9000</minRangePort>
         <maxRangePort>10000</maxRangePort>
         <skipVerifications>true</skipVerifications>
-        <mockito-core.version>2.26.0</mockito-core.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -88,12 +87,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>${commonsLangVersion}</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>commons-collections</groupId>-->
-<!--            <artifactId>commons-collections</artifactId>-->
-<!--            <version>${commonsCollectionsVersion}</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.mule.sdk</groupId>
@@ -339,11 +332,6 @@
                                     <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
-                                        <buildx>
-                                            <platforms>
-                                                <platform>linux/amd64,linux/arm64</platform>
-                                            </platforms>
-                                        </buildx>
                                     </build>
                                     <run>
                                         <ports>
@@ -453,23 +441,6 @@
             </build>
         </profile>
     </profiles>
-
-
-
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>mule-releases</id>-->
-<!--            <name>Mule Release Repository</name>-->
-<!--            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>-->
-<!--        </repository>-->
-<!--        <snapshotRepository>-->
-<!--            <id>mule-snapshots</id>-->
-<!--            <name>Mule Snapshot Repository</name>-->
-<!--            <url>https://repository-master.mulesoft.org/nexus/content/repositories/snapshots</url>-->
-<!--            <uniqueVersion>false</uniqueVersion>-->
-<!--        </snapshotRepository>-->
-<!--    </distributionManagement>-->
-
     <repositories>
         <repository>
             <id>mule</id>
@@ -477,12 +448,4 @@
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
         </repository>
     </repositories>
-
-<!--    <pluginRepositories>-->
-<!--        <pluginRepository>-->
-<!--            <id>mule-plugin</id>-->
-<!--            <name>Mule Repository</name>-->
-<!--            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>-->
-<!--        </pluginRepository>-->
-<!--    </pluginRepositories>-->
 </project>
