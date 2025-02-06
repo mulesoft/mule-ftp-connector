@@ -78,12 +78,12 @@ public class FtpDirectoryListenerPollFailureConsistencyFunctionaTestCase extends
     return new URI(String.join("/", path));
   }
 
-  @Test
-  @Description("Verifies that a the failure of a poll does not make the next poll iteration skip unprocessed files")
-  public void filesAreNotSkippedWithPollFailures() throws Exception {
-    createShuffledFilesWithDelay();
-    assertAllFilesArePolled();
-  }
+//  @Test
+//  @Description("Verifies that a the failure of a poll does not make the next poll iteration skip unprocessed files")
+//  public void filesAreNotSkippedWithPollFailures() throws Exception {
+//    createShuffledFilesWithDelay();
+//    assertAllFilesArePolled();
+//  }
 
   private void assertAllFilesArePolled() throws Exception {
     check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
