@@ -32,8 +32,8 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
 
-        <munit.version>3.2.1</munit.version>
-        <munit.extensions.maven.plugin.version>1.2.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.3.1</munit.version>
+        <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
         <mtf.tools.version>1.2.0</mtf.tools.version>
         <mtf.javaopts></mtf.javaopts>
         <mavenResources.version>3.3.1</mavenResources.version>
@@ -54,6 +54,17 @@
     </properties>
 
     <dependencies>
+
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bc-fips</artifactId>-->
+<!--            <version>1.0.2.5</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bctls-fips</artifactId>-->
+<!--            <version>1.0.17</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.mule.sdk</groupId>
@@ -329,6 +340,11 @@
                                     <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
+<!--                                        <buildx>-->
+<!--                                            <platforms>-->
+<!--                                                <platform>linux/amd64,linux/arm64</platform>-->
+<!--                                            </platforms>-->
+<!--                                        </buildx>-->
                                     </build>
                                     <run>
                                         <ports>
