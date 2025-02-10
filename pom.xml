@@ -51,6 +51,7 @@
         <jacoco.version>0.8.10</jacoco.version>
         <minRangePort>9000</minRangePort>
         <maxRangePort>10000</maxRangePort>
+        <config.ref.name.tls>${env.config.name.tls}</config.ref.name.tls>
     </properties>
 
     <dependencies>
@@ -320,7 +321,7 @@
                 </property>
             </activation>
             <properties>
-                <env.config.name.tls>ConfigWithTLS</env.config.name.tls>
+                <env.config.name.tls>config-proxy-https</env.config.name.tls>
             </properties>
         </profile>
         <profile>
@@ -332,7 +333,7 @@
                 </property>
             </activation>
             <properties>
-                <env.config.name.tls>ConfigWithTLS-FIPS</env.config.name.tls>
+                <env.config.name.tls>config-proxy-https-FIPS</env.config.name.tls>
             </properties>
         </profile>
         <profile>
