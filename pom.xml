@@ -313,6 +313,29 @@
     </build>
     <profiles>
         <profile>
+            <id>default-config</id>
+            <activation>
+                <property>
+                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
+                </property>
+            </activation>
+            <properties>
+                <env.config.name.tls>ConfigWithTLS</env.config.name.tls>
+            </properties>
+        </profile>
+        <profile>
+            <id>fips-config</id>
+            <activation>
+                <property>
+                    <name>mule.security.model</name>
+                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
+                </property>
+            </activation>
+            <properties>
+                <env.config.name.tls>ConfigWithTLS-FIPS</env.config.name.tls>
+            </properties>
+        </profile>
+        <profile>
             <id>vsftp-ftp</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
