@@ -314,9 +314,11 @@
     </build>
     <profiles>
         <profile>
-            <id>vsftp-ftp</id>
+            <id>default-config</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
+                </property>
             </activation>
             <properties>
                 <env.config.name>config-proxy-https</env.config.name>
@@ -441,29 +443,137 @@
                 </plugins>
             </build>
         </profile>
-<!--        <profile>-->
-<!--            <id>default-config</id>-->
-<!--            <activation>-->
-<!--                <property>-->
-<!--                    <name>!mule.security.model</name> &lt;!&ndash; if mule.security.model does not exist &ndash;&gt;-->
-<!--                </property>-->
-<!--            </activation>-->
-<!--            <properties>-->
-<!--                <env.config.name>config-proxy-https</env.config.name>-->
-<!--            </properties>-->
-<!--        </profile>-->
-<!--        <profile>-->
-<!--            <id>fips-config</id>-->
-<!--            <activation>-->
-<!--                <property>-->
-<!--                    <name>mule.security.model</name>-->
-<!--                    <value>fips140-2</value> &lt;!&ndash; if mule.security.model == fips140-2 &ndash;&gt;-->
-<!--                </property>-->
-<!--            </activation>-->
-<!--            <properties>-->
-<!--                <env.config.name>config-proxy-https-FIPS</env.config.name>-->
-<!--            </properties>-->
-<!--        </profile>-->
+        <profile>
+            <id>fips-config</id>
+            <activation>
+                <property>
+                    <name>mule.security.model</name>
+                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
+                </property>
+            </activation>
+            <properties>
+                <env.config.name>config-proxy-https-FIPS</env.config.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker.maven.plugin.version}</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>mule/vsftpd-ftp-${ftp.listener.port}</name>
+                                    <build>
+                                        <contextDir>${project.basedir}/src/test/resources/docker</contextDir>
+                                    </build>
+                                    <run>
+                                        <ports>
+                                            <!--ftp command port-->
+                                            <port>${ftp.listener.port}:21</port>
+                                            <!--ftp data ports-->
+                                            <port>${ftp.passivePort1}:${ftp.passivePort1}</port>
+                                            <port>${ftp.passivePort2}:${ftp.passivePort2}</port>
+                                            <port>${ftp.passivePort3}:${ftp.passivePort3}</port>
+                                            <port>${ftp.passivePort4}:${ftp.passivePort4}</port>
+                                            <port>${ftp.passivePort5}:${ftp.passivePort5}</port>
+                                            <port>${ftp.passivePort6}:${ftp.passivePort6}</port>
+                                            <port>${ftp.passivePort7}:${ftp.passivePort7}</port>
+                                            <port>${ftp.passivePort8}:${ftp.passivePort8}</port>
+                                            <port>${ftp.passivePort9}:${ftp.passivePort9}</port>
+                                            <port>${ftp.passivePort10}:${ftp.passivePort10}</port>
+                                        </ports>
+                                        <env>
+                                            <FTP_USER>bob</FTP_USER>
+                                            <FTP_PASS>1234</FTP_PASS>
+                                            <PASV_ADDRESS>127.0.0.1</PASV_ADDRESS>
+                                            <PASV_MIN_PORT>${ftp.passivePort1}</PASV_MIN_PORT>
+                                            <PASV_MAX_PORT>${ftp.passivePort10}</PASV_MAX_PORT>
+                                        </env>
+                                        <log>
+                                            <enabled>true</enabled>
+                                        </log>
+                                    </run>
+                                </image>
+                            </images>
+                            <verbose>true</verbose>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-api</artifactId>
+                                <version>2.0.13</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>jcl-over-slf4j</artifactId>
+                                <version>2.0.13</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <showLogs>true</showLogs>
+                                    <logStdout>true</logStdout>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.dkanejs.maven.plugins</groupId>
+                        <artifactId>docker-compose-maven-plugin</artifactId>
+                        <version>4.0.0</version>
+                        <configuration>
+                            <composeFiles>
+                                <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose-auth.yml</composeFile>
+                                <composeFile>${project.basedir}/src/test/resources/dockercompose/docker-compose.yml</composeFile>
+
+                            </composeFiles>
+                            <envVars>
+                                <squidPort>${squid.port.http}</squidPort>
+                                <squidPortHttps>${squid.port.https}</squidPortHttps>
+                                <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                                <ftpProxy>${ftp.proxy}</ftpProxy>
+                                <ftpProxyAuth>${ftp.proxy.auth}</ftpProxyAuth>
+                            </envVars>
+                            <detachedMode>true</detachedMode>
+                            <skip>${docker.skip}</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>docker-compose-up</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>up</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>docker-compose-down</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>down</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 
