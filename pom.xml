@@ -318,6 +318,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <env.config.name>config-proxy-https</env.config.name>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -438,29 +441,29 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>default-config</id>
-            <activation>
-                <property>
-                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
-                </property>
-            </activation>
-            <properties>
-                <env.config.name>config-proxy-https</env.config.name>
-            </properties>
-        </profile>
-        <profile>
-            <id>fips-config</id>
-            <activation>
-                <property>
-                    <name>mule.security.model</name>
-                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
-                </property>
-            </activation>
-            <properties>
-                <env.config.name>config-proxy-https-FIPS</env.config.name>
-            </properties>
-        </profile>
+<!--        <profile>-->
+<!--            <id>default-config</id>-->
+<!--            <activation>-->
+<!--                <property>-->
+<!--                    <name>!mule.security.model</name> &lt;!&ndash; if mule.security.model does not exist &ndash;&gt;-->
+<!--                </property>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <env.config.name>config-proxy-https</env.config.name>-->
+<!--            </properties>-->
+<!--        </profile>-->
+<!--        <profile>-->
+<!--            <id>fips-config</id>-->
+<!--            <activation>-->
+<!--                <property>-->
+<!--                    <name>mule.security.model</name>-->
+<!--                    <value>fips140-2</value> &lt;!&ndash; if mule.security.model == fips140-2 &ndash;&gt;-->
+<!--                </property>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <env.config.name>config-proxy-https-FIPS</env.config.name>-->
+<!--            </properties>-->
+<!--        </profile>-->
     </profiles>
 
 
