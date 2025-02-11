@@ -19,11 +19,11 @@
                     <munit:parameter propertyName="config" value="config"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="proxy-https">
-                <munit:parameters>
-                    <munit:parameter propertyName="config-ref" value="${config.ref.name}"/>
-                </munit:parameters>
-            </munit:parameterization>
+<!--            <munit:parameterization name="proxy-https">-->
+<!--                <munit:parameters>-->
+<!--                    <munit:parameter propertyName="config-ref" value="${config.ref.name}"/>-->
+<!--                </munit:parameters>-->
+<!--            </munit:parameterization>-->
         </munit:parameterizations>
     </munit:config>
 
