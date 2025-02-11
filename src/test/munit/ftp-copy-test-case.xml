@@ -31,7 +31,7 @@
             </munit:parameterization>
             <munit:parameterization name="proxy-https">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="${config.ref.name.tls}"/>
+                    <munit:parameter propertyName="config" value="config-proxy-https"/>
                 </munit:parameters>
             </munit:parameterization>
 
