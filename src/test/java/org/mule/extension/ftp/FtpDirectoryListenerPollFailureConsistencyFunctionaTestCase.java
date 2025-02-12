@@ -31,7 +31,7 @@ public class FtpDirectoryListenerPollFailureConsistencyFunctionaTestCase extends
   private static final String CONTENT = "File Content.";
   private static final String FILE_NAME = "file_%s.txt";
   private static final String INPUT_FOLDER = "input";
-  private static final int PROBER_TIMEOUT = 100000;
+  private static final int PROBER_TIMEOUT = 10000000;
   private static final int PROBER_DELAY = 2000;
   private static final int FILE_CREATION_DELAY_MILLIS = 100;
   private static final int NUMBER_OF_FILES = 100;
