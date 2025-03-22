@@ -41,7 +41,7 @@
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <docker.maven.plugin.version>0.44.0</docker.maven.plugin.version>
         <java.module.version>1.2.13</java.module.version>
-        <file.connector.version>1.5.2</file.connector.version>
+        <file.connector.version>1.5.3</file.connector.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.5</license.maven.plugin.version>
