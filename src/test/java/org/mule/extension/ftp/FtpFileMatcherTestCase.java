@@ -14,6 +14,8 @@ import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 import io.qameta.allure.Feature;
 import org.junit.Before;
@@ -91,6 +93,46 @@ public class FtpFileMatcherTestCase
   public void timestampUntilWhenMissingTimestamp() {
     when(attributes.getTimestamp()).thenReturn(null);
     builder.setTimestampUntil(LocalDateTime.of(1990, 1, 1, 0, 0));
+    assertMatch();
+  }
+
+  @Test
+  public void notUpdatedInTheLast() {
+    builder.setNotUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    assertMatch();
+  }
+
+  @Test
+  public void rejectNotUpdatedInTheLast() {
+    builder.setNotUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(500, ChronoUnit.SECONDS));
+    assertReject();
+  }
+
+  @Test
+  public void updatedInTheLast() {
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(500, ChronoUnit.SECONDS));
+    assertMatch();
+  }
+
+  @Test
+  public void rejectUpdatedInTheLast() {
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(2000, ChronoUnit.SECONDS));
+    assertReject();
+  }
+
+  @Test
+  public void acceptWhenTimestampIsNull() {
+    when(attributes.getTimestamp()).thenReturn(null);
+    builder.setNotUpdatedInTheLast(1000L);
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
     assertMatch();
   }
 }
