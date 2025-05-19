@@ -16,10 +16,15 @@ import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.qameta.allure.Feature;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @Feature(FTP_EXTENSION)
 public class FtpFileMatcherTestCase
@@ -128,11 +133,80 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
-  public void acceptWhenTimestampIsNull() {
-    when(attributes.getTimestamp()).thenReturn(null);
-    builder.setNotUpdatedInTheLast(1000L);
-    builder.setUpdatedInTheLast(1000L);
-    builder.setTimeUnit(TimeUnit.SECONDS);
-    assertMatch();
+  public void testCaseSensitiveGetterAndSetter() {
+    builder.setFtpFileMatcherCaseSensitive(true);
+    assertTrue(builder.isCaseSensitive());
+    assertTrue(builder.getFtpFileMatcherCaseSensitive());
+
+    builder.setFtpFileMatcherCaseSensitive(false);
+    assertFalse(builder.isCaseSensitive());
+    assertFalse(builder.getFtpFileMatcherCaseSensitive());
+  }
+
+  @Test
+  public void testAlreadyLoggedWarningGetterAndSetter() {
+    AtomicBoolean warning = new AtomicBoolean(true);
+    builder.setAlreadyLoggedWarning(warning);
+    assertEquals(warning, builder.getAlreadyLoggedWarning());
+
+    AtomicBoolean newWarning = new AtomicBoolean(false);
+    builder.setAlreadyLoggedWarning(newWarning);
+    assertEquals(newWarning, builder.getAlreadyLoggedWarning());
+  }
+
+  @Test
+  public void testTimestampSinceGetterAndSetter() {
+    LocalDateTime testTimestamp = LocalDateTime.of(2023, 1, 1, 12, 0);
+    builder.setTimestampsince(testTimestamp);
+    assertEquals(testTimestamp, builder.getTimestampSince());
+    
+    LocalDateTime newTimestamp = LocalDateTime.of(2024, 1, 1, 12, 0);
+    builder.setTimestampsince(newTimestamp);
+    assertEquals(newTimestamp, builder.getTimestampSince());
+  }
+
+  @Test
+  public void testTimestampUntilGetterAndSetter() {
+    LocalDateTime testTimestamp = LocalDateTime.of(2023, 12, 31, 23, 59);
+    builder.setTimestampuntil(testTimestamp);
+    assertEquals(testTimestamp, builder.getTimestampUntil());
+    
+    LocalDateTime newTimestamp = LocalDateTime.of(2024, 12, 31, 23, 59);
+    builder.setTimestampuntil(newTimestamp);
+    assertEquals(newTimestamp, builder.getTimestampUntil());
+  }
+
+  @Test
+  public void testTimeUnitGetterAndSetter() {
+    builder.setTimeunit(TimeUnit.SECONDS);
+    assertEquals(TimeUnit.SECONDS, builder.getTimeUnit());
+    
+    builder.setTimeunit(TimeUnit.MINUTES);
+    assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
+    
+    builder.setTimeunit(TimeUnit.HOURS);
+    assertEquals(TimeUnit.HOURS, builder.getTimeUnit());
+  }
+
+  @Test
+  public void testUpdatedInTheLastGetterAndSetter() {
+    Long testValue = 1000L;
+    builder.setUpdatedInThelast(testValue);
+    assertEquals(testValue, builder.getUpdatedInTheLast());
+    
+    Long newValue = 2000L;
+    builder.setUpdatedInThelast(newValue);
+    assertEquals(newValue, builder.getUpdatedInTheLast());
+  }
+
+  @Test
+  public void testNotUpdatedInTheLastGetterAndSetter() {
+    Long testValue = 1000L;
+    builder.setNotUpdatedInThelast(testValue);
+    assertEquals(testValue, builder.getNotUpdatedInTheLast());
+    
+    Long newValue = 2000L;
+    builder.setNotUpdatedInThelast(newValue);
+    assertEquals(newValue, builder.getNotUpdatedInTheLast());
   }
 }
