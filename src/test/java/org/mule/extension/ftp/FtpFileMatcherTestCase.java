@@ -51,7 +51,8 @@ public class FtpFileMatcherTestCase
 
   @Test
   public void matchesAll() {
-    builder.setFilenamePattern("glob:*.{java, js}").setPathPattern("glob:**.{java, js}")
+    builder.setFilenamePattern("glob:*.{java, js}")
+        .setPathPattern("glob:**.{java, js}")
         .setTimestampSince(LocalDateTime.of(1980, 1, 1, 0, 0))
         .setTimestampUntil(LocalDateTime.of(1990, 1, 1, 0, 0))
         .setRegularFiles(REQUIRE)
@@ -159,7 +160,7 @@ public class FtpFileMatcherTestCase
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 1, 1, 12, 0);
     builder.setTimestampSince(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampSince());
-    
+
     LocalDateTime newTimestamp = LocalDateTime.of(2024, 1, 1, 12, 0);
     builder.setTimestampSince(newTimestamp);
     assertEquals(newTimestamp, builder.getTimestampSince());
@@ -170,7 +171,7 @@ public class FtpFileMatcherTestCase
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 12, 31, 23, 59);
     builder.setTimestampUntil(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampUntil());
-    
+
     LocalDateTime newTimestamp = LocalDateTime.of(2024, 12, 31, 23, 59);
     builder.setTimestampUntil(newTimestamp);
     assertEquals(newTimestamp, builder.getTimestampUntil());
@@ -180,10 +181,10 @@ public class FtpFileMatcherTestCase
   public void testTimeUnitGetterAndSetter() {
     builder.setTimeUnit(TimeUnit.SECONDS);
     assertEquals(TimeUnit.SECONDS, builder.getTimeUnit());
-    
+
     builder.setTimeUnit(TimeUnit.MINUTES);
     assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
-    
+
     builder.setTimeUnit(TimeUnit.HOURS);
     assertEquals(TimeUnit.HOURS, builder.getTimeUnit());
   }
@@ -193,7 +194,7 @@ public class FtpFileMatcherTestCase
     Long testValue = 1000L;
     builder.setUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getUpdatedInTheLast());
-    
+
     Long newValue = 2000L;
     builder.setUpdatedInTheLast(newValue);
     assertEquals(newValue, builder.getUpdatedInTheLast());
@@ -204,7 +205,7 @@ public class FtpFileMatcherTestCase
     Long testValue = 1000L;
     builder.setNotUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getNotUpdatedInTheLast());
-    
+
     Long newValue = 2000L;
     builder.setNotUpdatedInTheLast(newValue);
     assertEquals(newValue, builder.getNotUpdatedInTheLast());
