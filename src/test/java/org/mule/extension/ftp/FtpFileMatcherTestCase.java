@@ -157,56 +157,56 @@ public class FtpFileMatcherTestCase
   @Test
   public void testTimestampSinceGetterAndSetter() {
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 1, 1, 12, 0);
-    builder.setTimestampsince(testTimestamp);
+    builder.setTimestampSince(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampSince());
     
     LocalDateTime newTimestamp = LocalDateTime.of(2024, 1, 1, 12, 0);
-    builder.setTimestampsince(newTimestamp);
+    builder.setTimestampSince(newTimestamp);
     assertEquals(newTimestamp, builder.getTimestampSince());
   }
 
   @Test
   public void testTimestampUntilGetterAndSetter() {
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 12, 31, 23, 59);
-    builder.setTimestampuntil(testTimestamp);
+    builder.setTimestampUntil(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampUntil());
     
     LocalDateTime newTimestamp = LocalDateTime.of(2024, 12, 31, 23, 59);
-    builder.setTimestampuntil(newTimestamp);
+    builder.setTimestampUntil(newTimestamp);
     assertEquals(newTimestamp, builder.getTimestampUntil());
   }
 
   @Test
   public void testTimeUnitGetterAndSetter() {
-    builder.setTimeunit(TimeUnit.SECONDS);
+    builder.setTimeUnit(TimeUnit.SECONDS);
     assertEquals(TimeUnit.SECONDS, builder.getTimeUnit());
     
-    builder.setTimeunit(TimeUnit.MINUTES);
+    builder.setTimeUnit(TimeUnit.MINUTES);
     assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
     
-    builder.setTimeunit(TimeUnit.HOURS);
+    builder.setTimeUnit(TimeUnit.HOURS);
     assertEquals(TimeUnit.HOURS, builder.getTimeUnit());
   }
 
   @Test
   public void testUpdatedInTheLastGetterAndSetter() {
     Long testValue = 1000L;
-    builder.setUpdatedInThelast(testValue);
+    builder.setUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getUpdatedInTheLast());
     
     Long newValue = 2000L;
-    builder.setUpdatedInThelast(newValue);
+    builder.setUpdatedInTheLast(newValue);
     assertEquals(newValue, builder.getUpdatedInTheLast());
   }
 
   @Test
   public void testNotUpdatedInTheLastGetterAndSetter() {
     Long testValue = 1000L;
-    builder.setNotUpdatedInThelast(testValue);
+    builder.setNotUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getNotUpdatedInTheLast());
     
     Long newValue = 2000L;
-    builder.setNotUpdatedInThelast(newValue);
+    builder.setNotUpdatedInTheLast(newValue);
     assertEquals(newValue, builder.getNotUpdatedInTheLast());
   }
 }
