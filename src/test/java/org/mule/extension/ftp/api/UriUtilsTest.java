@@ -125,4 +125,36 @@ public class UriUtilsTest {
     String regex = UriUtils.toRegexPattern("\\*.txt");
     assertEquals("^\\*\\.txt$", regex);
   }
+
+  @Test
+  public void testCharacterClassWithCaret() {
+    // Test handling of ^ in character class
+    String globPattern = "file[^abc].txt";
+    String expectedRegex = "^file[[^/]&&[\\^abc]]\\.txt$";
+    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
+  }
+
+  @Test
+  public void testCharacterClassWithNegation() {
+    // Test handling of ! for negation in character class
+    String globPattern = "file[!abc].txt";
+    String expectedRegex = "^file[[^/]&&[^abc]]\\.txt$";
+    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
+  }
+
+  @Test
+  public void testCharacterClassWithHyphenAtStart() {
+    // Test handling of - at start of character class
+    String globPattern = "file[-abc].txt";
+    String expectedRegex = "^file[[^/]&&[-abc]]\\.txt$";
+    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
+  }
+
+  @Test
+  public void testCharacterClassWithMultipleSpecialChars() {
+    // Test combination of special characters in character class
+    String globPattern = "file[^a-c].txt";
+    String expectedRegex = "^file[[^/]&&[\\^a-c]]\\.txt$";
+    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
+  }
 }

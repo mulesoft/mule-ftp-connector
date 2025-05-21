@@ -80,8 +80,61 @@ public class FtpFileAttributesTestCase {
     assertThat(ftpAttributes.getTimestamp(), is(nullValue()));
   }
 
+  @Test
+  public void defaultConstructorValues() {
+    FtpFileAttributes ftpAttributes = new FtpFileAttributes();
+    assertThat(ftpAttributes.getPath(), is("/defaultPath"));
+    assertThat(ftpAttributes.getName(), is("defaultPath"));
+    assertThat(ftpAttributes.getSize(), is(0L));
+    assertThat(ftpAttributes.getTimestamp(), is(nullValue()));
+    assertThat(ftpAttributes.isDirectory(), is(false));
+    assertThat(ftpAttributes.isRegularFile(), is(false));
+    assertThat(ftpAttributes.isSymbolicLink(), is(false));
+  }
+
+  @Test
+  public void settersAndGetters() {
+    FtpFileAttributes ftpAttributes = new FtpFileAttributes();
+
+    // Test timestamp
+    ftpAttributes.setTimestamp(expectedTimesTamp);
+    assertThat(ftpAttributes.getTimestamp(), is(expectedTimesTamp));
+
+    // Test size
+    ftpAttributes.setSize(EXPECTED_SIZE);
+    assertThat(ftpAttributes.getSize(), is(EXPECTED_SIZE));
+
+    // Test regular file
+    ftpAttributes.setRegularFile(true);
+    assertThat(ftpAttributes.isRegularFile(), is(true));
+    assertThat(ftpAttributes.getRegularFile(), is(true));
+
+    // Test directory
+    ftpAttributes.setDirectory(true);
+    assertThat(ftpAttributes.isDirectory(), is(true));
+    assertThat(ftpAttributes.getDirectory(), is(true));
+
+    // Test symbolic link
+    ftpAttributes.setSymbolicLink(true);
+    assertThat(ftpAttributes.isSymbolicLink(), is(true));
+    assertThat(ftpAttributes.getSymbolicLink(), is(true));
+  }
+
+  @Test
+  public void pathNormalization() {
+    URI uriWithMultipleSlashes = createUri("/test//path///file.txt");
+    FtpFileAttributes ftpAttributes = new FtpFileAttributes(uriWithMultipleSlashes, ftpFile);
+    assertThat(ftpAttributes.getPath(), is("/test/path/file.txt"));
+  }
+
+  @Test
+  public void nullNameHandling() {
+    URI rootUri = createUri("/");
+    FtpFileAttributes ftpAttributes = new FtpFileAttributes(rootUri, ftpFile);
+    assertThat(ftpAttributes.getName(), is(""));
+  }
+
   private FtpFileAttributes getFtpFileAttributes() {
     return new FtpFileAttributes(uri, ftpFile);
   }
-
 }

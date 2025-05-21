@@ -1,0 +1,88 @@
+package org.mule.extension.ftp.api.proxy;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class HttpTunnelProxyTest {
+
+  @Test
+  public void testGettersAndSetters() {
+    HttpTunnelProxy proxy = new HttpTunnelProxy();
+
+    // Set values
+    proxy.host = "test.host.com";
+    proxy.port = 8080;
+    proxy.username = "testuser";
+    proxy.password = "testpass";
+
+    // Test getters
+    assertEquals("test.host.com", proxy.getHost());
+    assertEquals(8080, proxy.getPort());
+    assertEquals("testuser", proxy.getUsername());
+    assertEquals("testpass", proxy.getPassword());
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    HttpTunnelProxy proxy1 = new HttpTunnelProxy();
+    HttpTunnelProxy proxy2 = new HttpTunnelProxy();
+
+    // Test equal objects
+    assertTrue(proxy1.equals(proxy1)); // Same instance
+    assertTrue(proxy1.equals(proxy2)); // Different instances with same values
+    assertEquals(proxy1.hashCode(), proxy2.hashCode());
+
+    // Test with different values
+    proxy1.host = "host1";
+    proxy1.port = 8080;
+    proxy1.username = "user1";
+    proxy1.password = "pass1";
+
+    proxy2.host = "host2";
+    proxy2.port = 8081;
+    proxy2.username = "user2";
+    proxy2.password = "pass2";
+
+    assertFalse(proxy1.equals(proxy2));
+    assertNotEquals(proxy1.hashCode(), proxy2.hashCode());
+
+    // Test null and different class
+    assertFalse(proxy1.equals(null));
+    assertFalse(proxy1.equals("Not a proxy"));
+  }
+
+  @Test
+  public void testEqualsWithDifferentFields() {
+    HttpTunnelProxy proxy1 = new HttpTunnelProxy();
+    HttpTunnelProxy proxy2 = new HttpTunnelProxy();
+
+    // Test different host
+    proxy1.host = "host1";
+    proxy2.host = "host2";
+    assertFalse(proxy1.equals(proxy2));
+    proxy2.host = "host1";
+    assertTrue(proxy1.equals(proxy2));
+
+    // Test different port
+    proxy1.port = 8080;
+    proxy2.port = 8081;
+    assertFalse(proxy1.equals(proxy2));
+    proxy2.port = 8080;
+    assertTrue(proxy1.equals(proxy2));
+
+    // Test different username
+    proxy1.username = "user1";
+    proxy2.username = "user2";
+    assertFalse(proxy1.equals(proxy2));
+    proxy2.username = "user1";
+    assertTrue(proxy1.equals(proxy2));
+
+    // Test different password
+    proxy1.password = "pass1";
+    proxy2.password = "pass2";
+    assertFalse(proxy1.equals(proxy2));
+    proxy2.password = "pass1";
+    assertTrue(proxy1.equals(proxy2));
+  }
+}
