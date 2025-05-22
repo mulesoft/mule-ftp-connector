@@ -8,6 +8,7 @@ package org.mule.extension.ftp.internal.proxy;
 
 import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
+import org.mule.runtime.api.tls.TlsContextFactory;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -27,8 +28,11 @@ public class MuleFTPHTTPClient extends FTPHTTPClient {
   public MuleFTPHTTPClient(ProxySettings proxy) throws Exception {
     super(proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
     this.proxy = proxy;
-    if (proxy instanceof HttpsTunnelProxy && ((HttpsTunnelProxy) proxy).getTlsContextFactory() != null) {
-      this.context = ((HttpsTunnelProxy) proxy).getTlsContextFactory().createSslContext();
+    if (proxy instanceof HttpsTunnelProxy) {
+      TlsContextFactory tlsContextFactory = ((HttpsTunnelProxy) proxy).getTlsContextFactory();
+      if (tlsContextFactory != null) {
+        this.context = tlsContextFactory.createSslContext();
+      }
     }
   }
 

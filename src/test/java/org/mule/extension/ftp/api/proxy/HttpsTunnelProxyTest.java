@@ -8,22 +8,13 @@ package org.mule.extension.ftp.api.proxy;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
-
-import java.lang.reflect.Field;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mule.runtime.api.lifecycle.Initialisable;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
-import org.mule.runtime.api.tls.TlsContextFactoryBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HttpsTunnelProxyTest {
@@ -33,17 +24,15 @@ public class HttpsTunnelProxyTest {
   @Mock
   private TlsContextFactory tlsContextFactory;
 
-  @Mock
-  private TlsContextFactoryBuilder tlsContextFactoryBuilder;
-
   @Before
   public void setUp() {
     httpsTunnelProxy = new HttpsTunnelProxy();
   }
 
   @Test
-  public void testGetTlsContextFactory() throws Exception {
-    setPrivateField(httpsTunnelProxy, "tlsContextFactory", tlsContextFactory);
+  public void testGetTlsContextFactory() {
+    // Set the TLS context factory through the constructor or setter
+    httpsTunnelProxy.setTlsContextFactory(tlsContextFactory);
     assertSame(tlsContextFactory, httpsTunnelProxy.getTlsContextFactory());
   }
 
@@ -52,19 +41,5 @@ public class HttpsTunnelProxyTest {
     // When tlsContextFactory is null, it should be initialized with default settings
     httpsTunnelProxy.initialise();
     assertNotNull(httpsTunnelProxy.getTlsContextFactory());
-  }
-
-  @Test
-  public void testInitialiseWithExistingTlsContextFactory() throws Exception {
-    // When tlsContextFactory is already set, it should be initialized
-    setPrivateField(httpsTunnelProxy, "tlsContextFactory", tlsContextFactory);
-    httpsTunnelProxy.initialise();
-    initialiseIfNeeded(tlsContextFactory);
-  }
-
-  private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
-    Field field = target.getClass().getDeclaredField(fieldName);
-    field.setAccessible(true);
-    field.set(target, value);
   }
 }

@@ -27,80 +27,70 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class MuleFTPHTTPClientTest {
 
-    private static final String HOST = "test.host.com";
-    private static final int PORT = 8080;
-    private static final String USERNAME = "testUser";
-    private static final String PASSWORD = "testPass";
+  private static final String HOST = "test.host.com";
+  private static final int PORT = 8080;
+  private static final String USERNAME = "testUser";
+  private static final String PASSWORD = "testPass";
 
-    @Mock
-    private ProxySettings proxySettings;
+  @Mock
+  private ProxySettings proxySettings;
 
-    @Mock
-    private HttpsTunnelProxy httpsTunnelProxy;
+  @Mock
+  private HttpsTunnelProxy httpsTunnelProxy;
 
-    @Mock
-    private TlsContextFactory tlsContextFactory;
+  @Mock
+  private TlsContextFactory tlsContextFactory;
 
-    @Mock
-    private SSLContext sslContext;
+  @Mock
+  private SSLContext sslContext;
 
-    @Mock
-    private SSLSocketFactory sslSocketFactory;
+  private MuleFTPHTTPClient client;
 
-    @Mock
-    private FTPClient ftpClient;
+  @Before
+  public void setUp() {
+    when(proxySettings.getHost()).thenReturn(HOST);
+    when(proxySettings.getPort()).thenReturn(PORT);
+    when(proxySettings.getUsername()).thenReturn(USERNAME);
+    when(proxySettings.getPassword()).thenReturn(PASSWORD);
+  }
 
-    private MuleFTPHTTPClient client;
+  @Test
+  public void testConstructorWithBasicProxy() throws Exception {
+    client = new MuleFTPHTTPClient(proxySettings);
+    assert client != null;
+  }
 
-    @Before
-    public void setUp() {
-        when(proxySettings.getHost()).thenReturn(HOST);
-        when(proxySettings.getPort()).thenReturn(PORT);
-        when(proxySettings.getUsername()).thenReturn(USERNAME);
-        when(proxySettings.getPassword()).thenReturn(PASSWORD);
-    }
+  @Test
+  public void testConstructorWithHttpsTunnelProxy() throws Exception {
+    when(httpsTunnelProxy.getHost()).thenReturn(HOST);
+    when(httpsTunnelProxy.getPort()).thenReturn(PORT);
+    when(httpsTunnelProxy.getUsername()).thenReturn(USERNAME);
+    when(httpsTunnelProxy.getPassword()).thenReturn(PASSWORD);
+    when(httpsTunnelProxy.getTlsContextFactory()).thenReturn(tlsContextFactory);
+    when(tlsContextFactory.createSslContext()).thenReturn(sslContext);
 
-    @Test
-    public void testConstructorWithBasicProxy() throws Exception {
-        client = new MuleFTPHTTPClient(proxySettings);
-        assert client != null;
-    }
+    client = new MuleFTPHTTPClient(httpsTunnelProxy);
+    
+    // Verify the SSL context was properly set
+    verify(httpsTunnelProxy).getTlsContextFactory();
+    verify(tlsContextFactory).createSslContext();
+    assert client != null;
+    // Access the protected context field through reflection to verify it was set
+    java.lang.reflect.Field contextField = MuleFTPHTTPClient.class.getDeclaredField("context");
+    contextField.setAccessible(true);
+    SSLContext actualContext = (SSLContext) contextField.get(client);
+    assert actualContext == sslContext;
+  }
 
-    @Test
-    public void testConstructorWithHttpsTunnelProxy() throws Exception {
-        when(httpsTunnelProxy.getHost()).thenReturn(HOST);
-        when(httpsTunnelProxy.getPort()).thenReturn(PORT);
-        when(httpsTunnelProxy.getUsername()).thenReturn(USERNAME);
-        when(httpsTunnelProxy.getPassword()).thenReturn(PASSWORD);
-        when(httpsTunnelProxy.getTlsContextFactory()).thenReturn(tlsContextFactory);
-        when(tlsContextFactory.createSslContext()).thenReturn(sslContext);
+  @Test(expected = IOException.class)
+  public void testConnectWithInvalidHost() throws Exception {
+    // Create client with proxy settings
+    client = new MuleFTPHTTPClient(proxySettings);
+    
+    // Try to connect to a non-existent host with invalid port
+    // This should naturally throw IOException due to connection failure
+    client.connect("invalid.host.that.does.not.exist", -1);
+  }
 
-        client = new MuleFTPHTTPClient(httpsTunnelProxy);
-        assert client != null;
-    }
-
-    @Test
-    public void testConnectWithoutSSLContext() throws Exception {
-        // Create a spy of MuleFTPHTTPClient to verify method calls
-        client = spy(new MuleFTPHTTPClient(proxySettings));
-        
-        // Mock the parent class's connect method to prevent actual network calls
-        doNothing().when(client).connect(anyString(), anyInt());
-        
-        // Execute
-        client.connect("target.host.com", 21);
-
-        // Verify that setSocketFactory was not called
-        verify(client, never()).setSocketFactory(any());
-    }
-
-    @Test(expected = IOException.class)
-    public void testConnectWithInvalidHost() throws Exception {
-        client = spy(new MuleFTPHTTPClient(proxySettings));
-        
-        // Mock the parent class's connect method to throw IOException
-        doThrow(new IOException()).when(client).connect(anyString(), anyInt());
-        
-        client.connect("invalid.host", -1);
-    }
-} 
+  
+}

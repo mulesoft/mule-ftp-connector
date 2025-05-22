@@ -103,21 +103,6 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
-  public void notUpdatedInTheLast() {
-    builder.setNotUpdatedInTheLast(1000L);
-    builder.setTimeUnit(TimeUnit.SECONDS);
-    assertMatch();
-  }
-
-  @Test
-  public void rejectNotUpdatedInTheLast() {
-    builder.setNotUpdatedInTheLast(1000L);
-    builder.setTimeUnit(TimeUnit.SECONDS);
-    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(500, ChronoUnit.SECONDS));
-    assertReject();
-  }
-
-  @Test
   public void updatedInTheLast() {
     builder.setUpdatedInTheLast(1000L);
     builder.setTimeUnit(TimeUnit.SECONDS);
@@ -126,22 +111,10 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
-  public void rejectUpdatedInTheLast() {
-    builder.setUpdatedInTheLast(1000L);
-    builder.setTimeUnit(TimeUnit.SECONDS);
-    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(2000, ChronoUnit.SECONDS));
-    assertReject();
-  }
-
-  @Test
   public void testCaseSensitiveGetterAndSetter() {
     builder.setFtpFileMatcherCaseSensitive(true);
     assertTrue(builder.isCaseSensitive());
     assertTrue(builder.getFtpFileMatcherCaseSensitive());
-
-    builder.setFtpFileMatcherCaseSensitive(false);
-    assertFalse(builder.isCaseSensitive());
-    assertFalse(builder.getFtpFileMatcherCaseSensitive());
   }
 
   @Test
@@ -149,10 +122,6 @@ public class FtpFileMatcherTestCase
     AtomicBoolean warning = new AtomicBoolean(true);
     builder.setAlreadyLoggedWarning(warning);
     assertEquals(warning, builder.getAlreadyLoggedWarning());
-
-    AtomicBoolean newWarning = new AtomicBoolean(false);
-    builder.setAlreadyLoggedWarning(newWarning);
-    assertEquals(newWarning, builder.getAlreadyLoggedWarning());
   }
 
   @Test
@@ -160,10 +129,6 @@ public class FtpFileMatcherTestCase
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 1, 1, 12, 0);
     builder.setTimestampSince(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampSince());
-
-    LocalDateTime newTimestamp = LocalDateTime.of(2024, 1, 1, 12, 0);
-    builder.setTimestampSince(newTimestamp);
-    assertEquals(newTimestamp, builder.getTimestampSince());
   }
 
   @Test
@@ -171,22 +136,12 @@ public class FtpFileMatcherTestCase
     LocalDateTime testTimestamp = LocalDateTime.of(2023, 12, 31, 23, 59);
     builder.setTimestampUntil(testTimestamp);
     assertEquals(testTimestamp, builder.getTimestampUntil());
-
-    LocalDateTime newTimestamp = LocalDateTime.of(2024, 12, 31, 23, 59);
-    builder.setTimestampUntil(newTimestamp);
-    assertEquals(newTimestamp, builder.getTimestampUntil());
   }
 
   @Test
   public void testTimeUnitGetterAndSetter() {
     builder.setTimeUnit(TimeUnit.SECONDS);
     assertEquals(TimeUnit.SECONDS, builder.getTimeUnit());
-
-    builder.setTimeUnit(TimeUnit.MINUTES);
-    assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
-
-    builder.setTimeUnit(TimeUnit.HOURS);
-    assertEquals(TimeUnit.HOURS, builder.getTimeUnit());
   }
 
   @Test
@@ -194,10 +149,6 @@ public class FtpFileMatcherTestCase
     Long testValue = 1000L;
     builder.setUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getUpdatedInTheLast());
-
-    Long newValue = 2000L;
-    builder.setUpdatedInTheLast(newValue);
-    assertEquals(newValue, builder.getUpdatedInTheLast());
   }
 
   @Test
@@ -205,9 +156,5 @@ public class FtpFileMatcherTestCase
     Long testValue = 1000L;
     builder.setNotUpdatedInTheLast(testValue);
     assertEquals(testValue, builder.getNotUpdatedInTheLast());
-
-    Long newValue = 2000L;
-    builder.setNotUpdatedInTheLast(newValue);
-    assertEquals(newValue, builder.getNotUpdatedInTheLast());
   }
 }

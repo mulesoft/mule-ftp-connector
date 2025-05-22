@@ -39,6 +39,10 @@ public class HttpsTunnelProxy extends HttpTunnelProxy implements ProxySettings, 
     return tlsContextFactory;
   }
 
+  public void setTlsContextFactory(TlsContextFactory tlsContextFactory) {
+    this.tlsContextFactory = tlsContextFactory;
+  }
+
   @Override
   public void initialise() throws InitialisationException {
     if (tlsContextFactory == null) {
