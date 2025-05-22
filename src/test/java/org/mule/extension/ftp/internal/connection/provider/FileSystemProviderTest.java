@@ -29,6 +29,7 @@ public class FileSystemProviderTest {
   private FileSystemProvider provider2;
 
   private static class TestFileSystemProvider extends FileSystemProvider<FileSystem> {
+
     @Override
     public FileSystem connect() {
       return null;
@@ -92,25 +93,25 @@ public class FileSystemProviderTest {
     // Set config names using reflection
     Field configNameField = FileSystemProvider.class.getDeclaredField("configName");
     configNameField.setAccessible(true);
-    
+
     // Set same config name for both providers
     configNameField.set(provider1, TEST_CONFIG_NAME);
     configNameField.set(provider2, TEST_CONFIG_NAME);
-    
+
     // Verify config names are set correctly
     assertEquals(TEST_CONFIG_NAME, provider1.getConfigName());
     assertEquals(TEST_CONFIG_NAME, provider2.getConfigName());
-    
+
     // Test equals with same config names
     assertTrue("Providers with same config name should be equal", provider1.equals(provider2));
-    
+
     // Set different config names
     String differentConfig = "differentConfig";
     configNameField.set(provider2, differentConfig);
-    
+
     // Verify new config name is set correctly
     assertEquals(differentConfig, provider2.getConfigName());
-    
+
     // Test equals with different config names
     assertFalse("Providers with different config names should not be equal", provider1.equals(provider2));
   }

@@ -70,7 +70,7 @@ public class MuleFTPHTTPClientTest {
     when(tlsContextFactory.createSslContext()).thenReturn(sslContext);
 
     client = new MuleFTPHTTPClient(httpsTunnelProxy);
-    
+
     // Verify the SSL context was properly set
     verify(httpsTunnelProxy).getTlsContextFactory();
     verify(tlsContextFactory).createSslContext();
@@ -86,11 +86,11 @@ public class MuleFTPHTTPClientTest {
   public void testConnectWithInvalidHost() throws Exception {
     // Create client with proxy settings
     client = new MuleFTPHTTPClient(proxySettings);
-    
+
     // Try to connect to a non-existent host with invalid port
     // This should naturally throw IOException due to connection failure
     client.connect("invalid.host.that.does.not.exist", -1);
   }
 
-  
+
 }

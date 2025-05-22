@@ -46,6 +46,7 @@ public class FtpAbstractConnectionProviderTest {
   @Before
   public void setUp() throws Exception {
     provider = new FtpConnectionProvider() {
+
       @Override
       protected FTPClient createClient() {
         return ftpClient;
