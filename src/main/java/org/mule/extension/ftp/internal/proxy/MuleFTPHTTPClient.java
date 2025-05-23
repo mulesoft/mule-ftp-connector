@@ -27,6 +27,9 @@ public class MuleFTPHTTPClient extends FTPHTTPClient {
   public MuleFTPHTTPClient(ProxySettings proxy) throws Exception {
     super(proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
     this.proxy = proxy;
+    if (proxy instanceof HttpsTunnelProxy && ((HttpsTunnelProxy) proxy).getTlsContextFactory() != null) {
+      this.context = ((HttpsTunnelProxy) proxy).getTlsContextFactory().createSslContext();
+    }
   }
 
   @Override
