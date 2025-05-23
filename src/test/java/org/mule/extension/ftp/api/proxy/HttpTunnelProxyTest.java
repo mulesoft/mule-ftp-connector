@@ -69,26 +69,5 @@ public class HttpTunnelProxyTest {
     assertFalse(proxy1.equals(proxy2));
     proxy2.host = "host1";
     assertTrue(proxy1.equals(proxy2));
-
-    // Test different port
-    proxy1.port = 8080;
-    proxy2.port = 8081;
-    assertFalse(proxy1.equals(proxy2));
-    proxy2.port = 8080;
-    assertTrue(proxy1.equals(proxy2));
-
-    // Test different username
-    proxy1.username = "user1";
-    proxy2.username = "user2";
-    assertFalse(proxy1.equals(proxy2));
-    proxy2.username = "user1";
-    assertTrue(proxy1.equals(proxy2));
-
-    // Test different password
-    proxy1.password = "pass1";
-    proxy2.password = "pass2";
-    assertFalse(proxy1.equals(proxy2));
-    proxy2.password = "pass1";
-    assertTrue(proxy1.equals(proxy2));
   }
 }

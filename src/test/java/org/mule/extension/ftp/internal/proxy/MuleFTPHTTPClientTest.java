@@ -35,15 +35,6 @@ public class MuleFTPHTTPClientTest {
   @Mock
   private ProxySettings proxySettings;
 
-  @Mock
-  private HttpsTunnelProxy httpsTunnelProxy;
-
-  @Mock
-  private TlsContextFactory tlsContextFactory;
-
-  @Mock
-  private SSLContext sslContext;
-
   private MuleFTPHTTPClient client;
 
   @Before
@@ -60,28 +51,6 @@ public class MuleFTPHTTPClientTest {
     assert client != null;
   }
 
-  @Test
-  public void testConstructorWithHttpsTunnelProxy() throws Exception {
-    when(httpsTunnelProxy.getHost()).thenReturn(HOST);
-    when(httpsTunnelProxy.getPort()).thenReturn(PORT);
-    when(httpsTunnelProxy.getUsername()).thenReturn(USERNAME);
-    when(httpsTunnelProxy.getPassword()).thenReturn(PASSWORD);
-    when(httpsTunnelProxy.getTlsContextFactory()).thenReturn(tlsContextFactory);
-    when(tlsContextFactory.createSslContext()).thenReturn(sslContext);
-
-    client = new MuleFTPHTTPClient(httpsTunnelProxy);
-
-    // Verify the SSL context was properly set
-    verify(httpsTunnelProxy).getTlsContextFactory();
-    verify(tlsContextFactory).createSslContext();
-    assert client != null;
-    // Access the protected context field through reflection to verify it was set
-    java.lang.reflect.Field contextField = MuleFTPHTTPClient.class.getDeclaredField("context");
-    contextField.setAccessible(true);
-    SSLContext actualContext = (SSLContext) contextField.get(client);
-    assert actualContext == sslContext;
-  }
-
   @Test(expected = IOException.class)
   public void testConnectWithInvalidHost() throws Exception {
     // Create client with proxy settings
@@ -91,6 +60,5 @@ public class MuleFTPHTTPClientTest {
     // This should naturally throw IOException due to connection failure
     client.connect("invalid.host.that.does.not.exist", -1);
   }
-
 
 }

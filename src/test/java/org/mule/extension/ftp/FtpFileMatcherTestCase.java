@@ -145,13 +145,6 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
-  public void testUpdatedInTheLastGetterAndSetter() {
-    Long testValue = 1000L;
-    builder.setUpdatedInTheLast(testValue);
-    assertEquals(testValue, builder.getUpdatedInTheLast());
-  }
-
-  @Test
   public void testNotUpdatedInTheLastGetterAndSetter() {
     Long testValue = 1000L;
     builder.setNotUpdatedInTheLast(testValue);

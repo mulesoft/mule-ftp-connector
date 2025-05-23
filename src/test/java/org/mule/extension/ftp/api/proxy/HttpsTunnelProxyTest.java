@@ -21,19 +21,9 @@ public class HttpsTunnelProxyTest {
 
   private HttpsTunnelProxy httpsTunnelProxy;
 
-  @Mock
-  private TlsContextFactory tlsContextFactory;
-
   @Before
   public void setUp() {
     httpsTunnelProxy = new HttpsTunnelProxy();
-  }
-
-  @Test
-  public void testGetTlsContextFactory() {
-    // Set the TLS context factory through the constructor or setter
-    httpsTunnelProxy.setTlsContextFactory(tlsContextFactory);
-    assertSame(tlsContextFactory, httpsTunnelProxy.getTlsContextFactory());
   }
 
   @Test

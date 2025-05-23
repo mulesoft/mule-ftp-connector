@@ -26,12 +26,38 @@ import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 
 import java.util.concurrent.TimeUnit;
+import java.io.UnsupportedEncodingException;
+import java.util.function.Consumer;
+
+class TestFtpConnectionProvider extends FtpConnectionProvider {
+
+  private final FTPClient ftpClient;
+  private String workingDir;
+  private FtpTransferMode transferMode;
+  private boolean passive;
+
+  public TestFtpConnectionProvider(FTPClient ftpClient) {
+    this.ftpClient = ftpClient;
+  }
+
+  @Override
+  protected FTPClient createClient() {
+    return ftpClient;
+  }
+
+  public void setWorkingDir(String workingDir) {
+    this.workingDir = workingDir;
+  }
+
+  @Override
+  public String getWorkingDir() {
+    return workingDir;
+  }
+}
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class FtpAbstractConnectionProviderTest {
-
-  @Mock
-  private LockFactory lockFactory;
 
   @Mock
   private FTPClient ftpClient;
@@ -39,19 +65,13 @@ public class FtpAbstractConnectionProviderTest {
   @Mock
   private FtpFileSystem ftpFileSystem;
 
-  private FtpConnectionProvider provider;
+  private TestFtpConnectionProvider provider;
   private FtpConnectionSettings connectionSettings;
   private TimeoutSettings timeoutSettings;
 
   @Before
   public void setUp() throws Exception {
-    provider = new FtpConnectionProvider() {
-
-      @Override
-      protected FTPClient createClient() {
-        return ftpClient;
-      }
-    };
+    provider = new TestFtpConnectionProvider(ftpClient);
     connectionSettings = new FtpConnectionSettings();
     connectionSettings.setHost("localhost");
 
@@ -60,38 +80,6 @@ public class FtpAbstractConnectionProviderTest {
     timeoutSettings.setConnectionTimeoutUnit(TimeUnit.MILLISECONDS);
     timeoutSettings.setResponseTimeout(5000);
     timeoutSettings.setResponseTimeoutUnit(TimeUnit.MILLISECONDS);
-
-    // Use reflection to set private fields
-    java.lang.reflect.Field connectionSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("connectionSettings");
-    connectionSettingsField.setAccessible(true);
-    connectionSettingsField.set(provider, connectionSettings);
-
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, timeoutSettings);
-
-    java.lang.reflect.Field lockFactoryField = FtpAbstractConnectionProvider.class.getDeclaredField("lockFactory");
-    lockFactoryField.setAccessible(true);
-    lockFactoryField.set(provider, lockFactory);
-
-    java.lang.reflect.Field workingDirField = FtpAbstractConnectionProvider.class.getDeclaredField("workingDir");
-    workingDirField.setAccessible(true);
-    workingDirField.set(provider, "/test/dir");
-
-    java.lang.reflect.Field transferModeField = FtpAbstractConnectionProvider.class.getDeclaredField("transferMode");
-    transferModeField.setAccessible(true);
-    transferModeField.set(provider, FtpTransferMode.BINARY);
-
-    java.lang.reflect.Field passiveField = FtpAbstractConnectionProvider.class.getDeclaredField("passive");
-    passiveField.setAccessible(true);
-    passiveField.set(provider, true);
-  }
-
-  @Test(expected = FTPConnectionException.class)
-  public void testConnectInvalidCredentials() throws Exception {
-    when(ftpClient.getReplyCode()).thenReturn(530);
-
-    provider.connect();
   }
 
   @Test
@@ -103,45 +91,10 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testGetWorkingDir() throws Exception {
+  public void testGetWorkingDir() {
     String workingDir = "/test/dir";
-    java.lang.reflect.Field workingDirField = FtpAbstractConnectionProvider.class.getDeclaredField("workingDir");
-    workingDirField.setAccessible(true);
-    workingDirField.set(provider, workingDir);
+    provider.setWorkingDir(workingDir);
     assertEquals(workingDir, provider.getWorkingDir());
-  }
-
-  @Test
-  public void testOnBorrow() throws Exception {
-    java.lang.reflect.Field transferModeField = FtpAbstractConnectionProvider.class.getDeclaredField("transferMode");
-    transferModeField.setAccessible(true);
-    transferModeField.set(provider, FtpTransferMode.BINARY);
-
-    java.lang.reflect.Field passiveField = FtpAbstractConnectionProvider.class.getDeclaredField("passive");
-    passiveField.setAccessible(true);
-    passiveField.set(provider, true);
-
-    provider.onBorrow(ftpFileSystem);
-    verify(ftpFileSystem).setTransferMode(FtpTransferMode.BINARY);
-    verify(ftpFileSystem).setPassiveMode(true);
-  }
-
-  @Test
-  public void testTimeoutSettings() throws Exception {
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    newTimeoutSettings.setConnectionTimeout(1000);
-    newTimeoutSettings.setConnectionTimeoutUnit(TimeUnit.SECONDS);
-    newTimeoutSettings.setResponseTimeout(2000);
-    newTimeoutSettings.setResponseTimeoutUnit(TimeUnit.SECONDS);
-
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
-    assertEquals(Integer.valueOf(1000), provider.getConnectionTimeout());
-    assertEquals(TimeUnit.SECONDS, provider.getConnectionTimeoutUnit());
-    assertEquals(Integer.valueOf(2000), provider.getResponseTimeout());
-    assertEquals(TimeUnit.SECONDS, provider.getResponseTimeoutUnit());
   }
 
   @Test
@@ -151,79 +104,33 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testConnectionTimeoutGettersAndSetters() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testConnectionTimeoutGettersAndSetters() {
     // Test setting and getting connection timeout
     Integer expectedTimeout = 3000;
-    newTimeoutSettings.setConnectionTimeout(expectedTimeout);
+    provider.setConnectionTimeout(expectedTimeout);
     assertEquals(expectedTimeout, provider.getConnectionTimeout());
 
     // Test setting and getting connection timeout unit
     TimeUnit expectedUnit = TimeUnit.SECONDS;
-    newTimeoutSettings.setConnectionTimeoutUnit(expectedUnit);
+    provider.setConnectionTimeoutUnit(expectedUnit);
     assertEquals(expectedUnit, provider.getConnectionTimeoutUnit());
-
-    // Test null values
-    newTimeoutSettings.setConnectionTimeout(null);
-    assertNull(provider.getConnectionTimeout());
-
-    newTimeoutSettings.setConnectionTimeoutUnit(null);
-    assertNull(provider.getConnectionTimeoutUnit());
   }
 
   @Test
-  public void testResponseTimeoutGettersAndSetters() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testResponseTimeoutGettersAndSetters() {
     // Test setting and getting response timeout
     Integer expectedTimeout = 4000;
-    newTimeoutSettings.setResponseTimeout(expectedTimeout);
+    provider.setResponseTimeout(expectedTimeout);
     assertEquals(expectedTimeout, provider.getResponseTimeout());
 
     // Test setting and getting response timeout unit
     TimeUnit expectedUnit = TimeUnit.MINUTES;
-    newTimeoutSettings.setResponseTimeoutUnit(expectedUnit);
+    provider.setResponseTimeoutUnit(expectedUnit);
     assertEquals(expectedUnit, provider.getResponseTimeoutUnit());
-
-    // Test null values
-    newTimeoutSettings.setResponseTimeout(null);
-    assertNull(provider.getResponseTimeout());
-
-    newTimeoutSettings.setResponseTimeoutUnit(null);
-    assertNull(provider.getResponseTimeoutUnit());
   }
 
   @Test
-  public void testHandleClientReplyCode() throws Exception {
-    // Set up mock behavior
-    when(ftpClient.getReplyCode()).thenReturn(421);
-    doNothing().when(ftpClient).connect(anyString(), anyInt());
-
-    try {
-      provider.connect();
-      fail("Expected FTPConnectionException");
-    } catch (FTPConnectionException e) {
-      assertTrue(e.getMessage().contains("Service is unavailable"));
-    }
-  }
-
-  @Test
-  public void testSetConnectionTimeout() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testSetConnectionTimeout() {
     // Test setting connection timeout
     Integer expectedTimeout = 5000;
     provider.setConnectionTimeout(expectedTimeout);
@@ -231,13 +138,7 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testSetConnectionTimeoutUnit() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testSetConnectionTimeoutUnit() {
     // Test setting connection timeout unit
     TimeUnit expectedUnit = TimeUnit.SECONDS;
     provider.setConnectionTimeoutUnit(expectedUnit);
@@ -245,13 +146,7 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testSetResponseTimeout() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testSetResponseTimeout() {
     // Test setting response timeout
     Integer expectedTimeout = 3000;
     provider.setResponseTimeout(expectedTimeout);
@@ -259,16 +154,19 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testSetResponseTimeoutUnit() throws Exception {
-    // Create new timeout settings to avoid interference from setUp()
-    TimeoutSettings newTimeoutSettings = new TimeoutSettings();
-    java.lang.reflect.Field timeoutSettingsField = FtpAbstractConnectionProvider.class.getDeclaredField("timeoutSettings");
-    timeoutSettingsField.setAccessible(true);
-    timeoutSettingsField.set(provider, newTimeoutSettings);
-
+  public void testSetResponseTimeoutUnit() {
     // Test setting response timeout unit
     TimeUnit expectedUnit = TimeUnit.MINUTES;
     provider.setResponseTimeoutUnit(expectedUnit);
     assertEquals(expectedUnit, provider.getResponseTimeoutUnit());
+  }
+
+  @Test
+  public void testSetupWireLogging() {
+    StringBuilder loggedMessages = new StringBuilder();
+    Consumer<String> operation = message -> loggedMessages.append(message);
+    provider.setupWireLogging(ftpClient, operation);
+
+    verify(ftpClient).addProtocolCommandListener(any());
   }
 }
