@@ -27,10 +27,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class MuleFTPHTTPClientTest {
 
-  private static final String HOST = "test.host.com";
-  private static final int PORT = 8080;
-  private static final String USERNAME = "testUser";
-  private static final String PASSWORD = "testPass";
 
   @Mock
   private ProxySettings proxySettings;
@@ -39,10 +35,10 @@ public class MuleFTPHTTPClientTest {
 
   @Before
   public void setUp() {
-    when(proxySettings.getHost()).thenReturn(HOST);
-    when(proxySettings.getPort()).thenReturn(PORT);
-    when(proxySettings.getUsername()).thenReturn(USERNAME);
-    when(proxySettings.getPassword()).thenReturn(PASSWORD);
+    when(proxySettings.getHost()).thenReturn("test.host.com");
+    when(proxySettings.getPort()).thenReturn(8080);
+    when(proxySettings.getUsername()).thenReturn("testUser");
+    when(proxySettings.getPassword()).thenReturn("testPass");
   }
 
   @Test
@@ -53,11 +49,7 @@ public class MuleFTPHTTPClientTest {
 
   @Test(expected = IOException.class)
   public void testConnectWithInvalidHost() throws Exception {
-    // Create client with proxy settings
     client = new MuleFTPHTTPClient(proxySettings);
-
-    // Try to connect to a non-existent host with invalid port
-    // This should naturally throw IOException due to connection failure
     client.connect("invalid.host.that.does.not.exist", -1);
   }
 

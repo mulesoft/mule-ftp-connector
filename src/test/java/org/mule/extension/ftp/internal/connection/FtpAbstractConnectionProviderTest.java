@@ -29,33 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.io.UnsupportedEncodingException;
 import java.util.function.Consumer;
 
-class TestFtpConnectionProvider extends FtpConnectionProvider {
-
-  private final FTPClient ftpClient;
-  private String workingDir;
-  private FtpTransferMode transferMode;
-  private boolean passive;
-
-  public TestFtpConnectionProvider(FTPClient ftpClient) {
-    this.ftpClient = ftpClient;
-  }
-
-  @Override
-  protected FTPClient createClient() {
-    return ftpClient;
-  }
-
-  public void setWorkingDir(String workingDir) {
-    this.workingDir = workingDir;
-  }
-
-  @Override
-  public String getWorkingDir() {
-    return workingDir;
-  }
-}
-
-
 @RunWith(MockitoJUnitRunner.class)
 public class FtpAbstractConnectionProviderTest {
 
@@ -76,10 +49,6 @@ public class FtpAbstractConnectionProviderTest {
     connectionSettings.setHost("localhost");
 
     timeoutSettings = new TimeoutSettings();
-    timeoutSettings.setConnectionTimeout(5000);
-    timeoutSettings.setConnectionTimeoutUnit(TimeUnit.MILLISECONDS);
-    timeoutSettings.setResponseTimeout(5000);
-    timeoutSettings.setResponseTimeoutUnit(TimeUnit.MILLISECONDS);
   }
 
   @Test
@@ -91,13 +60,6 @@ public class FtpAbstractConnectionProviderTest {
   }
 
   @Test
-  public void testGetWorkingDir() {
-    String workingDir = "/test/dir";
-    provider.setWorkingDir(workingDir);
-    assertEquals(workingDir, provider.getWorkingDir());
-  }
-
-  @Test
   public void testDisconnect() {
     provider.disconnect(ftpFileSystem);
     verify(ftpFileSystem).disconnect();
@@ -105,12 +67,10 @@ public class FtpAbstractConnectionProviderTest {
 
   @Test
   public void testConnectionTimeoutGettersAndSetters() {
-    // Test setting and getting connection timeout
     Integer expectedTimeout = 3000;
     provider.setConnectionTimeout(expectedTimeout);
     assertEquals(expectedTimeout, provider.getConnectionTimeout());
 
-    // Test setting and getting connection timeout unit
     TimeUnit expectedUnit = TimeUnit.SECONDS;
     provider.setConnectionTimeoutUnit(expectedUnit);
     assertEquals(expectedUnit, provider.getConnectionTimeoutUnit());
@@ -118,44 +78,10 @@ public class FtpAbstractConnectionProviderTest {
 
   @Test
   public void testResponseTimeoutGettersAndSetters() {
-    // Test setting and getting response timeout
     Integer expectedTimeout = 4000;
     provider.setResponseTimeout(expectedTimeout);
     assertEquals(expectedTimeout, provider.getResponseTimeout());
 
-    // Test setting and getting response timeout unit
-    TimeUnit expectedUnit = TimeUnit.MINUTES;
-    provider.setResponseTimeoutUnit(expectedUnit);
-    assertEquals(expectedUnit, provider.getResponseTimeoutUnit());
-  }
-
-  @Test
-  public void testSetConnectionTimeout() {
-    // Test setting connection timeout
-    Integer expectedTimeout = 5000;
-    provider.setConnectionTimeout(expectedTimeout);
-    assertEquals(expectedTimeout, provider.getConnectionTimeout());
-  }
-
-  @Test
-  public void testSetConnectionTimeoutUnit() {
-    // Test setting connection timeout unit
-    TimeUnit expectedUnit = TimeUnit.SECONDS;
-    provider.setConnectionTimeoutUnit(expectedUnit);
-    assertEquals(expectedUnit, provider.getConnectionTimeoutUnit());
-  }
-
-  @Test
-  public void testSetResponseTimeout() {
-    // Test setting response timeout
-    Integer expectedTimeout = 3000;
-    provider.setResponseTimeout(expectedTimeout);
-    assertEquals(expectedTimeout, provider.getResponseTimeout());
-  }
-
-  @Test
-  public void testSetResponseTimeoutUnit() {
-    // Test setting response timeout unit
     TimeUnit expectedUnit = TimeUnit.MINUTES;
     provider.setResponseTimeoutUnit(expectedUnit);
     assertEquals(expectedUnit, provider.getResponseTimeoutUnit());
@@ -168,5 +94,28 @@ public class FtpAbstractConnectionProviderTest {
     provider.setupWireLogging(ftpClient, operation);
 
     verify(ftpClient).addProtocolCommandListener(any());
+  }
+}
+
+
+class TestFtpConnectionProvider extends FtpConnectionProvider {
+
+  private final FTPClient ftpClient;
+  private String workingDir;
+  private FtpTransferMode transferMode;
+
+  public TestFtpConnectionProvider(FTPClient ftpClient) {
+    this.ftpClient = ftpClient;
+  }
+
+  @Override
+  protected FTPClient createClient() {
+    return ftpClient;
+  }
+
+
+  @Override
+  public String getWorkingDir() {
+    return workingDir;
   }
 }

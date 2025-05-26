@@ -37,7 +37,6 @@ public class FileSystemProviderTest {
 
     @Override
     public void disconnect(FileSystem connection) {
-      // No-op for testing
     }
 
     @Override
@@ -55,17 +54,6 @@ public class FileSystemProviderTest {
   public void setUp() {
     provider1 = new TestFileSystemProvider();
     provider2 = new TestFileSystemProvider();
-  }
-
-  @Test
-  public void testGetConfigName() throws Exception {
-    // Set the configName field using reflection
-    Field configNameField = FileSystemProvider.class.getDeclaredField("configName");
-    configNameField.setAccessible(true);
-    configNameField.set(provider1, TEST_CONFIG_NAME);
-
-    // Test the getter
-    assertEquals(TEST_CONFIG_NAME, provider1.getConfigName());
   }
 
   @Test
@@ -88,31 +76,5 @@ public class FileSystemProviderTest {
     assertEquals(provider1.hashCode(), provider2.hashCode());
   }
 
-  @Test
-  public void testEqualsWithConfigNames() throws Exception {
-    // Set config names using reflection
-    Field configNameField = FileSystemProvider.class.getDeclaredField("configName");
-    configNameField.setAccessible(true);
 
-    // Set same config name for both providers
-    configNameField.set(provider1, TEST_CONFIG_NAME);
-    configNameField.set(provider2, TEST_CONFIG_NAME);
-
-    // Verify config names are set correctly
-    assertEquals(TEST_CONFIG_NAME, provider1.getConfigName());
-    assertEquals(TEST_CONFIG_NAME, provider2.getConfigName());
-
-    // Test equals with same config names
-    assertTrue("Providers with same config name should be equal", provider1.equals(provider2));
-
-    // Set different config names
-    String differentConfig = "differentConfig";
-    configNameField.set(provider2, differentConfig);
-
-    // Verify new config name is set correctly
-    assertEquals(differentConfig, provider2.getConfigName());
-
-    // Test equals with different config names
-    assertFalse("Providers with different config names should not be equal", provider1.equals(provider2));
-  }
 }

@@ -96,25 +96,20 @@ public class FtpFileAttributesTestCase {
   public void settersAndGetters() {
     FtpFileAttributes ftpAttributes = new FtpFileAttributes();
 
-    // Test timestamp
     ftpAttributes.setTimestamp(expectedTimesTamp);
     assertThat(ftpAttributes.getTimestamp(), is(expectedTimesTamp));
 
-    // Test size
     ftpAttributes.setSize(EXPECTED_SIZE);
     assertThat(ftpAttributes.getSize(), is(EXPECTED_SIZE));
 
-    // Test regular file
     ftpAttributes.setRegularFile(true);
     assertThat(ftpAttributes.isRegularFile(), is(true));
     assertThat(ftpAttributes.getRegularFile(), is(true));
 
-    // Test directory
     ftpAttributes.setDirectory(true);
     assertThat(ftpAttributes.isDirectory(), is(true));
     assertThat(ftpAttributes.getDirectory(), is(true));
 
-    // Test symbolic link
     ftpAttributes.setSymbolicLink(true);
     assertThat(ftpAttributes.isSymbolicLink(), is(true));
     assertThat(ftpAttributes.getSymbolicLink(), is(true));

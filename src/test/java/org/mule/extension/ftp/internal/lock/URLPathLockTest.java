@@ -50,7 +50,6 @@ public class URLPathLockTest {
 
   @Test
   public void isLockedWhenOwned() {
-    // Simulate that we own the lock
     when(lock.tryLock()).thenReturn(true);
     urlPathLock.tryLock();
     assertThat(urlPathLock.isLocked(), is(true));
@@ -58,21 +57,18 @@ public class URLPathLockTest {
 
   @Test
   public void isLockedWhenNotOwned() {
-    // Simulate that we don't own the lock and can't acquire it
     when(lock.tryLock()).thenReturn(false);
     assertThat(urlPathLock.isLocked(), is(true));
   }
 
   @Test
   public void isNotLockedWhenCanAcquire() {
-    // Simulate that we don't own the lock but can acquire it
     when(lock.tryLock()).thenReturn(true);
     assertThat(urlPathLock.isLocked(), is(false));
   }
 
   @Test
   public void getPathSuccess() throws Exception {
-    // Create a URL that will work with Paths.get()
     URL fileUrl = new URL("file:///test.txt");
     URLPathLock fileLock = new URLPathLock(fileUrl, lockFactory);
     Path path = fileLock.getPath();
@@ -81,7 +77,6 @@ public class URLPathLockTest {
 
   @Test
   public void getPathFailure() throws Exception {
-    // Create a URL with invalid characters that will cause URISyntaxException
     URL invalidUrl = new URL("ftp://localhost/test file.txt");
     URLPathLock invalidLock = new URLPathLock(invalidUrl, lockFactory);
 
@@ -101,7 +96,6 @@ public class URLPathLockTest {
 
   @Test
   public void getUriFailure() throws Exception {
-    // Create a URL with invalid characters that will cause URISyntaxException
     URL invalidUrl = new URL("ftp://localhost/test file.txt");
     URLPathLock invalidLock = new URLPathLock(invalidUrl, lockFactory);
 

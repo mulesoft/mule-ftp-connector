@@ -21,13 +21,10 @@ public class HttpsTunnelProxyTest {
 
   private HttpsTunnelProxy httpsTunnelProxy;
 
-  @Before
-  public void setUp() {
-    httpsTunnelProxy = new HttpsTunnelProxy();
-  }
-
   @Test
   public void testInitialiseWithNullTlsContextFactory() throws Exception {
+    httpsTunnelProxy = new HttpsTunnelProxy();
+
     // When tlsContextFactory is null, it should be initialized with default settings
     httpsTunnelProxy.initialise();
     assertNotNull(httpsTunnelProxy.getTlsContextFactory());
