@@ -36,8 +36,7 @@ public class FileSystemProviderTest {
     }
 
     @Override
-    public void disconnect(FileSystem connection) {
-    }
+    public void disconnect(FileSystem connection) {}
 
     @Override
     public ConnectionValidationResult validate(FileSystem connection) {
