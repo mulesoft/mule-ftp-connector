@@ -14,10 +14,17 @@ import org.mule.extension.ftp.api.FtpFileMatcher;
 import org.mule.extension.ftp.api.ftp.FtpFileAttributes;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.qameta.allure.Feature;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @Feature(FTP_EXTENSION)
 public class FtpFileMatcherTestCase
@@ -44,7 +51,8 @@ public class FtpFileMatcherTestCase
 
   @Test
   public void matchesAll() {
-    builder.setFilenamePattern("glob:*.{java, js}").setPathPattern("glob:**.{java, js}")
+    builder.setFilenamePattern("glob:*.{java, js}")
+        .setPathPattern("glob:**.{java, js}")
         .setTimestampSince(LocalDateTime.of(1980, 1, 1, 0, 0))
         .setTimestampUntil(LocalDateTime.of(1990, 1, 1, 0, 0))
         .setRegularFiles(REQUIRE)
@@ -92,5 +100,95 @@ public class FtpFileMatcherTestCase
     when(attributes.getTimestamp()).thenReturn(null);
     builder.setTimestampUntil(LocalDateTime.of(1990, 1, 1, 0, 0));
     assertMatch();
+  }
+
+  @Test
+  public void updatedInTheLast() {
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    when(attributes.getTimestamp()).thenReturn(LocalDateTime.now().minus(500, ChronoUnit.SECONDS));
+    assertMatch();
+  }
+
+  @Test
+  public void testCaseSensitiveGetterAndSetter() {
+    builder.setFtpFileMatcherCaseSensitive(true);
+    assertTrue(builder.isCaseSensitive());
+    assertTrue(builder.getFtpFileMatcherCaseSensitive());
+  }
+
+  @Test
+  public void testAlreadyLoggedWarningGetterAndSetter() {
+    AtomicBoolean warning = new AtomicBoolean(true);
+    builder.setAlreadyLoggedWarning(warning);
+    assertEquals(warning, builder.getAlreadyLoggedWarning());
+  }
+
+  @Test
+  public void testTimestampSinceGetterAndSetter() {
+    LocalDateTime testTimestamp = LocalDateTime.of(2023, 1, 1, 12, 0);
+    builder.setTimestampSince(testTimestamp);
+    assertEquals(testTimestamp, builder.getTimestampSince());
+  }
+
+  @Test
+  public void testTimestampUntilGetterAndSetter() {
+    LocalDateTime testTimestamp = LocalDateTime.of(2023, 12, 31, 23, 59);
+    builder.setTimestampUntil(testTimestamp);
+    assertEquals(testTimestamp, builder.getTimestampUntil());
+  }
+
+  @Test
+  public void testTimeUnitGetterAndSetter() {
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    assertEquals(TimeUnit.SECONDS, builder.getTimeUnit());
+  }
+
+  @Test
+  public void testNotUpdatedInTheLastGetterAndSetter() {
+    Long testValue = 1000L;
+    builder.setNotUpdatedInTheLast(testValue);
+    assertEquals(testValue, builder.getNotUpdatedInTheLast());
+  }
+
+  @Test
+  public void testSetTimestampsinceWithCurrentTime() {
+    LocalDateTime currentTime = LocalDateTime.now();
+    builder.setTimestampsince(currentTime);
+    assertEquals(currentTime, builder.getTimestampSince());
+  }
+
+  @Test
+  public void testSetTimestampuntil() {
+    LocalDateTime testTimestamp = LocalDateTime.of(2024, 3, 15, 10, 30);
+    builder.setTimestampuntil(testTimestamp);
+    assertEquals(testTimestamp, builder.getTimestampUntil());
+  }
+
+  @Test
+  public void testSetTimeunit() {
+    builder.setTimeunit(TimeUnit.MINUTES);
+    assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
+  }
+
+  @Test
+  public void testGetUpdatedInTheLast() {
+    Long expectedValue = 5000L;
+    builder.setUpdatedInThelast(expectedValue);
+    assertEquals(expectedValue, builder.getUpdatedInTheLast());
+  }
+
+  @Test
+  public void testSetUpdatedInThelast() {
+    Long testValue = 3000L;
+    builder.setUpdatedInThelast(testValue);
+    assertEquals(testValue, builder.getUpdatedInTheLast());
+  }
+
+  @Test
+  public void testSetNotUpdatedInThelast() {
+    Long testValue = 2000L;
+    builder.setNotUpdatedInThelast(testValue);
+    assertEquals(testValue, builder.getNotUpdatedInTheLast());
   }
 }

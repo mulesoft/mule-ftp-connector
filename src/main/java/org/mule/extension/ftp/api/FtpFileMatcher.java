@@ -193,7 +193,6 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     this.timestampSince = timestampSince;
   }
 
-
   public LocalDateTime getTimestampUntil() {
     return timestampUntil;
   }
@@ -238,7 +237,6 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     this.caseSensitive = caseSensitive;
   }
 
-
   public AtomicBoolean getAlreadyLoggedWarning() {
     return alreadyLoggedWarning;
   }
@@ -246,7 +244,6 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   public void setAlreadyLoggedWarning(AtomicBoolean alreadyLoggedWarning) {
     this.alreadyLoggedWarning = alreadyLoggedWarning;
   }
-
 
 }
 
