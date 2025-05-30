@@ -128,49 +128,49 @@ public final class UriUtils {
    * @throws PatternSyntaxException
    */
   public static String toRegexPattern(String globPattern) {
-    boolean inGroup = false; 
-    StringBuilder regex = new StringBuilder("^"); 
+    boolean inGroup = false;
+    StringBuilder regex = new StringBuilder("^");
 
-    int i = 0; 
+    int i = 0;
     while (i < globPattern.length()) {
-      char c = globPattern.charAt(i++); 
+      char c = globPattern.charAt(i++);
       switch (c) {
-        case '\\': 
+        case '\\':
           // escape special characters
           if (i == globPattern.length()) {
             throw new PatternSyntaxException("No character to escape",
-                                             globPattern, i - 1); 
+                                             globPattern, i - 1);
           }
-          char next = globPattern.charAt(i++); 
+          char next = globPattern.charAt(i++);
           if (isGlobMeta(next) || isRegexMeta(next)) {
-            regex.append('\\'); 
+            regex.append('\\');
           }
-          regex.append(next); 
+          regex.append(next);
           break;
         case '/':
-          regex.append(c); 
+          regex.append(c);
           break;
         case '[':
           // don't match name separator in class
-          regex.append("[[^/]&&["); 
+          regex.append("[[^/]&&[");
           if (next(globPattern, i) == '^') {
             // escape the regex negation char if it appears
-            regex.append("\\^"); 
+            regex.append("\\^");
             i++;
           } else {
             // negation
             if (next(globPattern, i) == '!') {
-              regex.append('^'); 
+              regex.append('^');
               i++;
             }
             // hyphen allowed at start
             if (next(globPattern, i) == '-') {
-              regex.append('-'); 
+              regex.append('-');
               i++;
             }
           }
-          boolean hasRangeStart = false; 
-          char last = 0; 
+          boolean hasRangeStart = false;
+          char last = 0;
           while (i < globPattern.length()) {
             c = globPattern.charAt(i++);
             if (c == ']') {
@@ -178,15 +178,15 @@ public final class UriUtils {
             }
             if (c == '/') {
               throw new PatternSyntaxException("Explicit 'name separator' in class",
-                                               globPattern, i - 1); 
+                                               globPattern, i - 1);
             }
             // TBD: how to specify ']' in a class?
             if (c == '\\' || c == '[' ||
                 c == '&' && next(globPattern, i) == '&') {
               // escape '\', '[' or "&&" for regex class
-              regex.append('\\'); 
+              regex.append('\\');
             }
-            regex.append(c); 
+            regex.append(c);
 
             if (c == '-') {
               if (!hasRangeStart) {
