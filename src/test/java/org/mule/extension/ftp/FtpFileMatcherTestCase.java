@@ -111,6 +111,16 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
+  public void updatedInTheLastWithZeroSecondAndNano() {
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    LocalDateTime timestamp = LocalDateTime.now().minus(500, ChronoUnit.SECONDS).withSecond(0).withNano(0);
+    when(attributes.getTimestamp()).thenReturn(timestamp);
+    builder.setAlreadyLoggedWarning(new AtomicBoolean(false));
+    assertMatch();
+  }
+
+  @Test
   public void testCaseSensitiveGetterAndSetter() {
     builder.setFtpFileMatcherCaseSensitive(true);
     assertTrue(builder.isCaseSensitive());
