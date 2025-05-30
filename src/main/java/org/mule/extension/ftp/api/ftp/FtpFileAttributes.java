@@ -58,8 +58,8 @@ public class FtpFileAttributes implements Serializable {
    */
   public FtpFileAttributes(URI uri, FTPFile ftpFile) {
     this.path = uri.getPath();
-    String name = FilenameUtils.getName(uri.getPath());
-    this.name = name != null ? name : "";
+    String fileName = FilenameUtils.getName(uri.getPath());
+    this.name = fileName != null ? fileName : "";
     timestamp = ftpFile.getTimestamp() != null ? asDateTime(ftpFile.getTimestamp().toInstant()) : null;
     size = ftpFile.getSize();
     regularFile = ftpFile.isFile();
@@ -73,8 +73,8 @@ public class FtpFileAttributes implements Serializable {
   public FtpFileAttributes() {
     URI uri = createDefaultUri();
     this.path = uri.getPath();
-    String name = FilenameUtils.getName(uri.getPath());
-    this.name = name != null ? name : "";
+    String fileName = FilenameUtils.getName(uri.getPath());
+    this.name = fileName != null ? fileName : "";
     timestamp = null;
     size = 0;
     regularFile = false;

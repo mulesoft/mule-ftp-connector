@@ -204,7 +204,8 @@ public class FtpWriteTestCase extends CommonFtpConnectorTestCase {
     final String filePath = "folder/fi:le.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
-    toString(readPath(filePath).getPayload().getValue());
+    String content = toString(readPath(filePath).getPayload().getValue());
+    assertThat(content, is(HELLO_WORLD));
   }
 
   private void doWriteNotExistingFileWithCreatedParent(FileWriteMode mode) throws Exception {

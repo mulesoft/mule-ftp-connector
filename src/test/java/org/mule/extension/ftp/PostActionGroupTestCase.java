@@ -87,6 +87,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     ConcreteFileSystem fileSystem = new ConcreteFileSystem(null, "basePath", null, null);
     fileSystem.setCanMove(true);
     new PostActionGroupChild("someDir", null, false, true).apply(fileSystem, ftpFileAttributes, fileConnectorConfig);
+    org.junit.Assert.assertEquals(MOVE, fileSystem.getActionExecuted());
   }
 
   private class PostActionGroupChild extends PostActionGroup {

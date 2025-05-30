@@ -149,7 +149,10 @@ public class FtpDirectoryListener extends PollingSource<InputStream, FtpFileAttr
 
   @Override
   protected void doStop() {
-
+    // Intentionally left empty.
+    // No specific stop logic is required for this source.
+    // Resource cleanup and connection handling are managed in returnConnection(),
+    // which is called in other lifecycle methods (onSuccess, onError, onTerminate, poll).
   }
 
   @OnSuccess

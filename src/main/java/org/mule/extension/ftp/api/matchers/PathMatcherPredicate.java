@@ -75,6 +75,6 @@ public final class PathMatcherPredicate implements Predicate<String> {
   }
 
   private String stripRegexPrefix(String pattern) {
-    return pattern.replaceAll(REGEX_PREFIX, "");
+    return pattern.replace(REGEX_PREFIX, "");
   }
 }
