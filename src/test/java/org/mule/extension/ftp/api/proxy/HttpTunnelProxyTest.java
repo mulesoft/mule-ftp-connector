@@ -32,8 +32,7 @@ public class HttpTunnelProxyTest {
     HttpTunnelProxy proxy1 = new HttpTunnelProxy();
     HttpTunnelProxy proxy2 = new HttpTunnelProxy();
 
-    assertTrue(proxy1.equals(proxy1));
-    assertTrue(proxy1.equals(proxy2));
+    assertEquals(proxy1, proxy2);
     assertEquals(proxy1.hashCode(), proxy2.hashCode());
 
     proxy1.host = "host1";
@@ -46,11 +45,11 @@ public class HttpTunnelProxyTest {
     proxy2.username = "user2";
     proxy2.password = "pass2";
 
-    assertFalse(proxy1.equals(proxy2));
+    assertNotEquals(proxy1, proxy2);
     assertNotEquals(proxy1.hashCode(), proxy2.hashCode());
 
-    assertFalse(proxy1.equals(null));
-    assertFalse(proxy1.equals("Not a proxy"));
+    assertNotEquals(null, proxy1);
+    assertNotEquals("Not a proxy", proxy1);
   }
 
   @Test
@@ -60,8 +59,8 @@ public class HttpTunnelProxyTest {
 
     proxy1.host = "host1";
     proxy2.host = "host2";
-    assertFalse(proxy1.equals(proxy2));
+    assertNotEquals(proxy1, proxy2);
     proxy2.host = "host1";
-    assertTrue(proxy1.equals(proxy2));
+    assertEquals(proxy1, proxy2);
   }
 }
