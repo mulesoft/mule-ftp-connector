@@ -37,9 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class FtpCopyCommand extends FtpCommand implements CopyCommand {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FtpCopyCommand.class);
-
-
   /**
    * {@inheritDoc}
    */

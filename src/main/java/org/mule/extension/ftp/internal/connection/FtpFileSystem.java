@@ -156,7 +156,7 @@ public class FtpFileSystem implements FileSystem {
     try {
       return client.hasFeature(command);
     } catch (IOException exception) {
-      LOGGER.error(format("Unable to resolve if feature {} is supported.", command), exception);
+      LOGGER.error("Unable to resolve if feature {} is supported.", command, exception);
       return false;
     }
   }
@@ -365,15 +365,15 @@ public class FtpFileSystem implements FileSystem {
    */
   @Override
   public void changeToBaseDir() {
-    String basePath = getBasePath();
-    if (basePath != null) {
+    String currentBasePath = getBasePath();
+    if (currentBasePath != null) {
       try {
         client.changeWorkingDirectory(normalizePath(createUri("/", getBasePath()).getPath()));
       } catch (IOException e) {
-        LOGGER.error(format("Failed to perform CWD to the base directory '%s'", basePath), e);
+        LOGGER.error(format("Failed to perform CWD to the base directory '%s'", currentBasePath), e);
         ConnectionException ce = new ConnectionException(e, client);
         throw new MuleRuntimeException(createStaticMessage(format("Failed to perform CWD to the base directory '%s'",
-                                                                  basePath)),
+                                                                  currentBasePath)),
                                        ce);
       }
     }

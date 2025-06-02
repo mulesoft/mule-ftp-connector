@@ -106,4 +106,14 @@ public class URLPathLockTest {
       assertThat(e.getCause(), instanceOf(URISyntaxException.class));
     }
   }
+
+  @Test
+  public void releaseHandlesUnlockException() {
+    when(lock.tryLock()).thenReturn(true);
+    urlPathLock.tryLock();
+    org.mockito.Mockito.doThrow(new RuntimeException("unlock failed")).when(lock).unlock();
+    urlPathLock.release();
+    urlPathLock.release();
+    org.mockito.Mockito.verify(lock).unlock();
+  }
 }

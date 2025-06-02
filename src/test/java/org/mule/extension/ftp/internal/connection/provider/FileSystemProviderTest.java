@@ -6,20 +6,15 @@
  */
 package org.mule.extension.ftp.internal.connection.provider;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.mule.extension.ftp.internal.connection.FileSystem;
-import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-
-import java.lang.reflect.Field;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileSystemProviderTest {
@@ -62,12 +57,12 @@ public class FileSystemProviderTest {
 
   @Test
   public void testEqualsNull() {
-    assertFalse(provider1.equals(null));
+    assertNotEquals(null, provider1);
   }
 
   @Test
   public void testEqualsDifferentClass() {
-    assertFalse(provider1.equals(new Object()));
+    assertNotEquals(new Object(), provider1);
   }
 
   @Test

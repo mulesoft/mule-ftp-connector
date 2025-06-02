@@ -8,12 +8,36 @@ package org.mule.extension.ftp.api;
 
 import org.junit.Test;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.regex.PatternSyntaxException;
-import org.mule.runtime.api.exception.MuleRuntimeException;
-import static org.junit.Assert.*;
 
+import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import java.util.Arrays;
+import java.util.Collection;
+
+@RunWith(Parameterized.class)
 public class UriUtilsTest {
+
+  @Parameterized.Parameter(0)
+  public String globPattern;
+  @Parameterized.Parameter(1)
+  public String expectedRegex;
+
+  @Parameters(name = "{index}: toRegexPattern({0})={1}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        {"file[^abc].txt", "^file[[^/]&&[\\^abc]]\\.txt$"},
+        {"file[!abc].txt", "^file[[^/]&&[^abc]]\\.txt$"},
+        {"file[-abc].txt", "^file[[^/]&&[-abc]]\\.txt$"},
+        {"file[^a-c].txt", "^file[[^/]&&[\\^a-c]]\\.txt$"},
+        {"file[\\[&&].txt", "^file[[^/]&&[\\\\\\[\\&&]]\\.txt$"},
+        {"file}.txt", "^file}\\.txt$"},
+        {"file,test.txt", "^file,test\\.txt$"},
+        {"file?.txt", "^file[^/]\\.txt$"}
+    });
+  }
 
   @Test
   public void testCreateUriWithSimplePath() {
@@ -128,85 +152,23 @@ public class UriUtilsTest {
     assertEquals("^\\*\\.txt$", regex);
   }
 
-  @Test
-  public void testCharacterClassWithCaret() {
-    // Test handling of ^ in character class
-    String globPattern = "file[^abc].txt";
-    String expectedRegex = "^file[[^/]&&[\\^abc]]\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
-  @Test
-  public void testCharacterClassWithNegation() {
-    // Test handling of ! for negation in character class
-    String globPattern = "file[!abc].txt";
-    String expectedRegex = "^file[[^/]&&[^abc]]\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
-  @Test
-  public void testCharacterClassWithHyphenAtStart() {
-    // Test handling of - at start of character class
-    String globPattern = "file[-abc].txt";
-    String expectedRegex = "^file[[^/]&&[-abc]]\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
-  @Test
-  public void testCharacterClassWithMultipleSpecialChars() {
-    // Test combination of special characters in character class
-    String globPattern = "file[^a-c].txt";
-    String expectedRegex = "^file[[^/]&&[\\^a-c]]\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
   @Test(expected = PatternSyntaxException.class)
   public void testCharacterClassWithExplicitNameSeparator() {
-    // Test that using a forward slash in a character class throws an exception
     UriUtils.toRegexPattern("file[/abc].txt");
-  }
-
-  @Test
-  public void testCharacterClassWithSpecialChars() {
-    // Test escaping of backslash, square bracket, and double ampersand in character class
-    String globPattern = "file[\\[&&].txt";
-    String expectedRegex = "^file[[^/]&&[\\\\\\[\\&&]]\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
   }
 
   @Test(expected = PatternSyntaxException.class)
   public void testCharacterClassWithInvalidRange() {
-    // Test that using a hyphen in the middle of a character class without a proper range throws an exception
     UriUtils.toRegexPattern("file[a-b-c].txt");
   }
 
   @Test(expected = PatternSyntaxException.class)
   public void testCharacterClassWithMissingClosingBracket() {
-    // Test that using a character class without a closing bracket throws an exception
     UriUtils.toRegexPattern("file[abc.txt");
   }
 
   @Test
-  public void testLiteralClosingBrace() {
-    // Test that a closing brace outside of a group is treated as a literal character
-    String globPattern = "file}.txt";
-    String expectedRegex = "^file}\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
-  @Test
-  public void testLiteralComma() {
-    // Test that a comma outside of a group is treated as a literal character
-    String globPattern = "file,test.txt";
-    String expectedRegex = "^file,test\\.txt$";
-    assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
-  }
-
-  @Test
-  public void testQuestionMarkWildcard() {
-    // Test that a question mark is converted to [^/] in the regex pattern
-    String globPattern = "file?.txt";
-    String expectedRegex = "^file[^/]\\.txt$";
+  public void testToRegexPatternParameterized() {
     assertEquals(expectedRegex, UriUtils.toRegexPattern(globPattern));
   }
 

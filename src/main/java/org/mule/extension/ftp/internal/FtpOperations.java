@@ -369,7 +369,10 @@ public final class FtpOperations {
       }
 
       @Override
-      public void close(FileSystem connection) throws MuleException {}
+      public void close(FileSystem connection) throws MuleException {
+        // This method is intentionally left empty because there are no resources to release
+        // or cleanup actions required when closing the PagingProvider for this implementation.
+      }
 
     };
   }

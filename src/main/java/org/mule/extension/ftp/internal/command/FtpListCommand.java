@@ -161,7 +161,7 @@ public final class FtpListCommand extends FtpCommand implements ListCommand {
         }
       } catch (MalformedServerReplyException e) {
         LOGGER
-            .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: ",
+            .debug(format("Server answered the MLSD command with a MalformedServerReplyException. Falling back to the old LIST command. Exception message was: %s",
                           e.getMessage()));
       }
       if (LOGGER.isDebugEnabled()) {

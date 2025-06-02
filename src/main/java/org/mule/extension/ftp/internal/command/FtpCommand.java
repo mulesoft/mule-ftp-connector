@@ -495,10 +495,6 @@ public abstract class FtpCommand {
     return new MuleRuntimeException(createStaticMessage(message), cause);
   }
 
-  private String enrichExceptionMessage(String message) {
-    return format("%s. %s", message, getReplyErrorMessage(client.getReplyCode(), client.getReplyString()));
-  }
-
   /**
    * Given a {@link String}path to a directory relative to the basePath, this method checks if the directory exists and returns an
    * {@link Optional} with the {@link URI} to it, or an empty one if the directory does not exist. To check the existance of the

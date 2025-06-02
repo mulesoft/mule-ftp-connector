@@ -141,9 +141,8 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
   private void checkTimestampPrecision(FtpFileAttributes attributes) {
     if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
-      LOGGER
-          .debug(format("The timestamp precision was set to %s, but it seems like the server does not support such precision.",
-                        timeUnit));
+      LOGGER.debug("The timestamp precision was set to {}, but it seems like the server does not support such precision.",
+                   timeUnit);
     }
   }
 
@@ -189,47 +188,23 @@ public class FtpFileMatcher extends FileMatcher<FtpFileMatcher, FtpFileAttribute
     return timestampSince;
   }
 
-  public void setTimestampsince(LocalDateTime timestampSince) {
-    this.timestampSince = timestampSince;
-  }
-
   public LocalDateTime getTimestampUntil() {
     return timestampUntil;
-  }
-
-  public void setTimestampuntil(LocalDateTime timestampUntil) {
-    this.timestampUntil = timestampUntil;
   }
 
   public TimeUnit getTimeUnit() {
     return timeUnit;
   }
 
-  public void setTimeunit(TimeUnit timeUnit) {
-    this.timeUnit = timeUnit;
-  }
-
   public Long getUpdatedInTheLast() {
     return updatedInTheLast;
-  }
-
-  public void setUpdatedInThelast(Long updatedInTheLast) {
-    this.updatedInTheLast = updatedInTheLast;
   }
 
   public Long getNotUpdatedInTheLast() {
     return notUpdatedInTheLast;
   }
 
-  public void setNotUpdatedInThelast(Long notUpdatedInTheLast) {
-    this.notUpdatedInTheLast = notUpdatedInTheLast;
-  }
-
   public boolean isCaseSensitive() {
-    return caseSensitive;
-  }
-
-  public boolean getFtpFileMatcherCaseSensitive() {
     return caseSensitive;
   }
 

@@ -111,10 +111,19 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
+  public void updatedInTheLastWithZeroSecondAndNano() {
+    builder.setUpdatedInTheLast(1000L);
+    builder.setTimeUnit(TimeUnit.SECONDS);
+    LocalDateTime timestamp = LocalDateTime.now().minus(500, ChronoUnit.SECONDS).withSecond(0).withNano(0);
+    when(attributes.getTimestamp()).thenReturn(timestamp);
+    builder.setAlreadyLoggedWarning(new AtomicBoolean(false));
+    assertMatch();
+  }
+
+  @Test
   public void testCaseSensitiveGetterAndSetter() {
     builder.setFtpFileMatcherCaseSensitive(true);
     assertTrue(builder.isCaseSensitive());
-    assertTrue(builder.getFtpFileMatcherCaseSensitive());
   }
 
   @Test
@@ -152,43 +161,9 @@ public class FtpFileMatcherTestCase
   }
 
   @Test
-  public void testSetTimestampsinceWithCurrentTime() {
-    LocalDateTime currentTime = LocalDateTime.now();
-    builder.setTimestampsince(currentTime);
-    assertEquals(currentTime, builder.getTimestampSince());
-  }
-
-  @Test
-  public void testSetTimestampuntil() {
-    LocalDateTime testTimestamp = LocalDateTime.of(2024, 3, 15, 10, 30);
-    builder.setTimestampuntil(testTimestamp);
-    assertEquals(testTimestamp, builder.getTimestampUntil());
-  }
-
-  @Test
-  public void testSetTimeunit() {
-    builder.setTimeunit(TimeUnit.MINUTES);
-    assertEquals(TimeUnit.MINUTES, builder.getTimeUnit());
-  }
-
-  @Test
   public void testGetUpdatedInTheLast() {
     Long expectedValue = 5000L;
-    builder.setUpdatedInThelast(expectedValue);
+    builder.setUpdatedInTheLast(expectedValue);
     assertEquals(expectedValue, builder.getUpdatedInTheLast());
-  }
-
-  @Test
-  public void testSetUpdatedInThelast() {
-    Long testValue = 3000L;
-    builder.setUpdatedInThelast(testValue);
-    assertEquals(testValue, builder.getUpdatedInTheLast());
-  }
-
-  @Test
-  public void testSetNotUpdatedInThelast() {
-    Long testValue = 2000L;
-    builder.setNotUpdatedInThelast(testValue);
-    assertEquals(testValue, builder.getNotUpdatedInTheLast());
   }
 }

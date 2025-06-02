@@ -268,6 +268,8 @@ public abstract class FtpAbstractConnectionProvider extends FileSystemProvider<F
       case 421:
         return new FTPConnectionException(getErrorMessage(replyCode, "Service is unavailable"),
                                           SERVICE_NOT_AVAILABLE);
+      default:
+        break;
     }
     if (cause != null) {
       return new FTPConnectionException(getErrorMessage(connectionSettings, format("Error code: '%d'", replyCode)), cause,

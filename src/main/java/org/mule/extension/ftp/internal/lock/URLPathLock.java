@@ -42,6 +42,7 @@ public class URLPathLock implements PathLock, UriLock {
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("java:S2222")
   @Override
   public boolean tryLock() {
     Lock lock = getLock();
@@ -79,7 +80,7 @@ public class URLPathLock implements PathLock, UriLock {
     if (lock != null) {
       try {
         lock.unlock();
-      } catch (IllegalMonitorStateException e) {
+      } catch (Exception e) {
         // ignore
       }
     }

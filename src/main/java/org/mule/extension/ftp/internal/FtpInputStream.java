@@ -101,15 +101,16 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
   protected static class FtpFileInputStreamSupplier implements Supplier<InputStream> {
 
     private static final Logger LOGGER = getLogger(FtpFileInputStreamSupplier.class);
-    private static final String STARTING_WAIT_MESSAGE = "Starting wait to check if the file size of the file %s is stable.";
+    private static final String STARTING_WAIT_MESSAGE = "Starting wait to check if the file size of the file {} is stable.";
     private static final String FILE_NO_LONGER_EXISTS_MESSAGE =
-        "Error reading file from path %s. It no longer exists at the time of reading.";
+        "Error reading file from path {}. It no longer exists at the time of reading.";
     private static final int MAX_SIZE_CHECK_RETRIES = 2;
     private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
     private static final String WAIT_WARNING_MESSAGE =
-        "With the purpouse of performing a size check on the file %s, this thread will sleep. The connector has no control of" +
+        "With the purpouse of performing a size check on the file {}, this thread will sleep. The connector has no control of" +
             " which type of thread the sleep will take place on, this can lead to running out of thread if the time for " +
             "'timeBetweenSizeCheck' is big or a lot of files are being read concurrently. This warning will only be shown once.";
+    private static final String FILE_ON_PATH_PREFIX = "File on path ";
     private ConnectionSource<FtpFileSystem> connectionSource;
     private boolean contentProvided = false;
     private boolean contentConnectionReleased = false;
@@ -172,7 +173,7 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
         FtpFileAttributes updatedFileAttributes = getUpdatedAttributes(fileSystem);
         releaseConnection();
         if (updatedFileAttributes == null) {
-          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
+          LOGGER.error(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath());
         }
         return updatedFileAttributes;
       } catch (ConnectionException e) {
@@ -251,10 +252,10 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
         oldAttributes = updatedAttributes;
         try {
           if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(format(STARTING_WAIT_MESSAGE, attributes.getPath()));
+            LOGGER.debug(STARTING_WAIT_MESSAGE, attributes.getPath());
           }
           if (alreadyLoggedWarning.compareAndSet(false, true)) {
-            LOGGER.warn(format(WAIT_WARNING_MESSAGE, attributes.getPath()));
+            LOGGER.warn(WAIT_WARNING_MESSAGE, attributes.getPath());
           }
           sleep(timeBetweenSizeCheck);
         } catch (InterruptedException e) {
@@ -265,19 +266,19 @@ public abstract class FtpInputStream extends AbstractNonFinalizableFileInputStre
       } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize()
           && retries++ <= MAX_SIZE_CHECK_RETRIES);
       if (retries > MAX_SIZE_CHECK_RETRIES) {
-        throw new FileBeingModifiedException(createStaticMessage("File on path " + attributes.getPath()
+        throw new FileBeingModifiedException(createStaticMessage(FILE_ON_PATH_PREFIX + attributes.getPath()
             + " is still being written."));
       }
       return updatedAttributes;
     }
 
     private void onFileDeleted() {
-      throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
+      throw new DeletedFileWhileReadException(createStaticMessage(FILE_ON_PATH_PREFIX + attributes.getPath()
           + " was read but does not exist anymore."));
     }
 
     private void onFileDeleted(Exception e) {
-      throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
+      throw new DeletedFileWhileReadException(createStaticMessage(FILE_ON_PATH_PREFIX + attributes.getPath()
           + " was read but does not exist anymore."), e);
     }
   }

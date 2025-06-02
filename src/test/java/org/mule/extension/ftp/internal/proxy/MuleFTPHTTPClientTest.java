@@ -6,21 +6,14 @@
  */
 package org.mule.extension.ftp.internal.proxy;
 
-import org.apache.commons.net.ftp.FTPClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mule.extension.ftp.api.proxy.HttpsTunnelProxy;
 import org.mule.extension.ftp.api.proxy.ProxySettings;
-import org.mule.runtime.api.tls.TlsContextFactory;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
+import org.junit.Assert;
 import java.io.IOException;
-import java.net.SocketException;
 
 import static org.mockito.Mockito.*;
 
@@ -44,7 +37,7 @@ public class MuleFTPHTTPClientTest {
   @Test
   public void testConstructorWithBasicProxy() throws Exception {
     client = new MuleFTPHTTPClient(proxySettings);
-    assert client != null;
+    Assert.assertNotNull(client);
   }
 
   @Test(expected = IOException.class)

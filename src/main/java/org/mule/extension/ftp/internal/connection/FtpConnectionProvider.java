@@ -55,8 +55,7 @@ public class FtpConnectionProvider extends FtpAbstractConnectionProvider {
       } catch (Exception e) {
         throw new MuleRuntimeException(createStaticMessage("Could not create FTP client"), e);
       }
-      LOGGER.debug(format("Connecting to proxy host: '%s' at port: '%d'", proxy.getHost(),
-                          proxy.getPort()));
+      LOGGER.debug("Connecting to proxy host: '{}' at port: '{}'", proxy.getHost(), proxy.getPort());
     }
 
     if (LOGGER.isDebugEnabled()) {
