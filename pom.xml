@@ -44,7 +44,7 @@
         <file.connector.version>1.5.2</file.connector.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
-        <license.maven.plugin.version>4.5</license.maven.plugin.version>
+        <license.maven.plugin.version>4.6</license.maven.plugin.version>
         <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
         <licenseYear>2023</licenseYear>
         <mule-sdk-api.version>0.7.0</mule-sdk-api.version>
