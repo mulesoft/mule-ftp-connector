@@ -120,6 +120,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FtpFileAttrib
    */
   public Predicate<A> build() {
     Predicate<A> predicate = payload -> true;
+    predicate = addConditions(predicate);
     if (filenamePattern != null) {
       PathMatcherPredicate pathMatcher = new PathMatcherPredicate(filenamePattern, predicateType, caseSensitive);
       predicate = predicate.and(payload -> pathMatcher.test(payload.getName()));
@@ -151,8 +152,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FtpFileAttrib
       checkArgument(maxSize > 0, format(SIZE_MUST_BE_GREATER_THAN_ZERO_MESSAGE, "maxSize", maxSize));
       predicate = predicate.and(attributes -> attributes.getSize() <= maxSize);
     }
-
-    return addConditions(predicate);
+    return predicate;
   }
 
   /**
