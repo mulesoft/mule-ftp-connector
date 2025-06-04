@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   squidauth:
-    image: "robhaswell/squid-authenticated"
+    image: "manikantanr/squid-authenticated"
     container_name: squidauth${squidPortAuth}
     ports:
       - "${squidPortAuth}:3128"
